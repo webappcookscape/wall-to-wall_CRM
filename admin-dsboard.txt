@@ -1,0 +1,1995 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+                <title>CRM COOKSCAPE</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <meta content="" name="description" />
+        <meta content="ZOOT" name="author" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+        <!-- App favicon -->
+        <link rel="shortcut icon" href="https://crm.cookscape.com/global/assets/images/favicon.png">
+        <script src="https://crm.cookscape.com/global/assets/js/jquery.min.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/js/jquery-migrate-3.0.0.min.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/js/modernizr.min.js"></script>
+        <!--<link href="https://crm.cookscape.com/global/assets/bower_components/bootstrap.css" rel="stylesheet">-->
+        <!-- jquery UI -->
+        <link href="https://crm.cookscape.com/global/assets/plugins/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+
+        <!-- Modal -->
+        <link href="https://crm.cookscape.com/global/assets/plugins/custombox/css/custombox.min.css" rel="stylesheet">
+
+        <link href="https://crm.cookscape.com/global/assets/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css" rel="stylesheet">
+        <link href="https://crm.cookscape.com/global/assets/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" />
+        <link href="https://crm.cookscape.com/global/assets/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+        <link href="https://crm.cookscape.com/global/assets/plugins/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css" rel="stylesheet">
+        <link href="https://crm.cookscape.com/global/assets/plugins/bootstrap-timepicker/bootstrap-timepicker.min.css" rel="stylesheet">
+        <link href="https://crm.cookscape.com/global/assets/bower_components/timepicker/bootstrap-datetimepicker.css" rel="stylesheet">
+        <link href="https://crm.cookscape.com/global/assets/bower_components/timepicker/bootstrap-datetimepicker.min.css" rel="stylesheet">
+        <link href="https://crm.cookscape.com/global/assets/plugins/clockpicker/css/bootstrap-clockpicker.min.css" rel="stylesheet">
+        <link href="https://crm.cookscape.com/global/assets/plugins/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet">
+        <link href="https://crm.cookscape.com/global/assets/bower_components/funnel_chart/export.css" rel="stylesheet">
+
+
+        <!--Sweet Alert-->
+        <link href="https://crm.cookscape.com/global/assets/bower_components/sweetalert/sweetalert.css" rel="stylesheet">
+
+         <!-- App css -->
+        <link href="https://crm.cookscape.com/global/assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+        <link href="https://crm.cookscape.com/global/assets/css/icons.css" rel="stylesheet" type="text/css" />
+        <link href="https://crm.cookscape.com/global/assets/css/style.css" rel="stylesheet" type="text/css" />
+        <link href="https://crm.cookscape.com/global/assets/css/zoot_logo.css" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" href="https://crm.cookscape.com/global/assets/bower_components/summernote/dist/summernote-bs4.css">
+
+        <!--
+        <link href="https://crm.cookscape.com/global/assets/icon_fonts_assets/simple-line-icons/css/simple-line-icons.css" rel="stylesheet">
+        <link href="https://crm.cookscape.com/global/assets/icon_fonts_assets/simple-line-icons/css/simple-line-icons.css" rel="stylesheet">
+        <link href="https://crm.cookscape.com/global/assets/css/custom.css" rel="stylesheet" type="text/css" />
+        -->
+        <!--Chart-->
+        <script src="https://crm.cookscape.com/global/assets/bower_components/funnel_chart/amcharts.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/bower_components/funnel_chart/export.min.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/bower_components/funnel_chart/funnel.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/bower_components/funnel_chart/light.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/bower_components/funnel_chart/Chart.bundle.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/bower_components/funnel_chart/utils.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/bower_components/chart.js/dist/Chart.bundle.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/bower_components/chart.js/dist/utils.js"></script>
+ 
+    </head>
+
+    <body>
+        <!-- Navigation Bar-->
+        <header id="topnav">
+            <div class="topbar-main">
+                <div class="container-fluid">
+
+                    <!-- Logo container-->
+                    <div class="logo">
+                        <a href="https://crm.cookscape.com/" class="manufacturing"><img src="https://crm.cookscape.com/global/assets/images/logo.png" height="60"></a>
+                    </div>
+                    <!-- End Logo container-->
+
+                    <div class="menu-extras topbar-custom">
+
+                        <ul class="list-unstyled topbar-right-menu float-right mb-0">
+
+                            <li class="menu-item">
+                                <!-- Mobile menu toggle-->
+                                <a class="navbar-toggle nav-link">
+                                    <div class="lines">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
+                                </a>
+                                <!-- End mobile menu toggle-->
+                            </li>
+                        
+                            <!--<li class="dropdown notification-list hide-phone">
+                                <a class="nav-link dropdown-toggle waves-effect nav-user" data-toggle="dropdown" href="#" role="button"
+                                   aria-haspopup="false" aria-expanded="false">
+                                    <i class="mdi mdi-earth"></i> English  <i class="mdi mdi-chevron-down"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right">
+
+                                    <a href="javascript:void(0);" class="dropdown-item">
+                                        Tamil
+                                    </a>
+
+                                    <a href="javascript:void(0);" class="dropdown-item">
+                                        Hindi
+                                    </a>
+                                </div>
+                            </li>-->
+                        
+                                                                
+                                    <!--<li class="">
+                                                                                <h4 style="padding:10px;">SMS Balance : <span style="color: red;"> </span></h4>
+                                    </li>-->
+                                    <li class="dropdown notification-list">
+                                                                                <a class="nav-link dropdown-toggle arrow-none waves-effect" data-toggle="dropdown" href="#" role="button"
+                                           aria-haspopup="false" aria-expanded="false">
+                                            <i class="fi-bell noti-icon"></i>
+                                            <span class="badge badge-danger badge-pill noti-icon-badge">0</span>
+                                        </a>                                
+                                            <div class="dropdown-menu dropdown-menu-right dropdown-lg">
+                                                <!--<div class="dropdown-item noti-title">
+                                                    <h6 class="m-0"><span class="float-right"><a href="#" class="text-dark"><!--<small>Clear All</small></a> </span>Notification</h6>
+                                                </div>-->
+                                                <div class="card-box slimscroll inbox-widget" style="margin-bottom:0;">
+                                                                                                    </div>
+
+                                                <a href="https://crm.cookscape.com/remainders" class="dropdown-item text-center text-primary notify-item notify-all">
+                                                    View all <i class="fi-arrow-right"></i>
+                                                </a>
+
+                                            </div>
+                                    </li>
+                                    
+                            <!--<li class="dropdown notification-list">
+                                <a class="nav-link dropdown-toggle arrow-none waves-effect" data-toggle="dropdown" href="#" role="button"
+                                   aria-haspopup="false" aria-expanded="false">
+                                    <i class="fi-speech-bubble noti-icon"></i>
+                                    <span class="badge badge-dark badge-pill noti-icon-badge">6</span>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right dropdown-lg">
+                                    <div class="dropdown-item noti-title">
+                                        <h6 class="m-0"><span class="float-right"><a href="#" class="text-dark"><small>Clear All</small></a> </span>Chat</h6>
+                                    </div>
+
+                                    <div class="slimscroll" style="max-height: 230px;">
+                                        
+                                    </div>
+
+                                    <a href="javascript:void(0);" class="dropdown-item text-center text-primary notify-item notify-all">
+                                        View all <i class="fi-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </li>-->
+                            
+                            <li class="dropdown notification-list">
+                                <a class="nav-link dropdown-toggle waves-effect nav-user" data-toggle="dropdown" href="#" role="button"
+                                   aria-haspopup="false" aria-expanded="false">
+                                                                               <img src="https://crm.cookscape.com/global/assets/images/users/avatar-1.jpg" alt="user" class="rounded-circle"> 
+                                                                            <span class="ml-1 pro-user-name">Gopi APK <i class="mdi mdi-chevron-down"></i> </span>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right profile-dropdown ">
+                                    <!-- item-->
+                                    <div class="dropdown-item noti-title">
+                                        <h6 class="text-overflow m-0">
+                                            Welcome Gopi APK!
+                                        </h6>
+                                    </div>
+
+                                    <a href="https://crm.cookscape.com/modules/users/myProfile" class="dropdown-item notify-item">
+
+                                        <i class="fi-head"></i> <span>My Profile</span>
+                                    </a>
+
+                                    <!-- item
+                                    <a href="javascript:void(0);" class="dropdown-item notify-item">
+                                        <i class="fi-cog"></i> <span>Settings</span>
+                                    </a>
+
+                                    <a href="javascript:void(0);" class="dropdown-item notify-item">
+                                        <i class="fi-help"></i> <span>Support</span>
+                                    </a>
+
+                                    <a href="javascript:void(0);" class="dropdown-item notify-item">
+                                        <i class="fi-lock"></i> <span>Lock Screen</span>
+                                    </a>
+                                    -->
+
+                                    <!-- item-->
+                                    <a href="https://crm.cookscape.com/logout" class="dropdown-item notify-item">
+                                        <i class="fi-power"></i> <span>Logout</span>
+                                    </a>
+
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- end menu-extras -->
+
+                    <div class="clearfix"></div>
+
+                </div> <!-- end container -->
+            </div>
+            <!-- end topbar-main -->
+
+            <div class="navbar-custom">
+                <div class="container-fluid">
+                    <div id="navigation">
+                        <!-- Navigation Menu-->
+<ul class="navigation-menu">    
+            <li class="nav-menu">
+            <a title="Dashboard" href="https://crm.cookscape.com/"><i class="fas fa-home"></i> Dashboard</a>
+        </li>
+        <li class="has-submenu">
+            <a href="#"><i class="fa fa-cog"></i> Settings</a>
+            <ul class="submenu">
+                <!-- <li><a href="https://crm.cookscape.com/modules/Modules/add"> Module Management</a></li>
+                <li><a href="https://crm.cookscape.com/modules/Moduleoperations/add"> Role Management</a></li>
+                <li><a href="https://crm.cookscape.com/modules/Roles/add"> Settings</a></li>-->
+                <li class="has-submenu"><a href="#"> Master</a>
+                    <ul class="submenu">
+                        <li><a href="https://crm.cookscape.com/stages"> Stages</a></li>
+                        <li><a href="https://crm.cookscape.com/source"> Source</a></li>
+                        <li><a href="https://crm.cookscape.com/split_Up"> Split Up</a></li>
+                        <li><a href="https://crm.cookscape.com/activity"> Activity</a></li>
+                        <li><a href="https://crm.cookscape.com/salutation"> Salutation</a></li>
+                        <li><a href="https://crm.cookscape.com/leadTag"> Lead Tags</a></li>
+                        <li><a href="https://crm.cookscape.com/showroom"> Showroom</a></li>
+                        <li><a href="https://crm.cookscape.com/lead_status"> Lead Status</a></li>
+                        <li><a href="https://crm.cookscape.com/bank_details"> Bank Details</a></li>
+                        <li><a href="https://crm.cookscape.com/Scope_of_work"> Scope of work</a></li>
+                        <li><a href="https://crm.cookscape.com/vendor_source"> Vendor Source</a></li>
+                        <li><a href="https://crm.cookscape.com/payment_mode"> Payment Mode</a></li>
+                        <li><a href="https://crm.cookscape.com/Production_hold"> Production Hold</a></li>
+                        <li><a href="https://crm.cookscape.com/work_notification"> Work Notification</a></li>
+                        <li><a href="https://crm.cookscape.com/project"> Projects</a></li>
+                    </ul>
+                </li>
+                <li class="has-submenu"><a href="#"> Online Questions</a>
+                    <ul class="submenu">
+                        <li><a href="https://crm.cookscape.com/Question_category"> Question Category</a></li>
+                        <li><a href="https://crm.cookscape.com/Question"> Question</a></li>
+                    </ul>
+                </li>                
+                <li><a href="https://crm.cookscape.com/sms_template"> SMS Template</a></li>
+                <li><a href="https://crm.cookscape.com/email_template"> Email Template</a></li>
+                <!--<li><a href="https://crm.cookscape.com/custom_file"> Custom File Upload</a></li>-->
+                <li><a href="https://crm.cookscape.com/modules/Users"> User Management</a></li>
+                <li><a href="https://crm.cookscape.com/modules/Customers"> Customer Management</a></li>
+                <li><a href="https://crm.cookscape.com/sign_photo"> Signature Photo</a></li>
+            </ul>
+        </li>
+        <!--<li class="has-submenu">
+            <a href="#"><i class="fa fa-asterisk"></i> Master</a>
+            <ul class="submenu">
+                
+            </ul>
+        </li> -->
+        <li class="nav-menu">
+            <a title="Lead Hub" href="https://crm.cookscape.com/lead_hub"><i class="fa fa-users"></i> Lead Hub <span style="margin-top: -5px; " class="badge badge-danger badge-pill noti-icon-badge">19</span></a>
+        </li>
+        <li class="nav-menu">
+            <a title="Leads" href="https://crm.cookscape.com/lead/assignLeads"><i class="fa fa-user"></i> Leads <span style="margin-top: -5px; " class="badge badge-danger badge-pill noti-icon-badge">14.2k</span></a>
+        </li>        
+        <li class="has-submenu">
+            <a href="#"><i class="fa fa-tasks"></i> Task <span style="margin-top: -5px; " class="badge badge-danger badge-pill noti-icon-badge"> 7</span></a>
+            <ul class="submenu">
+                <li><a href="https://crm.cookscape.com/task_list"> General Task <span style="margin-top: -5px; display: inline-block; background-color: var(--red); padding:3px 5px; color: #fff; border-radius:50px; font-weight: 600;" class="">7</span></a></li>
+                <li><a href="https://crm.cookscape.com/closedTask"> Closed Task <span style="margin-top: -5px; display: inline-block; background-color: var(--red); padding:3px 5px; color: #fff; border-radius:50px; font-weight: 600;" class="">21</span></a></li>
+            </ul>
+        </li>
+        <li class="nav-menu">
+            <a title="Showroom Visit" href="https://crm.cookscape.com/showroom/showRoomVisit"><i class="fas fa-sitemap"></i> Showroom Visit <span style="margin-top: -5px; " class="badge badge-danger badge-pill noti-icon-badge">350</span></a>
+        </li>
+        <li class="nav-menu">
+            <a title="Appointment" href="https://crm.cookscape.com/appointment"><i class="fas fa-calendar-check"></i> Appointment <span style="margin-top: -5px; " class="badge badge-danger badge-pill noti-icon-badge">84</span></a>
+        </li>
+        <li class="nav-menu">
+            <a title="Remainders" href="https://crm.cookscape.com/remainders"><i class="fa fa-bell"></i> Reminders  <span style="margin-top: -5px; " class="badge badge-danger badge-pill noti-icon-badge">0</span></a>
+        </li>
+        <!--<li class="has-submenu">
+            <a href="#"><i class="fa fa-comments"></i> Communications</a>
+            <ul class="submenu">
+            </ul>
+        </li>
+        <li class="nav-menu">
+            <a title="Report" href="https://crm.cookscape.com/report"><i class="fas fa-flag"></i> Report</a>
+        </li> -->
+        <li class="nav-menu">
+            <a title="Material Request" href="https://crm.cookscape.com/request"><i class="fas fa-clock"></i> Material Request<span style="margin-top: -5px; " class="badge badge-danger badge-pill noti-icon-badge">10</span></a>
+        </li>
+
+        <li class="has-submenu">
+            <a href="#"><i class="fa fa-flag"></i> Report</a>
+            <ul class="submenu">                
+                <li><a href="https://crm.cookscape.com/leadReport"> Lead Report</a></li>
+                <li><a href="https://crm.cookscape.com/report"> User's Activity</a></li>
+                <li><a href="https://crm.cookscape.com/designerReport"> Designer Report</a></li>
+                <li><a href="https://crm.cookscape.com/mailSentReport"> Mail Sent Report</a></li>
+                <li><a href="https://crm.cookscape.com/progressReport"> Progress Report</a></li>
+                <li><a href="https://crm.cookscape.com/campaginReport"> Campagin Report</a></li>
+                <li><a href="https://crm.cookscape.com/attendance"> Attendance Report</a></li>
+                <li class="has-submenu">
+                    <a href="#">Payment Report</a>
+                    <ul class="submenu" style="left: -220px;">
+                        <li><a href="https://crm.cookscape.com/paymentReceiptReport"> Payment Receipt Report</a></li>
+                        <li><a href="https://crm.cookscape.com/paymentRequestReport"> Payment Request Report</a></li>
+                    </ul>
+                </li>
+                <li><a href="https://crm.cookscape.com/installationReport"> Installation Chart Report</a></li>                
+                <li><a href="https://crm.cookscape.com/dashboardCountReport"> Dashboard Count Report</a></li>                
+            </ul>
+        </li>
+        </ul> 
+<!-- End navigation menu -->                    </div> <!-- end #navigation -->
+                </div> <!-- end container -->
+            </div> <!-- end navbar-custom -->
+        </header>
+        <!-- End Navigation Bar-->
+
+
+        <div class="wrapper">
+            <div class="container-fluid">
+
+                <!-- Page-Title
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="page-title-box">
+                            <div class="btn-group pull-right">
+                                <ol class="breadcrumb hide-phone p-0 m-0">
+                                    <li class="breadcrumb-item"><a href="#">Zoot</a></li>
+                                    <li class="breadcrumb-item active">Dashboard</li>
+                                </ol>
+                            </div>
+                            <h4 class="page-title">Dashboard</h4>
+                        </div>
+                    </div>
+                </div>
+                 end page title end breadcrumb -->
+
+                <script>
+    $.ajax({
+          type: "GET",
+          url: "https://crm.cookscape.com/Dashboard/get_fresh_leads",         
+          success: function(data)
+          {
+            var rows=JSON.parse(data);           
+            $('.freshlead').text(rows.freshlead);
+          //  $('.noti-icon-badge').text(rows.freshlead);
+            $('.yetto').text(rows.yettofollow);
+            $('.followup').text(rows.followup);
+            $('.opp').text(rows.opportunities);
+            $('.ordr').text(rows.orderbook);
+            $('.showrm').text(rows.showRoomVisit);
+            $('.appointmnt').text(rows.appointment);
+            $('.disq').text(rows.disqualified);
+            $('.intern').text(rows.internal);
+            $('.creled').text(rows.creleads);
+            $('.fesled').text(rows.fealeads);
+            $('.designled').text(rows.designlead);
+            $('.opendes').text(rows.openDesignerCount);
+            $('.closedes').text(rows.closeDesignerCount);
+            
+          }
+        });
+
+</script>
+ <!-- Page-Title -->
+<div class="row" style="padding-top: 20px;">
+    <div class="col-sm-10">
+        <div class="page-title-box">
+            <div class="btn-group pull-right">
+                <div class="project-sort">
+                    <div class="project-sort-item">
+                        <!--<form class="form-inline" action="https://crm.cookscape.com/dashboard" method="post" class="form-custom"> 
+                            <div class="form-group">
+                                <label for="phase-select">From Date :</label>
+                                <input type="text" name="from_date" id="from_date" class="single-daterange form-control ml-2 form-control-sm" value="">
+                            </div>
+                            <div class="form-group">
+                                <label for="sort-select">To Date :</label>
+                                <input type="text" name="to_date" id="to_date" class="single-daterange form-control ml-2 form-control-sm" value="">
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group float-left">
+                                    <label class="col-form-label"></label>
+                                    <button class="btn btn-custom btn-rounded w-md waves-effect waves-light pull-right" type="submit" name="submit"><i class="fa fa-search"></i>
+                                    Search</button>
+                                </div>
+                            </div>
+                        </form>-->
+                    </div>
+                </div>
+            </div>
+            <h4 class="page-title">Dashboard</h4>
+        </div>
+    </div>    
+    <div class="col-md-2">
+                <h4 style="padding:12px;">SMS Balance <span style="color: red;"> 87561</span></h4>               
+    </div>
+</div>
+
+
+<!--designer-->
+        <div class="row">
+                                    <div class="col-xs-12 col-md-6 col-lg-6 col-xl-3">
+                            <a href="https://crm.cookscape.com/lead_hub">
+                                <div class="card-box tilebox-one">
+                                    <i class="mdi mdi-new-box float-right text-muted"></i>
+                                    <h6 class="text-muted text-uppercase mt-0">Fresh Leads</h6>
+                                    <h2 class="m-b-20 freshlead" data-plugin="counterup">19</h2>
+                                </div>
+                            </a>
+                        </div>
+                                <div class="col-xs-12 col-md-6 col-lg-6 col-xl-3">
+                <div class="card-box tilebox-one">
+                    <a href="https://crm.cookscape.com/lead/assignLeads/0/0/0/1">
+                        <i class="mdi mdi-bell-ring-outline float-right text-muted"></i>
+                        <h6 class="text-muted text-uppercase mt-0">Yet To Follow-up</h6>
+                        <h2 class="m-b-20 yetto" data-plugin="counterup">228</h2>
+                    </a>
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-6 col-lg-6 col-xl-3">
+                <div class="card-box tilebox-one">
+                    <a href="https://crm.cookscape.com/lead/assignLeads/0/0/0/2">
+                        <i class="icon-user-following float-right text-muted"></i>
+                        <h6 class="text-muted text-uppercase mt-0">Follow-ups</h6>
+                        <h2 class="m-b-20 followup"><span data-plugin="counterup">13617</span></h2>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-xs-12 col-md-6 col-lg-6 col-xl-3">
+                <div class="card-box tilebox-one">
+                    <a href="https://crm.cookscape.com/lead/assignLeads/0/0/0/3">
+                        <i class="icon-people float-right text-muted"></i>
+                        <h6 class="text-muted text-uppercase mt-0">Opportunities</h6>
+                        <h2 class="m-b-20 opp"><span data-plugin="counterup">409</span></h2>
+                    </a>
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-6 col-lg-6 col-xl-3">
+                <div class="card-box tilebox-one">
+                    <a href="https://crm.cookscape.com/lead/assignLeads/0/0/0/7">
+                        <i class="mdi mdi-baby-buggy float-right text-muted"></i>
+                        <h6 class="text-muted text-uppercase mt-0">Order Booked</h6>
+                        <h2 class="m-b-20 ordr"><span data-plugin="counterup">3274</span></h2>
+                    </a>
+                </div>
+            </div>
+            <!--<div class="col-xs-12 col-md-6 col-lg-6 col-xl-3">
+                <div class="card-box tilebox-one">
+                    <a href="https://crm.cookscape.com/lead/assignLeads/0/0/0/4">
+                        <i class="icon-chart float-right text-muted"></i>
+                        <h6 class="text-muted text-uppercase mt-0">Design Measurement</h6>
+                        <h2 class="m-b-20"><span data-plugin="counterup"></span></h2>
+                    </a>
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-6 col-lg-6 col-xl-3">
+                <div class="card-box tilebox-one">
+                    <a href="https://crm.cookscape.com/lead/assignLeads/0/0/0/5">
+                        <i class="icon-chart float-right text-muted"></i>
+                        <h6 class="text-muted text-uppercase mt-0">Final Measurement</h6>
+                        <h2 class="m-b-20"><span data-plugin="counterup"></span></h2>
+                    </a>
+                </div>
+            </div>-->
+            <div class="col-xs-12 col-md-6 col-lg-6 col-xl-3">
+                <a href="https://crm.cookscape.com/showroom/showRoomVisit">
+                    <div class="card-box tilebox-one">
+                        <i class="mdi mdi-sitemap float-right text-muted"></i>
+                        <h6 class="text-muted text-uppercase mt-0">Showroom Visit</h6>
+                        <h2 class="m-b-20 showrm"><span data-plugin="counterup">350</span></h2>
+                    </div>
+                </a>
+            </div>
+            <div class="col-xs-12 col-md-6 col-lg-6 col-xl-3">
+                <a href="https://crm.cookscape.com/appointment">
+                    <div class="card-box tilebox-one">
+                        <i class="mdi mdi-calendar-check float-right text-muted"></i>
+                        <h6 class="text-muted text-uppercase mt-0">Appointment Fix</h6>
+                        <h2 class="m-b-20 appointmnt"><span data-plugin="counterup">84</span></h2>
+                    </div>
+                </a>
+            </div>
+            <div class="col-xs-12 col-md-6 col-lg-6 col-xl-3">
+                <a href="https://crm.cookscape.com/lead/assignLeads/0/0/0/8">
+                    <div class="card-box tilebox-one">
+                        <i class="mdi mdi-account-off float-right text-muted"></i>
+                        <h6 class="text-muted text-uppercase mt-0">Disqualified</h6>
+                        <h2 class="m-b-20 disq"><span data-plugin="counterup">70053</span></h2>
+                    </div>
+                </a>
+            </div>    
+                                </div>
+
+        <!--Dashboard for loading login-->
+                        <div class="row">
+                                    </div>
+                        <!--Dashboard for loading login ends-->
+
+
+        <!--Remainder,Task ,Assign Counts-->
+                        <div class="row">
+                    <div class="col-lg-4">
+                        <div class="card-box">
+                            <h4 class="header-title mb-4">Reminders<i style="font-size:22px;" class="fi-bell noti-icon"></i><span style="margin-left:-8px; margin-top: -5px; position: absolute; " class="badge badge-danger badge-pill noti-icon-badge">0</span></h4>
+
+                            <div class="inbox-widget slimscroll" style="min-height: 465px; max-height: 465px;">
+                                                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card-box">
+                            <h4 class="header-title mb-4">Internal Task<i style="font-size:22px;" class="fi-bell noti-icon"></i><span style="margin-left:-8px; margin-top: -5px; position: absolute; " class="badge badge-danger badge-pill noti-icon-badge">2</span> <button type="button" class="btn pull-right btn-success waves-effect waves-light btn-sm" onclick="addNewPop('Task_list/genrelTask');"><i class="fa fa-plus m-r-5"></i>  Create</button></h4>
+
+                            <div class="comment-list slimscroll" style="min-height: 465px; max-height: 465px;">
+                                                                        <div class="comment-box-item">
+                                            <div class="badge badge-pill badge-danger">High</div>
+                                            <p class="commnet-item-date">June 30, 2024 05:25 PM</p>
+                                            <h6 class="commnet-item-msg">Proposal report</h6>
+                                            <p class="text-muted">Prabin Jose&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                                            June 30, 2024 10:10 AM</p>
+                                            <hr>
+                                        </div>
+                                                                            <div class="comment-box-item">
+                                            <div class="badge badge-pill badge-warning">Medium</div>
+                                            <p class="commnet-item-date">January 9, 2026 01:10 PM</p>
+                                            <h6 class="commnet-item-msg">Mr. Sundar</h6>
+                                            <p class="text-muted">Ragulanth G&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                                            December 16, 2025 01:12 PM</p>
+                                            <hr>
+                                        </div>
+                                                                </div>
+
+                        </div>
+                    </div>
+                                                <div class="col-lg-4">                                
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <a href="https://crm.cookscape.com/task_list">
+                                            <div class="card-box tilebox-one">
+                                                <i class="icon-list float-right text-muted"></i>
+                                                <h6 class="text-muted text-uppercase mt-0">Internel Task</h6>
+                                                <h2 class="m-b-20 intern" data-plugin="counterup">7</h2>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <a href="https://crm.cookscape.com/lead/assignLeads/0/0/7">
+                                            <div class="card-box tilebox-one">
+                                                <i class="icon-user float-right text-muted"></i>
+                                                <h6 class="text-muted text-uppercase mt-0">Assign Leads for CRE</h6>
+                                                <h2 class="m-b-20 creled" data-plugin="counterup">9401</h2>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <a href="https://crm.cookscape.com/lead/assignLeads/0/0/6">
+                                            <div class="card-box tilebox-one">
+                                                <i class="icon-user-following float-right text-muted"></i>
+                                                <h6 class="text-muted text-uppercase mt-0">Assign Leads for Feasibility</h6>
+                                                <h2 class="m-b-20 fesled" data-plugin="counterup">2146</h2>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div> 
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <a href="https://crm.cookscape.com/lead/assignLeads/0/0/5">
+                                            <div class="card-box tilebox-one">
+                                                <i class="icon-people float-right text-muted"></i>
+                                                <h6 class="text-muted text-uppercase mt-0">Assign Leads for Designer</h6>
+                                                <h2 class="m-b-20 designled" data-plugin="counterup">856</h2>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>                       
+                            </div>
+                                        </div>
+                        <!-- end row -->
+
+        <!--CHARTS-->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card-box">
+                    <h4 class="header-title mb-3">Lead Activity Chart</h4>
+                        <div id="chartdiv"></div>
+                </div>
+            </div>
+                                <div class="col-lg-4">
+                        <div class="card-box">
+                            <h4 class="m-t-0 header-title">Task Activity Chart</h4>
+                                <div class="pie-chart-container">
+                                  <canvas id="chart_pie" style="width: 100%;"></canvas>
+                                </div>
+                                <table class="table table-bordered" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th><center>Task</center></th>
+                                            <th><center>Count</center></th>
+                                        </tr>
+                                    </thead>
+                                      <tbody>
+                                                                                  <tr>
+                                              <td><center>Todo</center></td>
+                                              <td><center>2</center></td>
+                                            </tr>
+                                                                                    <tr>
+                                              <td><center>Inprogress</center></td>
+                                              <td><center>1</center></td>
+                                            </tr>
+                                                                                    <tr>
+                                              <td><center>Completed</center></td>
+                                              <td><center>4</center></td>
+                                            </tr>
+                                                                                    <tr>
+                                              <td><center>Close</center></td>
+                                              <td><center>21</center></td>
+                                            </tr>
+                                                                              </tbody>
+                                </table> 
+                        </div>
+                    </div>
+                            </div>
+        <!--CHART END-->
+        
+<!-- MODAL WINDOW Add New content-->
+<div class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!--<div class="modal-header">
+                <button type="button" class="close btn btn-danger" data-dismiss="modal">&times;</button>   
+                <div class="header-bottom-border">
+                    <h4 class="modal-title">General Task</h4>
+                </div>
+            </div>-->
+            <div class="modal-body">
+            </div>
+            <!--
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+            -->
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function() {
+    "use strict";        
+    var e = $("#chart_verticalBar"),
+        t = (new Chart(e, {
+            type: "bar",
+            data: {
+                labels: [],
+                datasets: [{
+                                label: "Leads",
+                                data: [],
+                                backgroundColor: "#2089F0"
+                            }]
+            },
+            options: {
+                legend: {
+                    display: !1
+                },
+                tooltips: {
+                    mode: "index",
+                    intersect: !1
+                },
+                responsive: !0,
+                scales: {
+                    xAxes: [{
+                        stacked: !0
+                    }],
+                    yAxes: [{
+                        stacked: !0
+                    }]
+                }
+            }
+        }), $("#chart_pie"));
+
+        
+    new Chart(t, {
+        type: "pie",
+        data: {
+            labels: ["Todo","Inprogress","Completed","Close"],
+            datasets: [{
+                label: "Category Wise Sales",
+                data: [2,1,4,21],
+                backgroundColor: ["#8ed244","#ee1cca","#fbf35a","#8101c8"]
+            }]
+        },
+        options: {
+            legend: {
+                display: !1
+            },
+            responsive: !1
+        }
+    });
+
+
+ 
+
+
+});
+
+  var chart = AmCharts.makeChart( "chartdiv", {
+
+  "type": "funnel",
+  
+  "dataProvider":   
+  [
+    {
+    "title": "Total Leads",
+    "value": "247"
+
+  },  {
+    "title": "Followup Leads",
+    "value": "13617"
+
+  },  {
+    "title": "opportunity Leads",
+    "value": "409"
+
+  },],      
+
+  "balloon": {
+    "fixedPosition": true
+  },
+  "valueField": "value",
+  "titleField": "title",
+  "marginRight": 240,
+  "marginLeft": 50,
+  "startX": -500,
+  "depth3D": 100,
+  "angle": 40,
+  "outlineAlpha": 1,
+  "outlineColor": "#FFFFFF",
+  "outlineThickness": 2,
+  "labelPosition": "right",
+  "colors" : ["#00BCD4", "#EB4386", "#3373ED", "#7519C8", "#28C9A2", "#FCD202", "#F8FF01", "#B0DE09", "#04D215", "#0D8ECF", "#0D52D1", "#2A0CD0", "#8A0CCF", "#CD0D74", "#754DEB", "#DDDDDD", "#999999", "#333333", "#000000", "#57032A", "#CA9726", "#990000", "#4B0C25"],
+  "balloonText": "[[title]]: [[value]][[description]]",
+  "export": {
+    "enabled": false
+  }
+} );
+
+
+
+   
+        
+   
+
+
+
+
+</script>
+<style type="text/css">
+  #chartdiv {
+  max-width: 700px;
+  height: 500px;
+}   
+</style>               
+
+            </div> <!-- end container -->
+        </div>
+        <!-- end wrapper -->
+
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 text-center">
+                        2026 &copy; CRM COOKSCAPE. All rights reserved.
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- End Footer -->
+
+
+        <!-- jQuery  
+        <script src="https://crm.cookscape.com/global/assets/js/jquery.min.js"></script>-->
+        <script src="https://crm.cookscape.com/global/assets/js/popper.min.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/js/bootstrap.min.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/js/waves.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/js/jquery.slimscroll.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/plugins/waypoints/lib/jquery.waypoints.min.js"></script>
+
+        <!-- Sweet alert -->
+        <script src="https://crm.cookscape.com/global/assets/bower_components/sweetalert/sweetalert.min.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/bower_components/sweetalert/jquery.sweet-alert.custom.js"></script>
+
+        <!-- Flot chart -->
+        <script src="https://crm.cookscape.com/global/assets/plugins/flot-chart/jquery.flot.min.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/plugins/flot-chart/jquery.flot.time.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/plugins/flot-chart/jquery.flot.tooltip.min.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/plugins/flot-chart/jquery.flot.resize.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/plugins/flot-chart/jquery.flot.pie.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/plugins/flot-chart/jquery.flot.crosshair.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/plugins/flot-chart/curvedLines.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/plugins/flot-chart/jquery.flot.axislabels.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/plugins/bootstrap-filestyle/js/bootstrap-filestyle.min.js" type="text/javascript"></script>
+        <script src="https://crm.cookscape.com/global/assets/plugins/bootstrap-maxlength/bootstrap-maxlength.js" type="text/javascript"></script>
+
+        <!-- Jquery Ui js -->
+        <script src="https://crm.cookscape.com/global/assets/plugins/jquery-ui/jquery-ui.min.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/plugins/bootstrap-tagsinput/js/bootstrap-tagsinput.min.js"></script>
+
+        <!-- Modal-Effect -->
+        <script src="https://crm.cookscape.com/global/assets/plugins/custombox/js/custombox.min.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/plugins/custombox/js/legacy.min.js"></script>
+
+        <!-- KNOB JS -->
+        <!--[if IE]>
+        <script type="text/javascript" src="../plugins/jquery-knob/excanvas.js"></script>
+        <![endif]-->
+        <script src="https://crm.cookscape.com/global/assets/plugins/jquery-knob/jquery.knob.js"></script>
+
+        <!-- Dashboard Init 
+        <script src="https://crm.cookscape.com/global/assets/pages/jquery.dashboard.init.js"></script>-->
+
+        <!-- App js 
+        <script src="https://crm.cookscape.com/global/assets/js/jquery.core.js"></script>-->
+        <script src="https://crm.cookscape.com/global/assets/js/jquery.app.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+
+        <script src="https://crm.cookscape.com/global/assets/js/dataTables.bootstrap4.min.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/plugins/select2/js/select2.min.js" type="text/javascript"></script>
+        <script src="https://crm.cookscape.com/global/assets/plugins/bootstrap-select/js/bootstrap-select.js" type="text/javascript"></script>
+
+        <script src="https://crm.cookscape.com/global/assets/plugins/moment/moment.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/plugins/bootstrap-timepicker/bootstrap-timepicker.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/plugins/clockpicker/js/bootstrap-clockpicker.min.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/plugins/bootstrap-daterangepicker/daterangepicker.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
+
+        <!-- Init js -->
+        <script src="https://crm.cookscape.com/global/assets/pages/jquery.form-pickers.init.js"></script>
+         <!-- Init Js file -->
+        <script type="text/javascript" src="https://crm.cookscape.com/global/assets/pages/jquery.form-advanced.init.js"></script>
+
+        <!-- Fontawesome-->
+        <script href="https://crm.cookscape.com/global/assets/svg-with-js/js/fontawesome-all.min.js" type="text/javascript"></script>
+        <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+        <script type="text/javascript" src="https://crm.cookscape.com/global/assets/bower_components/summernote/dist/summernote-bs4.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/bower_components/timepicker/bootstrap-datetimepicker.js"></script>
+        <script src="https://crm.cookscape.com/global/assets/bower_components/timepicker/bootstrap-datetimepicker.min.js"></script>
+        <!--Datatable Button print-->
+        <script src="https://crm.cookscape.com/global/assets/js/button/dataTables.select.min.js" type="text/javascript"></script>
+        <script src="https://crm.cookscape.com/global/assets/js/button/dataTables.buttons.min.js" type="text/javascript"></script>
+        <script src="https://crm.cookscape.com/global/assets/js/button/jszip.min.js" type="text/javascript"></script>
+        <script src="https://crm.cookscape.com/global/assets/js/button/pdfmake.min.js" type="text/javascript"></script>
+        <script src="https://crm.cookscape.com/global/assets/js/button/vfs_fonts.js" type="text/javascript"></script>
+        <script src="https://crm.cookscape.com/global/assets/js/button/buttons.html5.min.js" type="text/javascript"></script>
+        <script src="https://crm.cookscape.com/global/assets/js/button/buttons.print.min.js" type="text/javascript"></script>
+        <script type="text/javascript">
+
+function submitDetailsForm() {
+            // When the form is submitted
+      $("#ajaxModelForm").submit(function()
+      { 
+        // 'this' refers to the current submitted form 
+        var str       = $(this).serialize();
+        var actionUrl = $(this).data('action');
+        var model_no1  = $(this).data('model_no');
+        (typeof model_no1 == 'undefined') ? (model_no='1') : (model_no = model_no1);
+        console.log(model_no);
+        $.ajax({
+        type: "POST",
+        url: actionUrl, 
+        data: {postdata: str},
+        dataType:"html",
+          success: function(html1)
+          {
+            try 
+            {
+              var parsedJson = JSON.parse(html1);
+              if(parsedJson.result == 'success')
+              {
+                var parsedJson = JSON.parse(html1);
+                $('.modal').modal('hide');
+                if(parsedJson.URL==null)
+                {
+                  location.reload();
+                }
+                else
+                {
+                  window.location.href = 'https://crm.cookscape.com/'+parsedJson.URL;
+                }
+              }       
+            } 
+            catch(e) 
+            {
+              $(".modal-body").html(html1); // msg in modal body
+              $(".modal").modal("show"); // show modal instead alert box
+              $('.summernote').summernote({
+                height: 100,
+                disableResizeEditor: true
+              });
+            }
+          },
+        });
+      }); // end submit event s
+    }
+
+  $(document).ready(function ()
+  {       
+      // Select2
+      $('.select2').select2();
+
+      $('.select2').each(function() {
+        $(this).select2({ dropdownParent: $(this).parent()});
+    })
+
+      var date = new Date();
+      $('.datetimepicker').datetimepicker({
+        startDate: date,
+        autoclose: true
+      });      
+  
+      $('.single-daterange').daterangepicker(
+      {          
+        singleDatePicker: true,          
+        //autoUpdateInput: false,
+        locale: {
+                  format: 'YYYY-MM-DD'
+                }        
+      }); 
+      /*function(chosen_date) 
+      {          
+        $('.single-daterange').val(chosen_date.format('YYYY-MM-DD'));
+      });*/
+
+      $('#leadTableId').on('click', '.click', function () 
+      {
+        $(".task-warning").removeClass("addTaskClass");
+        lead_id     = $(this).data('lead_id');
+        var trimStr = $.trim(lead_id);
+        $("#task_"+trimStr).addClass("addTaskClass");
+          $.ajax({
+            type : "POST",
+            url  : 'https://crm.cookscape.com/Lead/getLeadDetails',
+            data : {'lead_id' : lead_id},
+            success : function(data)
+            {
+              $('#LeadDetails').html(data);
+            },
+          });
+      });
+
+      //Summer Note
+      $('.summernote').summernote({
+        height: 100,
+        disableResizeEditor: true
+      });
+
+      snRepair = function (node) {
+        var w = $('#' + node).width();
+        var h = $('#' + node).height();
+        var l = (w - $('#' + node).find('.modal-dialog:first').outerWidth())/-2 + 'px';
+        $('.note-image-dialog,.note-link-dialog,.note-help-dialog').css('overflow','visible');
+        $('.note-image-dialog,.note-link-dialog,.note-help-dialog').css('height',h);
+        $('.note-image-dialog,.note-link-dialog,.note-help-dialog').css('width',w);
+        $('.note-image-dialog,.note-link-dialog,.note-help-dialog').css('top','-30px');
+        $('.note-image-dialog,.note-link-dialog,.note-help-dialog').css('left',l);
+      };
+
+      $(window).resize(function() 
+      {
+        snRepair(name_of_summenrnote_instance);
+      })
+
+      $(".closeModal").click(function () 
+      {
+        $(".modalWindow").modal("hide");
+      });
+
+      var openModalsCount = 0;
+      $('.modal').on('shown.bs.modal', function() {
+          openModalsCount++;
+      }).on('hidden.bs.modal', function() {
+          openModalsCount--;
+          if (openModalsCount > 0) $('body').addClass('modal-open');
+      });
+
+      // Toggle Menu
+      $('legend').click(function() {
+          var $this = $(this);
+          var parent = $this.parent();
+          var contents = parent.contents().not(this);
+          if (contents.length > 0) {
+              $this.data("contents", contents.remove());
+          } else {
+              $this.data("contents").appendTo(parent);
+          }
+          return false;
+      });
+
+      //Table to Datatable Convertion
+      var oTable = $('#dataTableView').dataTable
+      ({
+        "dom"             : 'lBfrtip',
+        "buttons"         : [ 'copy','excel'],
+        "sScrollX"        : "100%",
+        "sScrollY"        : "500px",            
+        "sScrollXInner"   : "100%",
+        "bScrollCollapse" :  true,
+        "paging"          : true,              
+        "bProcessing"     : true,
+        responsive        : true,
+        "bJQueryUI"       : true,
+        "sPaginationType" : "full_numbers",
+        "iDisplayStart "  :20,
+      });
+
+      
+      // When the form is submitted
+      $("#ajaxModelForm").submit(function()
+      { 
+        // 'this' refers to the current submitted form 
+        var str       = $(this).serialize();
+        var actionUrl = $(this).data('action');
+        var model_no1  = $(this).data('model_no');
+        (typeof model_no1 == 'undefined') ? (model_no='1') : (model_no = model_no1);
+        console.log(model_no);
+        $.ajax({
+        type: "POST",
+        url: actionUrl, 
+        data: {postdata: str},
+        dataType:"html",
+          success: function(html1)
+          {
+            try 
+            {
+              var parsedJson = JSON.parse(html1);
+              if(parsedJson.result == 'success')
+              {
+                var parsedJson = JSON.parse(html1);
+                $('.modal').modal('hide');
+                if(parsedJson.URL==null)
+                {
+                  location.reload();
+                }
+                else
+                {
+                  window.location.href = 'https://crm.cookscape.com/'+parsedJson.URL;
+                }
+              }       
+            } 
+            catch(e) 
+            {
+              $(".modal-body").html(html1); // msg in modal body
+              $(".modal").modal("show"); // show modal instead alert box
+              $('.summernote').summernote({
+                height: 100,
+                disableResizeEditor: true
+              });
+            }
+          },
+        });
+      }); // end submit event s
+
+
+      $("#ajaxModelFormWithFile").submit(function()
+      { 
+        // 'this' refers to the current submitted form 
+        //var str       = $(this).serialize();
+        var actionUrl = $(this).data('action');
+        $.ajax({
+        type: "POST",
+        url: actionUrl, 
+        data: new FormData( this ),
+        processData: false,
+        contentType: false, 
+          success: function(html1)
+          {
+            try 
+            {
+              var parsedJson = JSON.parse(html1);
+              if(parsedJson.result == 'success')
+              {
+                var parsedJson = JSON.parse(html1);
+                $('.modal').modal('hide');
+                if(parsedJson.URL==null)
+                {
+                  location.reload();
+                }
+                else
+                {
+                  window.location.href = 'https://crm.cookscape.com/'+parsedJson.URL;
+                }
+              }       
+            } 
+            catch(e) 
+            {
+              $(".modal-body").html(html1); // msg in modal body
+              $(".modal").modal("show"); // show modal instead alert box
+              $('.summernote').summernote({
+                height: 100,
+                disableResizeEditor: true
+              });
+            }
+          },
+        });
+      }); // end submit event      
+
+      $("#ajaxLeadDetail").submit(function()
+      {
+        // 'this' refers to the current submitted form 
+        //var str       = $(this).serialize();
+        var actionUrl = $(this).data('action');
+
+        setTimeout(function(){
+              $('#loaderImg').hide();
+        },5000);
+
+         setTimeout(function(){
+             $(".modal").modal("hide");
+        },6000);
+
+        
+
+        $.ajax({
+        type: "POST",
+        url: actionUrl, 
+        data: new FormData( this ),
+        processData: false,
+        contentType: false, 
+        cache:true,
+          success: function(html1)
+          {
+            try 
+            {
+              var parsedJson = JSON.parse(html1);
+              if(parsedJson.result == 'success')
+              {               
+                $('.modal').modal('hide');
+                if(parsedJson.web_view == 1 && parsedJson.lead_id!=0)
+                {
+                  location.reload();                     
+                }else if(parsedJson.lead_id == '')
+                {
+                  location.reload();                     
+                }else 
+                {
+                  $.ajax({
+                      type : "POST",
+                      url  : 'https://crm.cookscape.com/Lead/getLeadDetails/'+parsedJson.ajaxremainder,
+                      data : {'lead_id' : parsedJson.lead_id},
+                      success : function(data)
+                      {
+                        $('#LeadDetails').html(data);
+                      },
+                    });
+                }                
+              }
+            } 
+            catch(e) 
+            {
+              $(".modal-body").html(html1); // msg in modal body
+              $(".modal").modal("show"); // show modal instead alert box
+              $('.summernote').summernote({
+                height: 100,
+                disableResizeEditor: true
+              });
+            }
+          },
+        });
+      }); // end submit event     
+
+      //Alert message fade
+      $("#alert-message").fadeTo(2000, 500).slideUp(500, function(){
+      $("#alert-message").slideUp(500);
+      $("#alert-message").remove();
+      });
+    
+      // Check all and un-check all for HR/attendance
+      $("#checkAll").click(function(){
+          $(".checkbox").prop("checked", true);
+      });
+
+      $("#uncheckAll").click(function(){
+          $(".checkbox").prop("checked", false);
+      });  
+  });
+
+  function formSuccess()
+  {
+     $.ajax({
+            type : "POST",
+            url  : 'https://crm.cookscape.com/Lead/getLeadDetails',
+            data : {'lead_id' : lead_id},
+            success : function(data)
+            {
+              $('#LeadDetails').html(data);
+            },
+          });
+  }
+
+  //Add new popup
+  function addNewPop(addFormUrl, pkey)
+  {
+    $.ajax({
+    type: "GET",
+    url: "https://crm.cookscape.com/"+addFormUrl,
+    data: {'pkey_id' : pkey},
+    dataType:"html",
+        success: function(html1)
+        {      
+            if(html1 != 'success')
+            {                // assigning modal title from parameter
+              $(".modal-body").html(html1); // msg in modal body
+              $(".modal").modal("show"); // show modal instead alert box
+              $('.summernote').summernote({
+                height: 100,
+                disableResizeEditor: true
+              });
+            }
+          },
+      });
+  }   
+
+  //Delete function with sweet alert
+  function confirmDelete(url)
+  {
+    if(arguments[0] != null)
+    {
+      swal({
+          title: "Are you sure?",
+          text: "You want to delete this???",
+          type: "warning",
+          showCancelButton: true,
+          confirmButtonColor: '#DD6B55',
+          confirmButtonText: "Yes",
+          cancelButtonText:  "Cancel",
+          closeOnConfirm: false,
+          closeOnCancel: false
+       },
+       function(isConfirm)
+       {
+         if (isConfirm)
+         {
+            //swal("", "", "success");
+            location.href = url;
+
+          } else 
+          {
+            swal("This operation has been cancelled", "", "error");
+            //e.preventDefault();
+          }
+       });
+     
+    }
+    else
+    {
+      return false;
+    }
+    return;
+  }
+
+  function confirmComplete(url)
+  {
+    if(arguments[0] != null)
+    {
+      swal({
+          title: "Are you sure?",
+          text: "You want to close this task???",
+          type: "warning",
+          showCancelButton: true,
+          confirmButtonColor: '#DD6B55',
+          confirmButtonText: "Yes",
+          cancelButtonText:  "Cancel",
+          closeOnConfirm: false,
+          closeOnCancel: false
+       },
+       function(isConfirm)
+       {
+         if (isConfirm)
+         {
+            //swal("", "", "success");
+            location.href = url;
+
+          } else 
+          {
+            swal("This operation has been cancelled", "", "error");
+            //e.preventDefault();
+          }
+       });
+     
+    }
+    else
+    {
+      return false;
+    }
+    return;
+  }
+
+  function deactivateUser(task_id, user_id)
+  {    
+    if(arguments[0] != null)
+    {
+      swal({
+          title: "Are you sure?",
+          text: "You want to deactivate the user???",
+          type: "warning",
+          showCancelButton: true,
+          confirmButtonColor: '#DD6B55',
+          confirmButtonText: "Yes",
+          cancelButtonText:  "Cancel",
+          closeOnConfirm: false,
+          closeOnCancel: false
+       },
+       function(isConfirm)
+       {
+          if (isConfirm)
+          {
+            $.ajax({
+            type: "POST",
+            url: "https://crm.cookscape.com/Task_list/deactivateUser",
+            data: {'task_id' : task_id, 'user_id' : user_id},
+            success: function(data)
+            {
+              location.reload();                
+            },
+            });
+
+          } else 
+          {
+            swal("This operation has been cancelled", "", "error");
+            //e.preventDefault();
+          }
+       });
+     
+    }
+    else
+    {
+      return false;
+    }
+    return;
+  }
+
+  //Delete function with sweet alert
+  function confirmMoveExecution(url)
+  {
+    if(arguments[0] != null)
+    {
+      swal({
+          title: "Are you sure?",
+          text: "You want to Completed Split Up,Accessories, Scope of work, Finalized Design???",
+          type: "warning",
+          showCancelButton: true,
+          confirmButtonColor: '#DD6B55',
+          confirmButtonText: "Yes",
+          cancelButtonText:  "Cancel",
+          closeOnConfirm: false,
+          closeOnCancel: false
+       },
+       function(isConfirm)
+       {
+         if (isConfirm)
+         {
+            //swal("", "", "success");
+            location.href = url;
+
+          } else 
+          {
+            swal("This operation has been cancelled", "", "error");
+            //e.preventDefault();
+          }
+       });
+     
+    }
+    else
+    {
+      return false;
+    }
+    return;
+  }
+
+  //Delete function with sweet alert
+  function confirmSendMail(url)
+  {
+    if(arguments[0] != null)
+    {
+      swal({
+          title: "Are you sure?",
+          text: "You want to send mail to vendor???",
+          type: "warning",
+          showCancelButton: true,
+          confirmButtonColor: '#DD6B55',
+          confirmButtonText: "Yes",
+          cancelButtonText:  "Cancel",
+          closeOnConfirm: false,
+          closeOnCancel: false
+       },
+       function(isConfirm)
+       {
+         if (isConfirm)
+         {
+            //swal("", "", "success");
+            location.href = url;
+
+          } else 
+          {
+            swal("This operation has been cancelled", "", "error");
+            //e.preventDefault();
+          }
+       });
+     
+    }
+    else
+    {
+      return false;
+    }
+    return;
+  }
+
+  function loadAssignTo()
+  {
+    var self_assign   = $('#self_assign').is(":checked");
+    if(self_assign)
+    {
+      $('#assignTo').hide();
+      $('#appoinmentassignTo').hide();
+    }
+    else
+    {
+      $('#assignTo').show();
+      $('#appoinmentassignTo').show();
+    }
+  }
+
+  function loadfeAssignTo()
+  {
+    var self_assign   = $('#fe_self_assign').is(":checked");
+    if(self_assign)
+    {
+      $('#assignfeTo').hide();
+    }
+    else
+    {
+      $('#assignfeTo').show();
+    }
+  }
+
+  $(document).ready(function(){
+
+    loadAssignTo();
+    loadfeAssignTo();
+  });
+
+  function removeRow(id) 
+  {
+    $("#"+id).remove();
+  }
+
+  function removeRowimage(id,image_id,path,prodid,url)
+  {
+    if(arguments[0] != null)
+    {
+      swal({
+          title: "Are you sure?",
+          text: "You want to delete???",
+          type: "warning",
+          showCancelButton: true,
+          confirmButtonColor: '#DD6B55',
+          confirmButtonText: "Yes",
+          cancelButtonText:  "Cancel",
+          closeOnConfirm: false,
+          closeOnCancel: false
+       },
+       function(isConfirm)
+       {
+         if (isConfirm)
+         {
+              $.ajax({
+              type: "GET",
+              url: "https://crm.cookscape.com/"+url, 
+              data: { 'id'     : id,
+                      'img_id' :image_id,
+                      'image'  :path
+                    },
+              dataType:"html",
+              success: function(html)
+              {
+                $("#"+prodid).remove();
+                swal("Deleted successfully", "", "success");
+
+              },
+            });
+
+          } else 
+          {
+            swal("This operation has been cancelled", "", "error");
+            //e.preventDefault();
+          }
+       });
+     
+    }
+    else
+    {
+      return false;
+    }
+    return;
+  }
+
+  function blockleadSource(direct)
+  {
+    if(direct == 3)
+    {
+      $('#directLead').hide();
+      $('#givenByDropdown').hide();      
+      $("#vednor_source").val('').trigger('change');
+      $("#lead_source").val('').trigger('change');
+    }
+    else if(direct == 2)
+    {
+      $('#directLead').show();
+      $("#vednor_source").val('').trigger('change');
+      $('#Leadsourcedropdown').show();
+      $('#givenByDropdown').show();      
+      $('#vednorsourcedropdown').hide();
+    }else if(direct == 1)
+    {
+      $('#directLead').show();
+      $("#lead_source").val('').trigger('change');
+      $('#Leadsourcedropdown').hide();
+      $('#givenByDropdown').hide();      
+      $('#vednorsourcedropdown').show();
+    }
+    else
+    {
+      $('#directLead').hide();
+    }
+  }
+
+  function blockpostponedate(direct)
+  {
+    if(direct == '2')
+    {
+      $('#Postpone').show();
+      $('#showRoom').show();      
+    }
+    else
+    {
+      $('#Postpone').hide();      
+    }
+  }
+
+  function isNumberKey(evt) 
+  {
+    var charCode = (evt.which) ? evt.which : event.keyCode;
+    if ((charCode < 48 || charCode > 57))
+        return false;
+    return true;
+  }
+
+  $(function(){
+    $('.myForm').submit(function() {
+      $('#loaderImg').show();
+      $('.send-mail-head').show();
+      
+      $('.myForm').hide();
+      return true;
+    });
+  });  
+
+  function addAssignLeads()
+  {
+    var user_id           = $('#assign_user_id').val();
+    var contactable_date  = $('#contactable_date').val();
+    var lead_rating       = $('#lead_rating').val();
+    var lead_status_id    = $('#lead_status_id').val();
+
+    var sendval = [];
+    $('.showcheckBoxes').each(function()
+    {
+      if ($(this).is(':checked'))
+      {
+        sendval.push($(this).val());
+      }
+    }
+
+    );
+
+    if(sendval || (user_id && contactable_date && lead_rating && lead_status_id))
+    {
+      $.ajax({
+      type: "POST",
+      url: "https://crm.cookscape.com/Lead_hub/assignMultipleLeads/",
+      data: {'user_id' : user_id, 'arrayval' : sendval, 'contactable_date' : contactable_date, 'lead_rating' : lead_rating, 'lead_status_id' : lead_status_id},
+      success: function(html1)
+      {
+        location.reload();          
+      },
+      });
+    }else
+    {
+      swal({
+              title:'',
+              text: 'Please Select any inputs ( Assign Users/Contactable Date/Rating/Response Status ) and also select Leads to be edited'
+          });
+    }
+  }
+
+  function deleteDisqualifiedLeads()
+  {
+    var sendval = [];
+    $('.showcheckBoxes').each(function()
+    {
+      if ($(this).is(':checked'))
+      {
+        sendval.push($(this).val());
+      }
+    });
+
+    if(sendval)
+    {
+      $.ajax({
+      type: "POST",
+      url: "https://crm.cookscape.com/Lead_hub/deleteDisqualifiedLeads/",
+      data: {'arrayval' : sendval},
+      success: function(html1)
+      {
+        location.reload();          
+      },
+      });
+    }else
+    {
+      swal({
+              title:'',
+              text: 'Please Select Assign Users or Contactable date and Leads'
+          });
+    }
+  }
+
+   //Add new popup
+  function addFeedBack(addFormUrl, pkey, is_accepted, isAdmin, lead_id='', obj)
+  {
+    if(is_accepted == 1 || isAdmin == 1)
+    {
+      $.ajax({
+      type: "GET",
+      url: "https://crm.cookscape.com/"+addFormUrl,
+      data: {'pkey_id' : pkey},
+      dataType:"html",
+          success: function(html1)
+          {      
+              if(html1 != 'success')
+              { // assigning modal title from parameter
+                $(".modal-body").html(html1); // msg in modal body
+                $(".modal").modal("show"); // show modal instead alert box
+              }
+            },
+        });
+    }
+    else
+    {
+       swal({
+          title: "Are you sure?",
+          text: "You want to accept the lead???",
+          type: "warning",
+          showCancelButton: true,
+          confirmButtonColor: '#DD6B55',
+          confirmButtonText: "Yes, I Accept",
+          cancelButtonText:  "Cancel",
+          closeOnConfirm: true,
+          closeOnCancel: false
+       },
+       function(isConfirm)
+       {
+         if (isConfirm)
+         {
+            //$(this).attr("title", 'accepted');
+            //$(obj).parent().addClass('active');
+            acceptLead(lead_id);
+            window.location.reload();
+          } else
+          {
+            swal("This operation has been cancelled", "", "error");
+            //e.preventDefault();
+          }
+       });
+
+      /* swal({
+              title:'',
+              text: 'Please Accept Leads'
+          });
+      */
+    }
+  } 
+
+  function addComments(val)
+  {
+    tt_description   = $('#tt_description').val();
+        
+    if(tt_description)
+    {
+      $.ajax
+      ({
+        type : "POST",
+        dataType:'html',
+        url: "https://crm.cookscape.com/Task_list/CreateCommends",
+        data : {'tt_description' : tt_description, 't_id' : val},
+        success : function(html1)
+        {
+          $('#addCommendContent').append(html1);
+          $('#tt_description').val('');
+        }
+      });      
+    }else
+    {
+      swal({
+              title:'',
+              text: 'Please Enter Comments'
+          });
+    }
+  } 
+
+  //Datatable checkall uncheckall checbox
+  $(".selectall").click(function () 
+  { 
+    $('.showcheckBoxes').prop('checked', this.checked);    
+  });             
+
+  function loadShape()
+  {
+    var requirment_shape  = $('#requirment_shape').val();
+    if(requirment_shape == '1')
+    {
+      $('#showWalla').show();
+      $('#showWallb').hide();
+      $('#showWallc').hide();
+    }
+    else if(requirment_shape == '2' || requirment_shape == '3')
+    {
+      $('#showWalla').show();
+      $('#showWallb').show();
+      $('#showWallc').hide();
+    }
+    else if(requirment_shape == '4')
+    {
+      $('#showWalla').show();
+      $('#showWallb').show();
+      $('#showWallc').show();
+    }
+    else
+    {
+      $('#showWalla').hide();
+      $('#showWallb').hide();
+      $('#showWallc').hide();
+
+    }
+  }
+
+  loadShape();
+
+  $(function(){
+    var pkey_id = '';
+    $(".pushme").click(function () {
+      if($('.pushme').text() == 'Start Work')
+      {
+        val   = 'Start Work';
+      }
+      else
+      {
+        val       = 'End Work';
+        pkey_id   = $('#pushme').val();
+      }
+      $.ajax
+      ({
+        type : "POST",
+        dataType:'html',
+        url: "https://crm.cookscape.com/Lead/Attendance",
+        data : {
+                'work_type' : val,
+                'pkey_id'   : pkey_id
+               },
+        success : function(data)
+        {
+         parseData = JSON.parse(data);
+         $('#pushme').val(parseData.edit_id);
+        }
+      });
+      $(this).text(function(i, text){
+          return text === "Start Work" ? "End Work" : "Start Work"; 
+      });
+   });
+  });
+
+  $('.pushme').click(function(){
+    var $this = $(this);
+    $this.toggleClass('pushme');
+    if($this.hasClass('pushme')){
+        $this.text('Start Work');         
+    } else {
+        $this.text('End Work');
+    }
+});
+
+function acceptLead(val)
+{
+ if(val)
+ {
+  $.ajax
+  ({
+    type : "POST",
+    dataType:'html',
+    url: "https://crm.cookscape.com/Lead/showLeadButtons",
+    data : {
+            'lead_id' : val
+           },
+    success : function(html1)
+    {
+      $('#showLeadButtons').show();
+      $('#is_accepted').hide();
+      $('#activityLog').html(html1);
+    }
+  });
+  
+ }
+} 
+
+$( document ).ready(function() 
+{
+  $('.all_row_values').each(function(i,o)
+  {
+      bal_amount                 = $(o).find('.bal_amount').val();
+      if(bal_amount == '0.00')
+      {
+          $(o).find('.split_up_id').addClass('select-none');
+          $(o).find('.bank_details_id').addClass('select-none');
+          $(o).find('.send_email').addClass('select-none');
+          $(o).find('.is_advance').addClass('select-none');
+          $(o).find('.next_rem_date').addClass('select-none');
+          $(o).find('.bank_details_id').attr('readonly', true);
+          $(o).find('.split_up_id').attr('readonly', true);
+          $(o).find('.percentage').attr('readonly', true);
+          $(o).find('.amount').attr('readonly', true);
+          $(o).find('.next_rem_date').attr('readonly', true);
+          $(o).find('#deletebutton').hide();  
+      }
+
+      if($(o).find('.is_advance').prop('checked') == true)
+      {
+          $('.is_advance').addClass('select-none');
+      }
+  }
+  );
+
+  loadTotalAmount();
+});
+
+function loadTotalAmount()
+{
+  var result = 0;
+  $('.amount').each(function()
+  {
+      result  += +($(this).val());
+      $('#total').val(result);
+      $('.total').attr('readonly', true);
+  }
+  );
+}
+
+function addNewImage()
+{
+  row         = $('#imagerow').val();
+  j           = Number(row)-1;
+  split_up_id = $('#split_up_id'+j).val();
+
+  $.ajax({
+  type: "GET",
+  url: "https://crm.cookscape.com/order/getSplitupContent", 
+  data: { i:row},
+  dataType:"html",
+  success: function(html)
+  {
+      loadSplitDrop(j);
+      i = Number(row)+1;
+      $('#ImageData').append(html);
+      $('#imagerow').val(i);
+      $('.select2').select2();
+      var date = new Date();
+      $('.datetimepicker').datetimepicker({
+      startDate: date,
+      autoclose: true,
+  });
+  },
+});
+    
+}
+
+function addrequestpage()
+{
+  row         = $('#imagerow').val();
+  j           = Number(row)-1;
+  split_up_id = $('#request_id'+j).val();
+  lead_id = $('#lead_id').val();
+
+  $.ajax({
+  type: "GET",
+  url: "https://crm.cookscape.com/Request/getrequestcontent", 
+  data: { i:row,
+          lead_id : lead_id},
+  dataType:"html",
+  success: function(html)
+  {
+      loadscopedropdown(j);
+      i = Number(row)+1;
+      $('#requestData').append(html);
+      $('#imagerow').val(i);
+      $('.select2').select2();
+      var date = new Date();
+      $('.datetimepicker').datetimepicker({
+      startDate: date,
+      autoclose: true,
+  });
+  },
+});
+    
+}
+
+function addNewAccessories()
+{
+  row         = $('#imagerow').val();
+  j           = Number(row)-1;
+  accessories_id = $('#accessories_id'+j).val();
+
+  $.ajax({
+  type: "GET",
+  url: "https://crm.cookscape.com/order/getAccessoriesContent", 
+  data: { i:row},
+  dataType:"html",
+  success: function(html)
+  {
+      loadSplitDrop(j);
+      i = Number(row)+1;
+      $('#ImageData').append(html);
+      $('#imagerow').val(i);
+      $('.select2').select2();
+      var date = new Date();
+      $('.datetimepicker').datetimepicker({
+      startDate: date,
+      autoclose: true,
+  });
+  },
+});
+    
+}
+
+function isAdvance()
+{
+  $('.is_advance').addClass('select-none');
+}
+
+function loadSplitDrop(j)
+{
+  k = Number(j) + 1;
+  $.ajax({
+      type : "POST",
+      url  : "https://crm.cookscape.com/Order/getSplitUp",
+      data:$("#ajaxLeadDetail").serialize(),
+  success : function(data)
+  {
+    $('#split_up_id'+k).html(data);
+  },
+  });
+}
+
+function loadscopedropdown(j)
+{
+  k = Number(j) + 1;
+  $.ajax({
+      type : "POST",
+      url  : "https://crm.cookscape.com/Request/getscopedrop",
+      data:$("#ajaxLeadDetail").serialize(),
+  success : function(data)
+  {
+    $('#scope_work_id'+k).html(data);
+  },
+  });
+}
+</script>
+
+        
+    </body>
+</html>

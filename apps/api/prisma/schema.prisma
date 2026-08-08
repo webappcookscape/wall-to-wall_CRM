@@ -1,0 +1,284 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(uuid())
+  username      String         @unique
+  fullName      String
+  email         String         @unique
+  password      String?
+  phone         String?
+  role          Role           @default(CRE)
+  status        Boolean        @default(true)
+  avatar        String?
+  showroomId    String?
+  signaturePhotoId String?
+  businessHeadId String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  assignedLeads Lead[]         @relation("AssignedTo")
+  createdLeads  Lead[]         @relation("CreatedBy")
+  activities    LeadActivity[]
+  tasks         Task[]         @relation("TaskAssignedTo")
+  createdTasks  Task[]         @relation("TaskCreatedBy")
+  showroom      Showroom?      @relation(fields: [showroomId], references: [id])
+  signaturePhoto SignaturePhoto? @relation(fields: [signaturePhotoId], references: [id])
+  businessHead   User?          @relation("BusinessHeadSubordinates", fields: [businessHeadId], references: [id])
+  subordinates   User[]         @relation("BusinessHeadSubordinates")
+}
+
+model Lead {
+  id                String          @id @default(uuid())
+  leadId            Int             @unique @default(autoincrement())
+  name              String
+  email             String?
+  phone             String
+  brandId           String?
+  projectId         String?
+  sourceId          String?
+  statusId          String?
+  currentStageId    String?
+  rating            Int             @default(0)
+  nextFollowUp      DateTime?
+  comments          String?
+  assignedToId      String?
+  createdById       String
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  dataCollected     DateTime?       @default(now())
+  instructionToPass String?
+  leadType          String?         @default("Direct Lead")
+  contactableDate   DateTime?
+  appointments      Appointment[]
+  assignedTo        User?           @relation("AssignedTo", fields: [assignedToId], references: [id])
+  brand             Brand?          @relation(fields: [brandId], references: [id])
+  createdBy         User            @relation("CreatedBy", fields: [createdById], references: [id])
+  currentStage      Stage?          @relation(fields: [currentStageId], references: [id])
+  project           Project?        @relation(fields: [projectId], references: [id])
+  source            Source?         @relation(fields: [sourceId], references: [id])
+  status            LeadStatus?     @relation(fields: [statusId], references: [id])
+  activities        LeadActivity[]
+  showroomVisits    ShowroomVisit[]
+  tasks             Task[]
+  tags              LeadTag[]       @relation("LeadToLeadTag")
+  ratingName      String?
+  metaLeadId      String?
+  metaFormId      String?
+  metaAdId        String?
+  metaCampaignId  String?
+  metaAdAccountId String?
+}
+
+model Task {
+  id           String     @id @default(uuid())
+  title        String
+  description  String?
+  status       TaskStatus @default(TODO)
+  priority     Priority   @default(MEDIUM)
+  leadId       String?
+  assignedToId String?
+  createdById  String
+  dueDate      DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  assignedTo   User?      @relation("TaskAssignedTo", fields: [assignedToId], references: [id])
+  createdBy    User       @relation("TaskCreatedBy", fields: [createdById], references: [id])
+  lead         Lead?      @relation(fields: [leadId], references: [id])
+}
+
+model Appointment {
+  id              String   @id @default(uuid())
+  leadId          String
+  appointmentDate DateTime
+  location        String?
+  comments        String?
+  status          String   @default("Scheduled")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  lead            Lead     @relation(fields: [leadId], references: [id])
+}
+
+model ShowroomVisit {
+  id         String   @id @default(uuid())
+  leadId     String
+  visitDate  DateTime
+  showroomId String
+  comments   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  lead       Lead     @relation(fields: [leadId], references: [id])
+  showroom   Showroom @relation(fields: [showroomId], references: [id])
+}
+
+model LeadActivity {
+  id        String   @id @default(uuid())
+  leadId    String
+  type      String
+  content   String
+  userId    String?
+  createdAt DateTime @default(now())
+  lead      Lead     @relation(fields: [leadId], references: [id])
+  user      User?    @relation(fields: [userId], references: [id])
+}
+
+model Brand {
+  id    String  @id @default(uuid())
+  name  String  @unique
+  logo  String?
+  leads Lead[]
+}
+
+model Stage {
+  id    String @id @default(uuid())
+  name  String @unique
+  leads Lead[]
+}
+
+model Source {
+  id    String @id @default(uuid())
+  name  String @unique
+  leads Lead[]
+}
+
+model Project {
+  id    String @id @default(uuid())
+  name  String @unique
+  leads Lead[]
+}
+
+model Showroom {
+  id             String          @id @default(uuid())
+  name           String          @unique
+  location       String?
+  showroomVisits ShowroomVisit[]
+  users          User[]
+}
+
+model LeadStatus {
+  id    String @id @default(uuid())
+  name  String @unique
+  leads Lead[]
+}
+
+model Salutation {
+  id   String @id @default(uuid())
+  name String @unique
+}
+
+model LeadTag {
+  id    String @id @default(uuid())
+  name  String @unique
+  leads Lead[] @relation("LeadToLeadTag")
+}
+
+model BankDetail {
+  id                String   @id @default(uuid())
+  accountHolderName String
+  accountNumber     String   @unique
+  bankName          String
+  branch            String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  updatedBy         String?
+}
+
+model ScopeOfWork {
+  id   String @id @default(uuid())
+  name String @unique
+}
+
+model PaymentMode {
+  id   String @id @default(uuid())
+  name String @unique
+}
+
+model SplitUp {
+  id   String @id @default(uuid())
+  name String @unique
+}
+
+model ActivityType {
+  id   String @id @default(uuid())
+  name String @unique
+}
+
+model VendorSource {
+  id   String @id @default(uuid())
+  name String @unique
+}
+
+model ProductionHold {
+  id   String @id @default(uuid())
+  name String @unique
+}
+
+model WorkNotification {
+  id   String @id @default(uuid())
+  name String @unique
+}
+
+model OnlineQuestionCategory {
+  id        String           @id @default(uuid())
+  name      String           @unique
+  questions OnlineQuestion[]
+}
+
+model OnlineQuestion {
+  id         String                 @id @default(uuid())
+  categoryId String
+  question   String
+  type       String
+  options    String?
+  category   OnlineQuestionCategory @relation(fields: [categoryId], references: [id])
+}
+
+model SmsTemplate {
+  id      String @id @default(uuid())
+  name    String @unique
+  content String
+}
+
+model EmailTemplate {
+  id      String @id @default(uuid())
+  name    String @unique
+  subject String
+  content String
+}
+
+model SignaturePhoto {
+  id        String   @id @default(uuid())
+  name      String
+  path      String
+  createdAt DateTime @default(now())
+  users     User[]
+}
+
+enum Role {
+  ADMIN
+  CRE
+  FEASIBILITY
+  DESIGNER
+  BUSINESS_HEAD
+  DM_EXECUTIVE
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  COMPLETED
+  CLOSED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}

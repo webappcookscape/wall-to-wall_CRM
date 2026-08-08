@@ -1,0 +1,432 @@
+import React, { useState, useEffect } from 'react';
+import { X } from 'lucide-react';
+import { leadService } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext'; // Import useAuth
+
+interface LeadModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+  lead?: any;
+}
+
+const ratingOptions = [
+  { value: 1, label: '1 - Disqualified', ratingName: 'DISQUALIFIED' },
+  { value: 2, label: '2 - Low Quality', ratingName: 'LOW_QUALITY' },
+  { value: 3, label: '3 - Moderate', ratingName: 'MODERATE' },
+  { value: 4, label: '4 - Qualified', ratingName: 'QUALIFIED' },
+  { value: 5, label: '5 - Order Booked', ratingName: 'ORDER_BOOKED' },
+];
+
+const getRatingName = (rating: number) => {
+  return ratingOptions.find((option) => option.value === rating)?.ratingName || '';
+};
+
+const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead }) => {
+  const { user } = useAuth(); // Use the useAuth hook
+  const userRole = user?.role; // Get userRole from the context
+console.log('User Role:', userRole); // Debugging line to check the user role
+  const [formData, setFormData] = useState<any>({
+    name: '',
+    email: '',
+    phone: '',
+    projectId: '',
+    sourceId: '',
+    statusId: '',
+    brandId: '',
+    rating: 0,
+    ratingName: '',
+    metaLeadId: '',
+    metaFormId: '',
+    metaAdId: '',
+    metaCampaignId: '',
+    metaAdAccountId: '',
+    nextFollowUp: '',
+    tagIds: [],
+    comments: '',
+    instructionToPass: '',
+    dataCollected: new Date().toISOString().split('T')[0],
+    contactableDate: '',
+  });
+  const [masters, setMasters] = useState<any>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+
+  useEffect(() => {
+    const fetchMasters = async () => {
+      const data = await leadService.getMasters();
+      setMasters(data);
+    };
+    if (isOpen) fetchMasters();
+  }, [isOpen]);
+
+  const toLocalISOString = (dateString?: string | null) => {
+    if (!dateString) return '';
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return '';
+    const tzOffset = d.getTimezoneOffset() * 60000;
+    return new Date(d.getTime() - tzOffset).toISOString().slice(0, 16);
+  };
+
+  const handleRatingChange = (rating: number) => {
+    setFormData({
+      ...formData,
+      rating,
+      ratingName: getRatingName(rating),
+    });
+  };
+
+  useEffect(() => {
+    if (lead) {
+      const rating = lead.rating || 0;
+      setFormData({
+        name: lead.name || '',
+        email: lead.email || '',
+        phone: lead.phone || '',
+        projectId: lead.projectId || '',
+        sourceId: lead.sourceId || '',
+        statusId: lead.statusId || '',
+        brandId: lead.brandId || '',
+        rating,
+        ratingName: lead.ratingName || getRatingName(rating),
+        metaLeadId: lead.metaLeadId || '',
+        metaFormId: lead.metaFormId || '',
+        metaAdId: lead.metaAdId || '',
+        metaCampaignId: lead.metaCampaignId || '',
+        metaAdAccountId: lead.metaAdAccountId || '',
+        nextFollowUp: lead.nextFollowUp ? new Date(lead.nextFollowUp).toISOString().split('T')[0] : '',
+        tagIds: lead.tags?.map((t: any) => t.id) || [],
+        comments: lead.comments || '',
+        instructionToPass: lead.instructionToPass || '',
+        dataCollected: lead.dataCollected ? new Date(lead.dataCollected).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        contactableDate: toLocalISOString(lead.contactableDate),
+      });
+    } else {
+        setFormData({
+            name: '',
+            email: '',
+            phone: '',
+            projectId: '',
+            sourceId: '',
+            statusId: '',
+            brandId: '',
+            rating: 0,
+            ratingName: '',
+            metaLeadId: '',
+            metaFormId: '',
+            metaAdId: '',
+            metaCampaignId: '',
+            metaAdAccountId: '',
+            nextFollowUp: '',
+            tagIds: [],
+            comments: '',
+            instructionToPass: '',
+            dataCollected: new Date().toISOString().split('T')[0],
+            contactableDate: '',
+        });
+    }
+  }, [lead, isOpen]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      const payload = {
+        ...formData,
+        ratingName: formData.ratingName || getRatingName(formData.rating),
+        contactableDate: formData.contactableDate ? new Date(formData.contactableDate).toISOString() : null,
+      };
+      if (lead?.id) {
+        await (leadService as any).updateLead(lead.id, payload);
+      } else {
+        // console.log(payload)
+        await leadService.createLead(payload);
+      }
+      onSuccess();
+      onClose();
+    } catch (error: any) {
+      console.error('Error saving lead:', error);
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to save lead.';
+      alert(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 md:p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[95vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+        {/* Header */}
+        <div className="!text-white bg-[#3b3e47] p-4 flex items-center justify-between ">
+          <h4 className="text-sm font-bold uppercase m-0">{lead ? 'Edit Lead' : 'Create New Lead'}</h4>
+          <button onClick={onClose} className="text-white opacity-50 hover:opacity-100">
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-gray-400 uppercase">Full Name <span className="text-red-500">*</span></label>
+              <input 
+                required
+                type="text" 
+                className="form-control !py-1.5 !text-[12px]"
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-gray-400 uppercase">Phone <span className="text-red-500">*</span></label>
+              <input 
+                required
+                type="tel" 
+                className="form-control !py-1.5 !text-[12px]"
+                value={formData.phone}
+                onChange={(e) => setFormData({...formData, phone: e.target.value})}
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-gray-400 uppercase">Email</label>
+              <input 
+                type="email" 
+                className="form-control !py-1.5 !text-[12px]"
+                value={formData.email}
+                onChange={(e) => setFormData({...formData, email: e.target.value})}
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-gray-400 uppercase">Rating</label>
+              <select 
+                className="form-control !py-1.5 !text-[12px]"
+                value={formData.rating}
+                onChange={(e) => handleRatingChange(Number(e.target.value))}
+              >
+                <option value={0}>Select Rating</option>
+                {ratingOptions.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-gray-400 uppercase">Brand <span className="text-red-500">*</span></label>
+              <select 
+                required
+                className="form-control !py-1.5 !text-[12px]"
+                value={formData.brandId}
+                onChange={(e) => setFormData({...formData, brandId: e.target.value})}
+              >
+                <option value="">Select Brand</option>
+                {masters?.brands?.map((b: any) => <option key={b.id} value={b.id}>{b.name}</option>)}
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-gray-400 uppercase">Source <span className="text-red-500">*</span></label>
+              <select 
+                required
+                className="form-control !py-1.5 !text-[12px]"
+                value={formData.sourceId}
+                onChange={(e) => setFormData({...formData, sourceId: e.target.value})}
+              >
+                <option value="">Select Source</option>
+                {masters?.sources?.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-gray-400 uppercase">Project</label>
+              <select 
+                className="form-control !py-1.5 !text-[12px]"
+                value={formData.projectId}
+                onChange={(e) => setFormData({...formData, projectId: e.target.value})}
+              >
+                <option value="">Select Project</option>
+                {masters?.projects?.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-gray-400 uppercase">Next Follow Up</label>
+              <input 
+                type="date"
+                className="form-control !py-1.5 !text-[12px]"
+                value={formData.nextFollowUp}
+                onChange={(e) => setFormData({...formData, nextFollowUp: e.target.value})}
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-gray-400 uppercase">Date Collected <span className="text-red-500">*</span></label>
+              <input 
+                required
+                type="date"
+                className="form-control !py-1.5 !text-[12px]"
+                value={formData.dataCollected}
+                onChange={(e) => setFormData({...formData, dataCollected: e.target.value})}
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-gray-400 uppercase">Contactable Date & Time <span className="text-red-500">*</span></label>
+              <input 
+                required
+                type="datetime-local"
+                className="form-control !py-1.5 !text-[12px]"
+                value={formData.contactableDate}
+                onChange={(e) => setFormData({...formData, contactableDate: e.target.value})}
+              />
+            </div>
+          </div>
+
+          {userRole === "DM_EXECUTIVE" && (
+
+                    <div className="space-y-3 border-t border-gray-100 pt-4">
+                      <div>
+                        <h5 className="text-[11px] font-bold uppercase text-gray-500 m-0">Meta Lead Details</h5>
+                        <p className="text-[10px] text-gray-400 m-0">
+                          Enter the IDs from the Facebook Lead Ad. The <strong>Meta Lead ID</strong> is required to send offline
+                          conversion events (like 'Qualified' or 'Order Booked') back to Meta for ad optimization.
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase">Meta Lead ID</label>
+                          <input
+                            type="text"
+                            className="form-control !py-1.5 !text-[12px]"
+                            value={formData.metaLeadId}
+                            onChange={(e) => setFormData({...formData, metaLeadId: e.target.value})}
+                            placeholder="Unique leadgen_id"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase">Meta Form ID</label>
+                          <input
+                            type="text"
+                            className="form-control !py-1.5 !text-[12px]"
+                            value={formData.metaFormId}
+                            onChange={(e) => setFormData({...formData, metaFormId: e.target.value})}
+                            placeholder="Instant form ID"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase">Meta Ad ID</label>
+                          <input
+                            type="text"
+                            className="form-control !py-1.5 !text-[12px]"
+                            value={formData.metaAdId}
+                            onChange={(e) => setFormData({...formData, metaAdId: e.target.value})}
+                            placeholder="Ad ID"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase">Meta Campaign ID</label>
+                          <input
+                            type="text"
+                            className="form-control !py-1.5 !text-[12px]"
+                            value={formData.metaCampaignId}
+                            onChange={(e) => setFormData({...formData, metaCampaignId: e.target.value})}
+                            placeholder="Campaign ID"
+                          />
+                        </div>
+
+                        <div className="space-y-1 md:col-span-2">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase">Meta Ad Account ID</label>
+                          <input
+                            type="text"
+                            className="form-control !py-1.5 !text-[12px]"
+                            value={formData.metaAdAccountId}
+                            onChange={(e) => setFormData({...formData, metaAdAccountId: e.target.value})}
+                            placeholder="Ad account ID"
+                          />
+                        </div>
+                      </div>
+                    </div>
+          )}
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-gray-400 uppercase">Instruction to pass <span className="text-red-500">*</span></label>
+            <textarea 
+              required
+              rows={2}
+              className="form-control !py-1.5 !text-[12px] resize-none"
+              value={formData.instructionToPass}
+              onChange={(e) => setFormData({...formData, instructionToPass: e.target.value})}
+              placeholder="Add instructions for the assigned team member..."
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-gray-400 uppercase">Tags</label>
+            <div className="flex flex-wrap gap-2">
+                {masters?.leadTags?.map((tag: any) => (
+                    <button
+                        key={tag.id}
+                        type="button"
+                        onClick={() => {
+                            const exist = formData.tagIds.includes(tag.id);
+                            if (exist) {
+                                setFormData({...formData, tagIds: formData.tagIds.filter((id: string) => id !== tag.id)});
+                            } else {
+                                setFormData({...formData, tagIds: [...formData.tagIds, tag.id]});
+                            }
+                        }}
+                        className={`px-2 py-1 rounded text-[10px] font-bold uppercase transition-all border ${
+                            formData.tagIds.includes(tag.id) 
+                            ? 'bg-brand text-white border-brand' 
+                            : 'bg-white text-gray-400 border-gray-200'
+                        }`}
+                    >
+                        {tag.name}
+                    </button>
+                ))}
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-gray-400 uppercase">Comments (Appends to existing)</label>
+            <textarea 
+              rows={3}
+              className="form-control !py-1.5 !text-[12px] resize-none"
+              value={formData.comments}
+              onChange={(e) => setFormData({...formData, comments: e.target.value})}
+            />
+          </div>
+
+          <div className="flex gap-3 pt-2 justify-end">
+            <button 
+              type="button"
+              onClick={onClose}
+              className="px-4 py-1.5 rounded bg-gray-100 text-gray-600 font-bold text-[11px] uppercase"
+            >
+              Cancel
+            </button>
+            <button 
+              disabled={isSubmitting}
+              type="submit"
+              className="px-6 py-1.5 rounded bg-brand text-white font-bold text-[11px] uppercase disabled:opacity-50"
+            >
+              {isSubmitting ? 'Saving...' : lead ? 'Update Lead' : 'Create Lead'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default LeadModal;

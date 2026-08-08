@@ -1,0 +1,5 @@
+ID,CustomerName,Value,Status,Date
+1001,Acme Corp,50000,Active,2026-04-10
+1002,Global Tech,75000,Pending,2026-04-12
+1003,Stark Industries,120000,Completed,2026-04-15
+1004,Wayne Enterprises,90000,Active,2026-04-18
