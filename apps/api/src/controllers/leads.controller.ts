@@ -26,8 +26,9 @@ const getMetaEventNameForStatus = (statusName?: string | null): string | null =>
 
   const normalizedStatus = statusName.trim().toLowerCase();
 
-  if (normalizedStatus === 'disqualified') return 'LeadDisqualified';
-  if (normalizedStatus === 'yet to follow-up') return 'LeadLowQuality';
+  if (normalizedStatus === 'disqualified') return 'DisqualifiedLead';
+  if (normalizedStatus === 'yet to follow-up') return 'LeadAwaitingFollowUp';
+  if (normalizedStatus === 'fresh') return 'Lead';
   if (normalizedStatus === 'follow-up') return 'LeadModerate';
   if (normalizedStatus === 'opportunities') return 'Contact';
   if (normalizedStatus === 'order booked') return 'Purchase';
@@ -290,7 +291,7 @@ export const createLead = asyncHandler(async (req: Request, res: Response) => {
   
   const allowedFields = [
     'name', 'email', 'phone', 'projectId', 'sourceId', 'statusId', 
-    'brandId', 'rating', 'nextFollowUp', 'comments',
+    'brandId', 'rating', 'nextFollowUp', 'comments', 'assignedToId',
     'instructionToPass', 'dataCollected', 'contactableDate', 'leadType',
     'ratingName', 'metaLeadId', 'metaFormId', 'metaAdId', 'metaCampaignId', 'metaAdAccountId'
   ];
@@ -298,7 +299,7 @@ export const createLead = asyncHandler(async (req: Request, res: Response) => {
   const data: any = {};
   allowedFields.forEach(field => {
     if (req.body[field] !== undefined) {
-      if (['projectId', 'sourceId', 'statusId', 'brandId'].includes(field) && req.body[field] === '') {
+      if (['projectId', 'sourceId', 'statusId', 'brandId', 'assignedToId'].includes(field) && req.body[field] === '') {
         data[field] = null;
       } else if (['nextFollowUp', 'dataCollected', 'contactableDate'].includes(field)) {
         data[field] = req.body[field] ? new Date(String(req.body[field])) : (field === 'dataCollected' ? new Date() : null);
@@ -453,7 +454,7 @@ export const getAllActivities = asyncHandler(async (req: Request, res: Response)
 export const updateLead = asyncHandler(async (req: Request, res: Response) => {
   const currentUser = getRequestUser(req);
   const { id } = req.params;
-  await ensureLeadUpdateAccess(String(id), currentUser);
+  await ensureLeadUpdateAccess(String(id), currentUser, req.body);
   const actor = currentUser.id
     ? await prisma.user.findUnique({ where: { id: currentUser.id }, select: { fullName: true } })
     : null;
@@ -468,7 +469,8 @@ export const updateLead = asyncHandler(async (req: Request, res: Response) => {
     'name', 'email', 'phone', 'projectId', 'sourceId', 'statusId', 
     'brandId', 'rating', 'nextFollowUp', 'comments', 'assignedToId',
     'instructionToPass', 'dataCollected', 'contactableDate', 'leadType',
-    'ratingName', 'metaLeadId', 'metaFormId', 'metaAdId', 'metaCampaignId', 'metaAdAccountId'
+    'ratingName', 'metaLeadId', 'metaFormId', 'metaAdId', 'metaCampaignId', 'metaAdAccountId',
+    'orderValue'
   ];
 
   const data: any = {};
@@ -496,6 +498,8 @@ export const updateLead = asyncHandler(async (req: Request, res: Response) => {
         data[field] = req.body[field] ? new Date(String(req.body[field])) : (field === 'dataCollected' ? undefined : null);
       } else if (field === 'rating') {
         data[field] = Number(req.body[field]);
+      } else if (field === 'orderValue') {
+        data[field] = req.body[field] !== null && req.body[field] !== '' ? Number(req.body[field]) : null;
       } else {
         data[field] = req.body[field];
       }
@@ -581,10 +585,11 @@ export const updateLead = asyncHandler(async (req: Request, res: Response) => {
               source: 'crm',
               email: updated.email || undefined,
               phone: updated.phone || undefined,
-              pageUrl: 'https://crm.cookscape.com/lead', // Main CRM URL as source
+              pageUrl: 'https://crm.wall2wall.com/lead', // Main CRM URL as source
               ip: ip || '',
               userAgent: req.headers['user-agent'] || '',
               metaLeadId: updated.metaLeadId, // Pass the lead_id for matching
+              value: updated.orderValue !== null && updated.orderValue !== undefined ? Number(updated.orderValue) : undefined,
           });
         } catch (metaError) {
           console.error(`❌ Failed to send Meta event for lead ${updated.id} on status change:`, metaError);

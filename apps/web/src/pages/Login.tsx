@@ -42,7 +42,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#f5f6f8] font-sans">
+    <div className="flex min-h-screen lg:h-screen lg:overflow-hidden overflow-y-auto w-full bg-[#f5f6f8] font-sans">
       {/* Background Section */}
       <div className="hidden lg:flex lg:w-2/3 items-center justify-center overflow-hidden shadow-inner">
         <div className="flex h-full w-full items-center justify-center overflow-hidden">

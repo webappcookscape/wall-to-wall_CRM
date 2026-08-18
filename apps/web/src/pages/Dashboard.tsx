@@ -98,7 +98,7 @@ const Dashboard: React.FC = () => {
           <h4 className="page-title text-xl font-bold text-gray-700 m-0">Dashboard</h4>
         </div>
         <div className="flex gap-2">
-           {(user?.role === 'ADMIN' || user?.role === 'DM_EXECUTIVE') && (
+           {['ADMIN', 'DM_EXECUTIVE', 'BUSINESS_HEAD', 'DESIGNER'].includes(user?.role || '') && (
              <button 
                onClick={() => setIsModalOpen(true)}
                className="btn-custom !rounded-full !px-5 !py-1.5 text-[11px] flex items-center gap-2"
@@ -117,8 +117,8 @@ const Dashboard: React.FC = () => {
             to={tile.path}
             className="tilebox-one group cursor-pointer hover:shadow-md transition-shadow !p-4 md:!p-6 block relative"
           >
-            <div className="absolute right-3 top-3 md:right-5 md:top-5 text-gray-200 group-hover:text-brand transition-colors opacity-50 md:opacity-100">
-              {React.cloneElement(tile.icon as React.ReactElement<any>, { size: window.innerWidth < 768 ? 24 : 32 })}
+            <div className="absolute right-3 top-3 md:right-5 md:top-5 text-gray-200 group-hover:text-brand transition-colors opacity-50 md:opacity-100 [&_svg]:w-6 [&_svg]:h-6 md:[&_svg]:w-8 md:[&_svg]:h-8">
+              {tile.icon}
             </div>
             <h6 className="text-gray-400 text-[9px] md:text-xs font-bold uppercase mt-0 mb-2 md:mb-3 tracking-wider">{tile.label}</h6>
             <h2 className="text-xl md:text-3xl font-bold text-gray-700 m-0">{tile.value}</h2>
@@ -141,7 +141,6 @@ const Dashboard: React.FC = () => {
         <div className="space-y-6">
            {[
              { label: 'Assign Leads for CRE', value: stats.creleads, icon: UserPlus },
-             { label: 'Assign Leads for Feasibility', value: stats.fealeads, icon: TrendingUp },
              { label: 'Assign Leads for Designer', value: stats.designlead, icon: UserPlus },
            ].map((item, i) => (
              <div key={i} className="tilebox-one mb-0 py-4 h-[110px]">

@@ -256,10 +256,10 @@ const Customers: React.FC = () => {
       {/* Filter Bar */}
       <div className="bg-white border border-gray-100 p-4 rounded-xl shadow-sm mb-6">
         <div className="flex flex-wrap items-end gap-4">
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1 w-full sm:w-auto">
             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Brand</label>
             <select 
-              className="w-40 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-[11px] font-bold outline-none focus:ring-2 focus:ring-brand/10 focus:border-brand transition-all"
+              className="w-full sm:w-40 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-[11px] font-bold outline-none focus:ring-2 focus:ring-brand/10 focus:border-brand transition-all"
               value={tempFilters.brandId}
               onChange={(e) => setTempFilters({ ...tempFilters, brandId: e.target.value })}
             >
@@ -267,10 +267,10 @@ const Customers: React.FC = () => {
               {masters?.brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
             </select>
           </div>
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1 w-full sm:w-auto">
             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Project Type</label>
             <select 
-              className="w-48 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-[11px] font-bold outline-none focus:ring-2 focus:ring-brand/10 focus:border-brand transition-all"
+              className="w-full sm:w-48 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-[11px] font-bold outline-none focus:ring-2 focus:ring-brand/10 focus:border-brand transition-all"
               value={tempFilters.projectId}
               onChange={(e) => setTempFilters({ ...tempFilters, projectId: e.target.value })}
             >
@@ -280,7 +280,7 @@ const Customers: React.FC = () => {
           </div>
           <button 
             onClick={handleApplyFilters}
-            className="px-6 py-2 rounded-lg bg-brand text-white text-[11px] font-bold uppercase tracking-widest hover:bg-[#004d30] transition-all shadow-lg shadow-brand/10"
+            className="w-full sm:w-auto px-6 py-2 rounded-lg bg-brand text-white text-[11px] font-bold uppercase tracking-widest hover:bg-[#004d30] transition-all shadow-lg shadow-brand/10"
           >
             Apply Filters
           </button>
@@ -305,15 +305,15 @@ const Customers: React.FC = () => {
 
       {/* Table Container */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="px-6 py-4 bg-gray-50/50 border-b border-gray-100 flex items-center justify-between">
+          <div className="px-6 py-4 bg-gray-50/50 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
               <div className="flex items-center gap-2 text-[11px] font-bold text-gray-500 uppercase tracking-widest">
                   <Users size={14} className="text-brand" /> Active Customer Database
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                   <input 
                       type="text" 
                       placeholder="Search customers..." 
-                      className="bg-white border border-gray-200 rounded-lg px-4 py-1.5 text-[11px] font-medium w-64 outline-none focus:ring-2 focus:ring-brand/10 focus:border-brand transition-all"
+                      className="bg-white border border-gray-200 rounded-lg px-4 py-1.5 text-[11px] font-medium w-full sm:w-64 outline-none focus:ring-2 focus:ring-brand/10 focus:border-brand transition-all"
                       value={activeFilters.search}
                       onChange={(e) => setActiveFilters({ ...activeFilters, search: e.target.value })}
                   />
@@ -335,7 +335,7 @@ const Customers: React.FC = () => {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-200">
             <div className="bg-[#3b3e47] p-6 flex items-center justify-between text-white">
-              <h3 className="text-lg font-bold font-rubik uppercase tracking-tight">Reassign Manager</h3>
+              <h3 className="text-lg font-bold text-white font-rubik uppercase tracking-tight">Reassign Manager</h3>
               <button onClick={() => setIsBulkModalOpen(false)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
                 <ChevronRight className="rotate-90" size={20} />
               </button>

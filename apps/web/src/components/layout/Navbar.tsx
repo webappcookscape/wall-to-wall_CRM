@@ -32,6 +32,18 @@ const Navbar: React.FC = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const location = useLocation();
   const { user, logout } = useAuth();
+  const [lastSeenCount, setLastSeenCount] = useState<number>(() => {
+    return parseInt(localStorage.getItem('lastSeenLeadsCount') || '0', 10);
+  });
+
+  useEffect(() => {
+    if (location.pathname === '/leadhub' || location.pathname === '/leads') {
+      if (stats?.totalLeads !== undefined) {
+        localStorage.setItem('lastSeenLeadsCount', String(stats.totalLeads));
+        setLastSeenCount(stats.totalLeads);
+      }
+    }
+  }, [location.pathname, stats?.totalLeads]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -94,8 +106,8 @@ const Navbar: React.FC = () => {
         { title: 'Email Templates', path: '/master/email-template' },
       ]
     }] : []),
-    { title: 'Lead Hub', path: '/leadhub', icon: <Users size={18} />, badge: stats?.totalLeads || undefined },
-    { title: 'Leads', path: '/leads', icon: <User size={18} />, badge: stats?.totalLeads || undefined },
+    { title: 'Lead Hub', path: '/leadhub', icon: <Users size={18} />, badge: (stats?.totalLeads && stats.totalLeads > lastSeenCount) ? stats.totalLeads - lastSeenCount : undefined },
+    { title: 'Leads', path: '/leads', icon: <User size={18} />, badge: (stats?.totalLeads && stats.totalLeads > lastSeenCount) ? stats.totalLeads - lastSeenCount : undefined },
     { title: 'Reminders', path: '/reminders', icon: <Bell size={18} />, badge: stats?.remindersDue || undefined },
     { title: 'Report', path: '/report', icon: <Flag size={18} /> },
   ];
@@ -153,7 +165,7 @@ const Navbar: React.FC = () => {
             
             <button 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="2xl:hidden p-2 text-gray-600"
+              className="xl:hidden p-2 text-gray-600"
             >
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -162,7 +174,7 @@ const Navbar: React.FC = () => {
       </div>
 
       {/* Navigation Bar Custom */}
-      <nav className="bg-[var(--color-dark)] hidden 2xl:block">
+      <nav className="bg-[var(--color-dark)] hidden xl:block">
         <div className="container-fluid max-w-[1400px] mx-auto px-6 flex items-center justify-between">
           <ul className="flex items-center">
             {menuItems.map((item, idx) => {
@@ -238,10 +250,10 @@ const Navbar: React.FC = () => {
       {isMobileMenuOpen && (
         <>
           <div 
-            className="fixed inset-0 bg-black/50 z-[90] 2xl:hidden backdrop-blur-sm"
+            className="fixed inset-0 bg-black/50 z-[90] xl:hidden backdrop-blur-sm"
             onClick={() => setIsMobileMenuOpen(false)}
           />
-          <div className="fixed top-0 right-0 h-full w-[280px] bg-[var(--color-dark)] z-[100] 2xl:hidden shadow-2xl animate-in slide-in-from-right duration-300 flex flex-col">
+          <div className="fixed top-0 right-0 h-full w-[280px] bg-[var(--color-dark)] z-[100] xl:hidden shadow-2xl animate-in slide-in-from-right duration-300 flex flex-col">
             <div className="p-6 border-b border-white/10 flex items-center justify-between">
               <div className="bg-white p-2 rounded-lg">
                 <img 

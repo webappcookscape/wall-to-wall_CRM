@@ -110,7 +110,7 @@ const SignaturePhoto: React.FC = () => {
             <label className="block text-sm font-bold text-gray-700 mb-2">
               Upload New Signature
             </label>
-            <div className="flex items-start gap-4">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-4">
               <div className="flex-1">
                 <div className={`relative border-2 border-dashed rounded-lg p-6 transition-colors ${file ? 'border-brand bg-brand/5' : 'border-gray-200 hover:border-brand/50'}`}>
                   <input
@@ -132,7 +132,7 @@ const SignaturePhoto: React.FC = () => {
               <button
                 type="submit"
                 disabled={uploading || !file}
-                className="px-6 py-4 bg-brand text-white rounded-lg font-bold hover:bg-brand/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 shadow-lg shadow-brand/20"
+                className="w-full sm:w-auto px-6 py-3 sm:py-4 bg-brand text-white rounded-lg font-bold hover:bg-brand/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg shadow-brand/20"
               >
                 {uploading ? <Loader2 className="animate-spin" size={20} /> : <Upload size={20} />}
                 Submit

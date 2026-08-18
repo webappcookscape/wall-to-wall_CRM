@@ -40,11 +40,11 @@ export const sendLeadEvent = async (req: Request, res: Response) => {
     });
     console.log('✅ Meta Lead Event Controller Result:', result);
     
-    // return apiResponse.success(
-    //   res,
-    //   result,
-    //   'Lead event successfully processed'
-    // );
+    return apiResponse.success(
+      res,
+      result,
+      'Lead event successfully processed'
+    );
   } catch (error) {
     // Log the full error for better debugging
     console.error('❌ Meta Lead Event Controller Error:', error);

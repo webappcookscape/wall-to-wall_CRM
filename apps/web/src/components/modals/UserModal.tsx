@@ -21,6 +21,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSuccess, user 
     signaturePhotoId: '',
     businessHeadId: '',
     status: true,
+    metaAccess: false,
   });
   const [masters, setMasters] = useState<any>(null);
   const [signaturePhotos, setSignaturePhotos] = useState<any[]>([]);
@@ -63,6 +64,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSuccess, user 
         signaturePhotoId: user.signaturePhotoId || '',
         businessHeadId: user.businessHeadId || '',
         status: user.status ?? true,
+        metaAccess: user.metaAccess ?? false,
         password: '',
       });
     } else {
@@ -75,6 +77,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSuccess, user 
         showroomId: '',
         businessHeadId: '',
         status: true,
+        metaAccess: false,
         password: '',
       });
     }
@@ -112,7 +115,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSuccess, user 
                 <UserPlus className="w-6 h-6" />
              </div>
              <div>
-                <h3 className="text-lg font-bold font-rubik uppercase tracking-widest leading-none">
+                <h3 className="text-lg font-bold text-white font-rubik uppercase tracking-widest leading-none">
                   {user ? 'Edit User Profile' : 'Create New User'}
                 </h3>
                 <p className="text-[10px] text-gray-400 uppercase tracking-[0.2em] mt-1 font-bold">
@@ -211,7 +214,6 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSuccess, user 
                      <option value="BUSINESS_HEAD">Business Head</option>
                      <option value="DM_EXECUTIVE">DM Executive</option>
                      <option value="DESIGNER">Designer</option>
-                     <option value="FEASIBILITY">Feasibility</option>
                    </select>
                  </div>
 
@@ -247,7 +249,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSuccess, user 
                     </select>
                   </div>
 
-                  {['CRE', 'FEASIBILITY', 'DESIGNER', 'DM_EXECUTIVE'].includes(formData.role || '') && (
+                  {['CRE', 'DESIGNER', 'DM_EXECUTIVE'].includes(formData.role || '') && (
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
                         <UserIcon size={12} className="text-brand" /> Business Head
@@ -262,6 +264,22 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSuccess, user 
                           <option key={head.id} value={head.id}>{head.fullName}</option>
                         ))}
                       </select>
+                    </div>
+                  )}
+
+                  {formData.role === 'DM_EXECUTIVE' && (
+                    <div className="space-y-1.5 md:col-span-2 flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100 mt-2">
+                      <div className="flex-1">
+                        <p className="text-[11px] font-extrabold text-[#313a46] font-rubik uppercase tracking-wider leading-none">Enable Meta Access</p>
+                        <p className="text-[10px] text-gray-400 mt-1 font-bold">Allow this DM Executive to input Facebook/Meta details on leads</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, metaAccess: !formData.metaAccess })}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${formData.metaAccess ? 'bg-brand' : 'bg-gray-200'}`}
+                      >
+                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${formData.metaAccess ? 'translate-x-6' : 'translate-x-1'}`} />
+                      </button>
                     </div>
                   )}
               </div>

@@ -18,7 +18,7 @@ export const getUsers = asyncHandler(async (req, res) => {
 });
 
 export const createUser = asyncHandler(async (req, res) => {
-  const { username, fullName, email, phone, role, showroomId, signaturePhotoId, businessHeadId, status, password } = req.body;
+  const { username, fullName, email, phone, role, showroomId, signaturePhotoId, businessHeadId, status, password, metaAccess } = req.body;
   
   if (!username || !email || !fullName) {
     return apiResponse.error(res, 'Username, Email, and Full Name are required', 400);
@@ -32,6 +32,7 @@ export const createUser = asyncHandler(async (req, res) => {
     phone: phone ? String(phone) : null,
     role: role || 'CRE',
     status: status !== undefined ? Boolean(status) : true,
+    metaAccess: metaAccess !== undefined ? Boolean(metaAccess) : false,
     showroomId: showroomId && showroomId !== '' ? String(showroomId) : null,
     signaturePhotoId: signaturePhotoId && signaturePhotoId !== '' ? String(signaturePhotoId) : null,
     businessHeadId: businessHeadId && businessHeadId !== '' ? String(businessHeadId) : null,
@@ -61,7 +62,7 @@ export const createUser = asyncHandler(async (req, res) => {
 
 export const updateUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const allowedFields = ['username', 'fullName', 'email', 'phone', 'role', 'showroomId', 'signaturePhotoId', 'businessHeadId', 'status', 'password'];
+  const allowedFields = ['username', 'fullName', 'email', 'phone', 'role', 'showroomId', 'signaturePhotoId', 'businessHeadId', 'status', 'password', 'metaAccess'];
   
   console.log('Updating user:', id, 'Body:', req.body);
   

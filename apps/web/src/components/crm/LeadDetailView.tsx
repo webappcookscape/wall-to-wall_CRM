@@ -44,7 +44,16 @@ const LeadDetailView: FC<LeadDetailViewProps> = ({ lead, onRefresh }) => {
   const isDmEmployee = currentUser?.role === 'DM_EXECUTIVE';
   const statusName = getLeadStatusName(lead);
   const isFreshLead = statusName.trim().toLowerCase() === 'fresh';
-  const canEditLead = !isDmEmployee || isFreshLead;
+  const isOwnerOrAssignee = lead ? (lead.assignedToId === currentUser?.id || lead.createdById === currentUser?.id) : false;
+
+  let canEditLead = false;
+  if (currentUser?.role === 'ADMIN') {
+    canEditLead = true;
+  } else if (currentUser?.role === 'BUSINESS_HEAD' && lead) {
+    canEditLead = isOwnerOrAssignee;
+  } else if (isDmEmployee && lead) {
+    canEditLead = isFreshLead && isOwnerOrAssignee;
+  }
   const [modalType, setModalType] = useState<'FOLLOWUP' | 'REMINDER' | 'STATUS' | 'NOTE' | 'SWITCH_USER' | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
@@ -85,11 +94,11 @@ const LeadDetailView: FC<LeadDetailViewProps> = ({ lead, onRefresh }) => {
            
            <div className="flex flex-col items-end gap-1">
               <div className="flex text-warning gap-0.5">
-                {[...Array(10)].map((_, i) => (
+                {[...Array(5)].map((_, i) => (
                   <Star key={i} size={10} fill={i < (lead.rating || 0) ? "currentColor" : "none"} />
                 ))}
               </div>
-              <span className="text-[9px] font-bold text-gray-400 uppercase">Rating ({lead.rating}/10)</span>
+              <span className="text-[9px] font-bold text-gray-400 uppercase">Rating ({lead.rating}/5)</span>
            </div>
         </div>
 
@@ -143,20 +152,17 @@ const LeadDetailView: FC<LeadDetailViewProps> = ({ lead, onRefresh }) => {
 
       <div className="p-4 md:p-5 space-y-6">
         {/* Actions Grid */}
-        {(canEditLead || !isDmEmployee) && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2">
-             {canEditLead && (
-               <ActionButton icon={Edit2} label="Edit" color="bg-brand" onClick={() => setIsEditModalOpen(true)} />
-             )}
-             {!isDmEmployee && (
-               <ActionButton icon={Activity} label="Followup" color="bg-secondary" onClick={() => setModalType('FOLLOWUP')} />
-             )}
-
-             {(currentUser?.role === 'ADMIN' || currentUser?.role === 'BUSINESS_HEAD') && (
-                <ActionButton icon={Trash2} label="Delete" color="bg-danger" onClick={handleDelete} />
-              )}
-          </div>
-        )}
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2">
+           {canEditLead && (
+             <ActionButton icon={Edit2} label="Edit" color="bg-brand" onClick={() => setIsEditModalOpen(true)} />
+           )}
+           {!isDmEmployee && (
+             <ActionButton icon={Activity} label="Followup" color="bg-secondary" onClick={() => setModalType('FOLLOWUP')} />
+           )}
+           {currentUser?.role === 'ADMIN' && (
+             <ActionButton icon={Trash2} label="Delete" color="bg-danger" onClick={handleDelete} />
+           )}
+        </div>
 
         <div className="pt-4 border-t border-gray-50">
            <ActivityTimeline activities={lead.activities || []} />

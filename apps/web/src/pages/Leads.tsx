@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import LeadDetailView from '../components/crm/LeadDetailView';
 import { leadService } from '../services/api';
 import type { Lead } from '../types/crm';
@@ -22,6 +22,8 @@ const Leads: React.FC = () => {
   const [masters, setMasters] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const selectedLeadRef = useRef<Lead | null>(null);
+  selectedLeadRef.current = selectedLead;
   const [isDetailLoading, setIsDetailLoading] = useState(false);
   const [counts, setCounts] = useState<any>({ today: 0, tomorrow: 0, week: 0, month: 0 });
 
@@ -39,7 +41,7 @@ const Leads: React.FC = () => {
 
   const [activeView, setActiveView] = useState<'LIST' | 'DETAIL'>('LIST');
 
-  const fetchLeads = async () => {
+  const fetchLeads = async (forceSelectId?: string) => {
     setIsLoading(true);
     try {
       const res = await leadService.getLeads({ 
@@ -59,8 +61,24 @@ const Leads: React.FC = () => {
       setLeads(res.data);
       setTotal(res.total);
       
-      if (res.data.length > 0 && !selectedLead && window.innerWidth >= 1024) {
-        fetchLeadDetail(res.data[0].id);
+      if (res.data.length > 0) {
+        const targetId = forceSelectId || selectedLeadRef.current?.id;
+        const isStillInList = targetId ? res.data.some((l: Lead) => l.id === targetId) : false;
+        
+        if (!isStillInList) {
+          if (window.innerWidth >= 1024) {
+            fetchLeadDetail(res.data[0].id);
+          } else {
+            setSelectedLead(null);
+          }
+        } else if (forceSelectId) {
+          fetchLeadDetail(forceSelectId);
+        }
+      } else {
+        setSelectedLead(null);
+        if (window.innerWidth < 1024) {
+          setActiveView('LIST');
+        }
       }
     } catch (error) {
       console.error('Error fetching leads:', error);
@@ -103,6 +121,11 @@ const Leads: React.FC = () => {
     init();
   }, []);
 
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [search, statusId, brandId, projectId, tagId, stageId, rating, timeframe, contactDate, selectedUserId]);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchLeads();
@@ -122,7 +145,7 @@ const Leads: React.FC = () => {
       <div className="card-box !mb-0 !p-3 md:!p-4">
         <div className="flex items-center justify-between mb-4">
            <h4 className="text-sm md:text-base font-bold text-gray-700 uppercase m-0">Leads</h4>
-           {(user?.role === 'ADMIN' || user?.role === 'DM_EXECUTIVE') && (
+           {['ADMIN', 'DM_EXECUTIVE', 'BUSINESS_HEAD', 'DESIGNER'].includes(user?.role || '') && (
              <button 
                onClick={() => setIsModalOpen(true)}
                className="btn-custom !rounded !py-1 text-[10px] md:text-[11px] flex items-center gap-2"
@@ -132,7 +155,7 @@ const Leads: React.FC = () => {
            )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-8 gap-3 pt-3 border-t border-gray-100">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 gap-3 pt-3 border-t border-gray-100">
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-gray-400 uppercase">Brand</label>
             <select value={brandId} onChange={(e) => setBrandId(e.target.value)} className="form-control !py-1 !px-2 !text-[11px]">
@@ -228,7 +251,7 @@ const Leads: React.FC = () => {
       </div>
 
       {/* View Toggle for Mobile/Tablet */}
-      <div className="2xl:hidden flex bg-white border border-gray-100 p-1 rounded-lg">
+      <div className="lg:hidden flex bg-white border border-gray-100 p-1 rounded-lg">
         <button 
           onClick={() => setActiveView('LIST')}
           className={`flex-1 py-2 text-[11px] font-bold uppercase tracking-wider rounded-md transition-all ${activeView === 'LIST' ? 'bg-brand text-white' : 'text-gray-400'}`}
@@ -245,7 +268,7 @@ const Leads: React.FC = () => {
 
       <div className="grid grid-cols-12 gap-4 md:gap-6 min-h-[600px]">
         {/* Left Column: List */}
-        <div className={`col-span-12 2xl:col-span-4 flex flex-col bg-white border border-gray-100 shadow-sm h-[calc(100vh-320px)] ${activeView === 'DETAIL' ? 'hidden 2xl:flex' : 'flex'}`}>
+        <div className={`col-span-12 lg:col-span-4 flex flex-col bg-white border border-gray-100 shadow-sm h-[calc(100vh-320px)] ${activeView === 'DETAIL' ? 'hidden lg:flex' : 'flex'}`}>
           <div className="p-3 border-b border-gray-50 bg-[#f8f9fa] flex items-center justify-between">
              <div className="flex items-center gap-2 text-[10px] md:text-[11px] font-bold text-gray-500">
                 Show <select className="border border-gray-200 rounded px-1"><option>10</option></select> entries
@@ -294,7 +317,7 @@ const Leads: React.FC = () => {
         </div>
 
         {/* Right Column: Lead Details */}
-        <div className={`col-span-12 2xl:col-span-8 h-[calc(100vh-320px)] ${activeView === 'LIST' ? 'hidden 2xl:block' : 'block'}`}>
+        <div className={`col-span-12 lg:col-span-8 h-[calc(100vh-320px)] ${activeView === 'LIST' ? 'hidden lg:block' : 'block'}`}>
            {isDetailLoading ? (
                <div className="h-full bg-white border border-gray-100 flex items-center justify-center">
                     <div className="w-8 h-8 border-3 border-brand border-t-transparent animate-spin rounded-full" />
@@ -303,9 +326,12 @@ const Leads: React.FC = () => {
                <LeadDetailView 
                  lead={selectedLead} 
                  onRefresh={() => {
-                   fetchLeads();
                    fetchCounts();
-                   if (selectedLead) fetchLeadDetail(selectedLead.id);
+                   if (selectedLeadRef.current) {
+                     fetchLeads(selectedLeadRef.current.id);
+                   } else {
+                     fetchLeads();
+                   }
                  }} 
                />
            )}

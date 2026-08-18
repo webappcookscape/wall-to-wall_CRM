@@ -374,15 +374,15 @@ const LeadHub: React.FC = () => {
 
       {/* Inventory Table Container */}
       <div className="card-box !p-0 overflow-hidden">
-          <div className="px-4 py-3 bg-[#f8f9fa] border-b border-gray-100 flex items-center justify-between">
+          <div className="px-4 py-3 bg-[#f8f9fa] border-b border-gray-100 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
               <div className="flex items-center gap-2 text-[11px] font-bold text-gray-500 uppercase">
                   <Users size={14} /> Lead Inventory
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                   <input 
                       type="text" 
                       placeholder="Search..." 
-                      className="form-control !w-48 !py-1 !px-3 !text-[11px]"
+                      className="form-control !w-full sm:!w-48 !py-1 !px-3 !text-[11px]"
                       value={activeFilters.search}
                       onChange={(e) => setActiveFilters({ ...activeFilters, search: e.target.value })}
                   />
@@ -411,7 +411,7 @@ const LeadHub: React.FC = () => {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-200">
             <div className="bg-[#3b3e47] p-6 flex items-center justify-between text-white">
-              <h3 className="text-lg font-bold font-rubik uppercase tracking-tight">Bulk Assign Leads</h3>
+              <h3 className="text-lg font-bold text-white font-rubik uppercase tracking-tight">Bulk Assign Leads</h3>
               <button onClick={() => setIsBulkModalOpen(false)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
                 <ChevronRight className="rotate-90" size={20} />
               </button>

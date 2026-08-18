@@ -25,7 +25,6 @@ const getRatingName = (rating: number) => {
 const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead }) => {
   const { user } = useAuth(); // Use the useAuth hook
   const userRole = user?.role; // Get userRole from the context
-console.log('User Role:', userRole); // Debugging line to check the user role
   const [formData, setFormData] = useState<any>({
     name: '',
     email: '',
@@ -47,6 +46,7 @@ console.log('User Role:', userRole); // Debugging line to check the user role
     instructionToPass: '',
     dataCollected: new Date().toISOString().split('T')[0],
     contactableDate: '',
+    assignedToId: '',
   });
   const [masters, setMasters] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -94,12 +94,13 @@ console.log('User Role:', userRole); // Debugging line to check the user role
         metaAdId: lead.metaAdId || '',
         metaCampaignId: lead.metaCampaignId || '',
         metaAdAccountId: lead.metaAdAccountId || '',
-        nextFollowUp: lead.nextFollowUp ? new Date(lead.nextFollowUp).toISOString().split('T')[0] : '',
+        nextFollowUp: toLocalISOString(lead.nextFollowUp),
         tagIds: lead.tags?.map((t: any) => t.id) || [],
         comments: lead.comments || '',
         instructionToPass: lead.instructionToPass || '',
         dataCollected: lead.dataCollected ? new Date(lead.dataCollected).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
         contactableDate: toLocalISOString(lead.contactableDate),
+        assignedToId: lead.assignedToId || '',
       });
     } else {
         setFormData({
@@ -123,6 +124,7 @@ console.log('User Role:', userRole); // Debugging line to check the user role
             instructionToPass: '',
             dataCollected: new Date().toISOString().split('T')[0],
             contactableDate: '',
+            assignedToId: '',
         });
     }
   }, [lead, isOpen]);
@@ -134,7 +136,8 @@ console.log('User Role:', userRole); // Debugging line to check the user role
       const payload = {
         ...formData,
         ratingName: formData.ratingName || getRatingName(formData.rating),
-        contactableDate: formData.contactableDate ? new Date(formData.contactableDate).toISOString() : null,
+        nextFollowUp: formData.nextFollowUp ? new Date(formData.nextFollowUp).toISOString() : null,
+        contactableDate: formData.nextFollowUp ? new Date(formData.nextFollowUp).toISOString() : null,
       };
       if (lead?.id) {
         await (leadService as any).updateLead(lead.id, payload);
@@ -163,7 +166,7 @@ console.log('User Role:', userRole); // Debugging line to check the user role
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[95vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
         {/* Header */}
         <div className="!text-white bg-[#3b3e47] p-4 flex items-center justify-between ">
-          <h4 className="text-sm font-bold uppercase m-0">{lead ? 'Edit Lead' : 'Create New Lead'}</h4>
+          <h4 className="text-sm font-bold text-white uppercase m-0">{lead ? 'Edit Lead' : 'Create New Lead'}</h4>
           <button onClick={onClose} className="text-white opacity-50 hover:opacity-100">
             <X size={20} />
           </button>
@@ -259,10 +262,13 @@ console.log('User Role:', userRole); // Debugging line to check the user role
             <div className="space-y-1">
               <label className="text-[10px] font-bold text-gray-400 uppercase">Next Follow Up</label>
               <input 
-                type="date"
+                type="datetime-local"
                 className="form-control !py-1.5 !text-[12px]"
                 value={formData.nextFollowUp}
-                onChange={(e) => setFormData({...formData, nextFollowUp: e.target.value})}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setFormData({ ...formData, nextFollowUp: val, contactableDate: val });
+                }}
               />
             </div>
 
@@ -277,19 +283,26 @@ console.log('User Role:', userRole); // Debugging line to check the user role
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase">Contactable Date & Time <span className="text-red-500">*</span></label>
-              <input 
-                required
-                type="datetime-local"
-                className="form-control !py-1.5 !text-[12px]"
-                value={formData.contactableDate}
-                onChange={(e) => setFormData({...formData, contactableDate: e.target.value})}
-              />
-            </div>
+
+
+            {(userRole === 'ADMIN' || userRole === 'BUSINESS_HEAD' || userRole === 'CRE' || userRole === 'DESIGNER') && (
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase">Assigned To</label>
+                <select 
+                  className="form-control !py-1.5 !text-[12px]"
+                  value={formData.assignedToId || ''}
+                  onChange={(e) => setFormData({...formData, assignedToId: e.target.value})}
+                >
+                  <option value="">Unassigned</option>
+                  {masters?.users?.map((u: any) => (
+                    <option key={u.id} value={u.id}>{u.fullName} ({u.role})</option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
 
-          {userRole === "DM_EXECUTIVE" && (
+          {(userRole === "DM_EXECUTIVE" && user?.metaAccess) && (
 
                     <div className="space-y-3 border-t border-gray-100 pt-4">
                       <div>

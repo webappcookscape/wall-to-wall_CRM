@@ -16,6 +16,7 @@ model User {
   phone         String?
   role          Role           @default(CRE)
   status        Boolean        @default(true)
+  metaAccess    Boolean        @default(false)
   avatar        String?
   showroomId    String?
   signaturePhotoId String?
@@ -73,6 +74,7 @@ model Lead {
   metaAdId        String?
   metaCampaignId  String?
   metaAdAccountId String?
+  orderValue      Float?
 }
 
 model Task {
@@ -263,7 +265,6 @@ model SignaturePhoto {
 enum Role {
   ADMIN
   CRE
-  FEASIBILITY
   DESIGNER
   BUSINESS_HEAD
   DM_EXECUTIVE

@@ -38,6 +38,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
       phone: true,
       role: true,
       status: true,
+      metaAccess: true,
       showroom: { select: { id: true, name: true } },
     },
   });
@@ -107,6 +108,7 @@ export const googleLogin = asyncHandler(async (req: Request, res: Response) => {
         phone: true,
         role: true,
         status: true,
+        metaAccess: true,
         showroom: { select: { id: true, name: true } },
       },
     });
@@ -164,6 +166,7 @@ export const getMe = asyncHandler(async (req: Request, res: Response) => {
       phone: true,
       role: true,
       status: true,
+      metaAccess: true,
       showroom: { select: { id: true, name: true } },
     },
   });

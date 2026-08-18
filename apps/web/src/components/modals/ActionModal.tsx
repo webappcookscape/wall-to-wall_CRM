@@ -33,10 +33,14 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, l
     reminderSet: true,
     selfAssign: false,
     reminderAssignTo: lead.assignedToId || '',
-    targetUserId: '' // For Switch User
+    targetUserId: '', // For Switch User
+    orderValue: lead.orderValue || ''
   });
   const [masters, setMasters] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const selectedStatus = masters?.statuses?.find((s: any) => s.id === formData.statusId);
+  const isOrderBooked = selectedStatus?.name?.toLowerCase() === 'order booked';
 
   useEffect(() => {
     const fetchMasters = async () => {
@@ -62,7 +66,8 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, l
       smsContent: '',
       reminderSet: true,
       reminderAssignTo: lead.assignedToId || '',
-      targetUserId: ''
+      targetUserId: '',
+      orderValue: lead.orderValue || ''
     });
   }, [type, lead, isOpen]);
 
@@ -77,25 +82,6 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, l
         onClose();
         return;
       }
-
-      if (type === 'FOLLOWUP' || type === 'STATUS') {
-        // Build the update payload carefully
-        const updatePayload: any = {
-          statusId: formData.statusId,
-          nextFollowUp: formData.nextFollowUp || null,
-        };
-
-        // Only update contactableDate on FOLLOWUP when a reminder is explicitly set with a date.
-        // STATUS changes and follow-ups without a reminder leave contactableDate untouched.
-        if (type === 'FOLLOWUP' && formData.reminderSet && formData.nextFollowUp) {
-          const localMidnight = new Date(formData.nextFollowUp + 'T00:00:00');
-          updatePayload.contactableDate = isNaN(localMidnight.getTime()) ? formData.nextFollowUp : localMidnight.toISOString();
-          updatePayload.assignedToId = formData.reminderAssignTo || undefined;
-        }
-
-        await leadService.updateLead(lead.id, updatePayload);
-      }
-
 
       let activityContent = formData.content;
       if (type === 'FOLLOWUP') {
@@ -113,6 +99,28 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, l
         type: type === 'FOLLOWUP' ? (formData.activityType || 'PHONE') : formData.type || 'NOTE',
         content: activityContent
       });
+
+      if (type === 'FOLLOWUP' || type === 'STATUS' || type === 'REMINDER') {
+        // Build the update payload carefully
+        const updatePayload: any = {};
+
+        if (type === 'FOLLOWUP' || type === 'STATUS') {
+          updatePayload.statusId = formData.statusId;
+          updatePayload.nextFollowUp = formData.nextFollowUp || null;
+          if (isOrderBooked) {
+            updatePayload.orderValue = formData.orderValue !== '' ? Number(formData.orderValue) : null;
+          }
+        }
+
+        // Update contactableDate on FOLLOWUP or REMINDER when a date is selected
+        if ((type === 'FOLLOWUP' && formData.reminderSet && formData.nextFollowUp) || (type === 'REMINDER' && formData.nextFollowUp)) {
+          const localMidnight = new Date(formData.nextFollowUp + 'T00:00:00');
+          updatePayload.contactableDate = isNaN(localMidnight.getTime()) ? formData.nextFollowUp : localMidnight.toISOString();
+          updatePayload.assignedToId = formData.reminderAssignTo || undefined;
+        }
+
+        await leadService.updateLead(lead.id, updatePayload);
+      }
 
       onSuccess();
       onClose();
@@ -154,7 +162,7 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, l
                 {getIcon()}
              </div>
              <div>
-                <h3 className="text-xl font-bold font-rubik uppercase tracking-tight">{getTitle()}</h3>
+                <h3 className="text-xl font-bold text-white font-rubik uppercase tracking-tight">{getTitle()}</h3>
                 <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Action Matrix Protocol</p>
              </div>
           </div>
@@ -198,39 +206,59 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, l
           ) : (
             <>
               {type === 'FOLLOWUP' && (
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                      Activity Type <span className="text-brand font-bold">*</span>
-                    </label>
-                    <select 
-                      required
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand/10 focus:border-brand outline-none transition-all font-bold text-[#313a46]"
-                      value={formData.activityType}
-                      onChange={(e) => setFormData({...formData, activityType: e.target.value})}
-                    >
-                      <option value="">-Select-</option>
-                      <option value="PHONE">Phone Call</option>
-                      <option value="EMAIL">Email Sent</option>
-                      <option value="VISIT">Site Visit</option>
-                    </select>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                        Activity Type <span className="text-brand font-bold">*</span>
+                      </label>
+                      <select 
+                        required
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand/10 focus:border-brand outline-none transition-all font-bold text-[#313a46]"
+                        value={formData.activityType}
+                        onChange={(e) => setFormData({...formData, activityType: e.target.value})}
+                      >
+                        <option value="">-Select-</option>
+                        <option value="PHONE">Phone Call</option>
+                        <option value="EMAIL">Email Sent</option>
+                        <option value="VISIT">Site Visit</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                        Target Status <span className="text-brand font-bold">*</span>
+                      </label>
+                      <select 
+                        required
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand/10 focus:border-brand outline-none transition-all font-bold text-[#313a46]"
+                        value={formData.statusId}
+                        onChange={(e) => setFormData({...formData, statusId: e.target.value})}
+                      >
+                        <option value="">-Select-</option>
+                        {masters?.statuses?.map((s: any) => (
+                          <option key={s.id} value={s.id}>{s.name}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                      Target Status <span className="text-brand font-bold">*</span>
-                    </label>
-                    <select 
-                      required
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand/10 focus:border-brand outline-none transition-all font-bold text-[#313a46]"
-                      value={formData.statusId}
-                      onChange={(e) => setFormData({...formData, statusId: e.target.value})}
-                    >
-                      <option value="">-Select-</option>
-                      {masters?.statuses?.map((s: any) => (
-                        <option key={s.id} value={s.id}>{s.name}</option>
-                      ))}
-                    </select>
-                  </div>
+
+                  {isOrderBooked && (
+                    <div className="space-y-1.5 animate-in slide-in-from-top-2 duration-200">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                        Order Value (INR) <span className="text-brand font-bold">*</span>
+                      </label>
+                      <input 
+                        type="number"
+                        required
+                        min="0"
+                        step="any"
+                        placeholder="Enter order value..."
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand/10 focus:border-brand outline-none transition-all font-bold text-[#313a46]"
+                        value={formData.orderValue || ''}
+                        onChange={(e) => setFormData({...formData, orderValue: e.target.value})}
+                      />
+                    </div>
+                  )}
                 </div>
               )}
 

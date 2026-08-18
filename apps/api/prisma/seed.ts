@@ -101,7 +101,7 @@ async function main() {
   }
 
   // 7. Users
-  const roles = ['CRE', 'FEASIBILITY', 'DESIGNER', 'DM_EXECUTIVE'] as const;
+  const roles = ['CRE', 'DESIGNER', 'DM_EXECUTIVE'] as const;
   const users = [];
 
   const defaultPassword = await bcrypt.hash('admin123', 10);
@@ -137,22 +137,6 @@ async function main() {
     users.push(user);
   }
 
-  // Feasibility
-  const feaNames = ['Karthik R', 'Meera Nair', 'Naveen B', 'Sneha L', 'Vijay K'];
-  for (const name of feaNames) {
-    const user = await prisma.user.upsert({
-      where: { email: `${name.toLowerCase().replace(' ', '.')}@cookscape.com` },
-      update: { password: defaultPassword },
-      create: {
-        username: name.toLowerCase().replace(' ', '_'),
-        fullName: name,
-        email: `${name.toLowerCase().replace(' ', '.')}@cookscape.com`,
-        password: defaultPassword,
-        role: 'FEASIBILITY',
-      }
-    });
-    users.push(user);
-  }
 
   // Designers
   const desNames = ['Ananya Rao', 'Bala Murali', 'Chitra S', 'Divya P', 'Eshwar T'];

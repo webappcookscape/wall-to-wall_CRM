@@ -17,7 +17,7 @@ export interface Source { id: string; name: string; }
 export interface LeadStatus { id: string; name: string; color?: string; }
 export interface Stage { id: string; name: string; }
 
-export type Role = 'ADMIN' | 'CRE' | 'FEASIBILITY' | 'DESIGNER' | 'BUSINESS_HEAD' | 'DM_EXECUTIVE';
+export type Role = 'ADMIN' | 'CRE' | 'DESIGNER' | 'BUSINESS_HEAD' | 'DM_EXECUTIVE';
 export interface UserBasic { id: string; fullName: string; role?: Role; }
 
 export interface User {
@@ -28,6 +28,7 @@ export interface User {
   phone?: string | null;
   role: Role;
   status: boolean;
+  metaAccess?: boolean;
   avatar?: string | null;
   showroomId?: string | null;
   showroom?: { id: string; name: string } | null;
@@ -49,6 +50,7 @@ export interface Lead {
   rating: number;
   nextFollowUp: string | null;
   assignedToId?: string | null;
+  createdById?: string | null;
   assignedTo?: UserBasic | null;
   createdBy?: UserBasic | null;
   status: LeadStatus | string | null;
@@ -70,6 +72,7 @@ export interface Lead {
   createdAt: string;
   updatedAt: string;
   activities?: LeadActivity[];
+  orderValue?: number | null;
 }
 
 export interface MasterData {

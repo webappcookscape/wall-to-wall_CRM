@@ -61,7 +61,6 @@ const Users = () => {
       case 'DESIGNER': return 'bg-pink-50 text-pink-600 border-pink-100';
       case 'CRE': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
       case 'DM_EXECUTIVE': return 'bg-sky-50 text-sky-600 border-sky-100';
-      case 'FEASIBILITY': return 'bg-amber-50 text-amber-600 border-amber-100';
       default: return 'bg-gray-50 text-gray-600 border-gray-100';
     }
   };
@@ -115,7 +114,6 @@ const Users = () => {
                   <option value="CRE">CRE</option>
                   <option value="DM_EXECUTIVE">DM Executive</option>
                   <option value="DESIGNER">Designer</option>
-                  <option value="FEASIBILITY">Feasibility</option>
                 </select>
               </div>
            </div>

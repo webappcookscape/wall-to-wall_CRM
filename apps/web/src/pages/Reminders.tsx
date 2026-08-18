@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { leadService } from '../services/api';
 import { Bell, Phone, Calendar, ChevronLeft, ChevronRight, Clock, AlertCircle, CheckCircle2 } from 'lucide-react';
+import ActionModal from '../components/modals/ActionModal';
 
 const Reminders: React.FC = () => {
     const [leads, setLeads] = useState<any[]>([]);
@@ -9,6 +10,23 @@ const Reminders: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [selectedLead, setSelectedLead] = useState<any>(null);
     const [timeframe, setTimeframe] = useState<'overdue' | 'today' | 'tomorrow' | 'week'>('today');
+    const [modalType, setModalType] = useState<'FOLLOWUP' | 'REMINDER' | null>(null);
+    const [activeView, setActiveView] = useState<'LIST' | 'DETAIL'>('LIST');
+
+    const handleDismissReminder = async (leadId: string) => {
+        if (!window.confirm('Are you sure you want to mark this reminder as completed?')) return;
+        try {
+            await leadService.updateLead(leadId, { contactableDate: null });
+            await leadService.addLeadActivity(leadId, {
+                type: 'NOTE',
+                content: 'Reminder marked as completed/dismissed'
+            });
+            fetchReminders();
+        } catch (error) {
+            console.error('Error completing reminder:', error);
+            alert('Failed to complete reminder.');
+        }
+    };
 
     const fetchReminders = useCallback(async () => {
         setIsLoading(true);
@@ -90,9 +108,25 @@ const Reminders: React.FC = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-12 gap-6 h-[calc(100vh-240px)]">
+            {/* View Toggle for Mobile/Tablet */}
+            <div className="lg:hidden flex bg-white border border-gray-100 p-1 rounded-lg mb-4">
+                <button 
+                    onClick={() => setActiveView('LIST')}
+                    className={`flex-1 py-2 text-[11px] font-bold uppercase tracking-wider rounded-md transition-all ${activeView === 'LIST' ? 'bg-[#006039] text-white shadow' : 'text-gray-400'}`}
+                >
+                    Reminders List
+                </button>
+                <button 
+                    onClick={() => setActiveView('DETAIL')}
+                    className={`flex-1 py-2 text-[11px] font-bold uppercase tracking-wider rounded-md transition-all ${activeView === 'DETAIL' ? 'bg-[#006039] text-white shadow' : 'text-gray-400'}`}
+                >
+                    Reminder Details
+                </button>
+            </div>
+
+            <div className="grid grid-cols-12 gap-6">
                 {/* List */}
-                <div className="col-span-12 lg:col-span-4 bg-white border border-gray-100 shadow-sm flex flex-col overflow-hidden">
+                <div className={`col-span-12 lg:col-span-4 bg-white border border-gray-100 shadow-sm flex flex-col overflow-hidden h-[calc(100vh-280px)] lg:h-[calc(100vh-240px)] ${activeView === 'DETAIL' ? 'hidden lg:flex' : 'flex'}`}>
                     <div className="p-3 bg-[#f8f9fa] border-b border-gray-100 flex items-center justify-between">
                         <span className="text-[10px] font-bold text-gray-400 uppercase">
                             {total} Reminder{total !== 1 ? 's' : ''}
@@ -127,7 +161,12 @@ const Reminders: React.FC = () => {
                             return (
                                 <div
                                     key={lead.id}
-                                    onClick={() => setSelectedLead(lead)}
+                                    onClick={() => {
+                                        setSelectedLead(lead);
+                                        if (window.innerWidth < 1024) {
+                                            setActiveView('DETAIL');
+                                        }
+                                    }}
                                     className={`p-4 cursor-pointer transition-colors border-l-4 ${
                                         selectedLead?.id === lead.id
                                             ? (lead.contactableDate ? getUrgencyColor(lead.contactableDate) : 'bg-gray-50 border-l-[#006039]')
@@ -161,7 +200,7 @@ const Reminders: React.FC = () => {
                 </div>
 
                 {/* Detail */}
-                <div className="col-span-12 lg:col-span-8 bg-white border border-gray-100 shadow-sm flex flex-col overflow-hidden relative">
+                <div className={`col-span-12 lg:col-span-8 bg-white border border-gray-100 shadow-sm flex flex-col overflow-hidden relative h-[calc(100vh-280px)] lg:h-[calc(100vh-240px)] ${activeView === 'LIST' ? 'hidden lg:flex' : 'flex'}`}>
                     {selectedLead ? (
                         <div className="flex flex-col h-full">
                             {/* Detail Header */}
@@ -178,12 +217,32 @@ const Reminders: React.FC = () => {
                                             );
                                         })()}
                                     </div>
-                                    <a
-                                        href={`tel:${selectedLead.phone}`}
-                                        className="flex items-center gap-2 bg-[#006039] text-white px-4 py-2 rounded text-[10px] font-bold uppercase"
-                                    >
-                                        <Phone size={14} /> Call Now
-                                    </a>
+                                    <div className="flex flex-wrap gap-2">
+                                        <a
+                                            href={`tel:${selectedLead.phone}`}
+                                            className="flex items-center gap-2 bg-[#006039] text-white px-3 py-1.5 rounded text-[10px] font-bold uppercase hover:bg-[#004d30] transition-colors"
+                                        >
+                                            <Phone size={14} /> Call Now
+                                        </a>
+                                        <button
+                                            onClick={() => setModalType('FOLLOWUP')}
+                                            className="flex items-center gap-2 bg-brand text-white px-3 py-1.5 rounded text-[10px] font-bold uppercase hover:bg-brand/90 transition-colors"
+                                        >
+                                            <Calendar size={14} /> Followup
+                                        </button>
+                                        <button
+                                            onClick={() => setModalType('REMINDER')}
+                                            className="flex items-center gap-2 bg-amber-500 text-white px-3 py-1.5 rounded text-[10px] font-bold uppercase hover:bg-amber-600 transition-colors"
+                                        >
+                                            <Bell size={14} /> Reschedule
+                                        </button>
+                                        <button
+                                            onClick={() => handleDismissReminder(selectedLead.id)}
+                                            className="flex items-center gap-2 bg-danger text-white px-3 py-1.5 rounded text-[10px] font-bold uppercase hover:bg-danger/90 transition-colors"
+                                        >
+                                            <CheckCircle2 size={14} /> Complete
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -256,6 +315,18 @@ const Reminders: React.FC = () => {
                     )}
                 </div>
             </div>
+            {modalType && selectedLead && (
+                <ActionModal 
+                    isOpen={modalType !== null}
+                    onClose={() => setModalType(null)}
+                    onSuccess={() => {
+                        setModalType(null);
+                        fetchReminders();
+                    }}
+                    lead={selectedLead}
+                    type={modalType}
+                />
+            )}
         </div>
     );
 };

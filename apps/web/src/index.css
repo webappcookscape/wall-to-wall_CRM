@@ -19,7 +19,7 @@
   body {
     @apply bg-[var(--color-background)] text-[#313a46] antialiased;
     font-family: var(--font-roboto);
-    font-size: 14px;
+    font-size: 15px;
     margin: 0;
     padding-bottom: 60px;
     overflow-x: hidden;
@@ -30,12 +30,12 @@
     @apply font-medium text-[#313a46];
   }
 
-  h1 { line-height: 43px; font-size: 36px; }
-  h2 { line-height: 35px; font-size: 30px; }
-  h3 { line-height: 30px; font-size: 24px; }
-  h4 { line-height: 22px; font-size: 18px; }
-  h5 { font-size: 15px; }
-  h6 { font-size: 12px; }
+  h1 { line-height: 45px; font-size: 38px; }
+  h2 { line-height: 37px; font-size: 32px; }
+  h3 { line-height: 32px; font-size: 26px; }
+  h4 { line-height: 24px; font-size: 20px; }
+  h5 { font-size: 16px; }
+  h6 { font-size: 13px; }
 }
 
 @layer components {
