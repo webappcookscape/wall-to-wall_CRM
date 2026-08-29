@@ -1,0 +1,1407 @@
+{
+  "showrooms": [
+    {
+      "id": "f57986ba-b652-4e4d-af62-ce7fcd3021da",
+      "name": "Chennai - OMR",
+      "location": "OMR, Chennai"
+    },
+    {
+      "id": "26e2392b-9301-4918-9654-673629b19a55",
+      "name": "Chennai - Nandhanam(MTRS)",
+      "location": "Nandhanam, Chennai"
+    },
+    {
+      "id": "f0daddc5-e87d-4e74-a0d7-9d98deffe0b7",
+      "name": "Bangalore - HSR",
+      "location": "HSR Layout, Bangalore"
+    },
+    {
+      "id": "bfde9fe3-cf92-4973-a04d-6d4c1362afe7",
+      "name": "Chennai - Porur",
+      "location": "Porur, Chennai"
+    },
+    {
+      "id": "b1750385-8d18-4bb0-9432-1b053d190d13",
+      "name": "Coimbatore - Covai",
+      "location": "Coimbatore"
+    }
+  ],
+  "brands": [
+    {
+      "id": "86d8783d-b720-47f0-9b5f-a8f7f9277dbe",
+      "name": "Wall to Wall",
+      "logo": "/assets/logos/wall2wall_crm.png"
+    },
+    {
+      "id": "4c560973-58d5-445d-a722-16f0f1344a79",
+      "name": "Cookscape",
+      "logo": "/assets/logos/Wall-to-wall_logo.jpeg"
+    },
+    {
+      "id": "fb3bfabf-27be-4d23-a2fc-6c97a228ed90",
+      "name": "Orbix",
+      "logo": "/assets/logos/orbix_logo.png"
+    }
+  ],
+  "stages": [
+    {
+      "id": "2b76932e-9356-4dcb-95ba-734e98ed7fc5",
+      "name": "Client signature on the freezing advance receipt"
+    },
+    {
+      "id": "1041cf6b-fd27-45ab-b6e7-08096344105f",
+      "name": "Booking confirmation mail"
+    },
+    {
+      "id": "d0826740-5f0b-4ecc-b28e-3bd4627200da",
+      "name": "FM and PDI"
+    },
+    {
+      "id": "28a136e5-aaeb-43a1-b43b-a67dd0996e7c",
+      "name": "Send 2D Drawings for FM"
+    },
+    {
+      "id": "a81e1fc2-c53c-49ca-8205-c9b17305571b",
+      "name": "FM taken - Attach drawings"
+    },
+    {
+      "id": "c2ee1274-7043-4653-bea4-4f0bdc900f82",
+      "name": "PDI Report + site photos to client"
+    },
+    {
+      "id": "28c58e0f-2a65-41b3-a0e8-06101d6e9db6",
+      "name": "2D Dwgs as per FM to client"
+    },
+    {
+      "id": "f2353f19-c62a-4676-af8f-9759b12d6454",
+      "name": "Get Approval in design from client"
+    },
+    {
+      "id": "ddfc12ab-eecf-4cbc-8fa8-f6ca3eb4c4f8",
+      "name": "Invite to showroom / Fix meeting for colour choosing"
+    },
+    {
+      "id": "feb9167e-e65b-4343-935f-bbf0cc1fd996",
+      "name": "Do colour drawings & Send 3D to client"
+    },
+    {
+      "id": "307295b3-5c98-4d48-915a-798da90f1b6b",
+      "name": "Split up and advance"
+    },
+    {
+      "id": "100c13fd-ee4e-4ece-87a4-2b6aa0b09527",
+      "name": "Loading Finalized Step"
+    },
+    {
+      "id": "51453ddc-3f1d-4cc2-8900-4dfe375aae6e",
+      "name": "Production process"
+    },
+    {
+      "id": "8d1310a7-4943-481c-a250-47bedd98962f",
+      "name": "Installation ongoing"
+    },
+    {
+      "id": "ce78e018-de03-44d3-947b-ec7b883df5dc",
+      "name": "Order Completed"
+    }
+  ],
+  "sources": [
+    {
+      "id": "50642cff-5ba9-4e76-b8f9-2cb1a1cf371d",
+      "name": "Google Ads"
+    },
+    {
+      "id": "f36c0a45-0e88-4464-b83f-1698ad89a7cb",
+      "name": "Facebook"
+    },
+    {
+      "id": "b1a1faef-855f-422f-8c9a-1bc9bbd863b7",
+      "name": "Referral"
+    },
+    {
+      "id": "3d7df047-d7db-44ab-85a9-7731eb3ee3b2",
+      "name": "Walk-in"
+    },
+    {
+      "id": "82d153f8-a296-4dfa-a7bf-1549c8898adb",
+      "name": "Website"
+    },
+    {
+      "id": "e3c20fc7-e693-4203-a255-0839c2ec2641",
+      "name": "Instagram"
+    },
+    {
+      "id": "6cfeae85-9731-4ae4-add8-57b2114e73a7",
+      "name": "Direct Lead"
+    },
+    {
+      "id": "0907ed98-9bcb-449c-9851-7e8bc96b58b1",
+      "name": "Meta Ads"
+    }
+  ],
+  "projects": [
+    {
+      "id": "fb344041-3d78-494b-8d30-587fcd8618a4",
+      "name": "False Ceiling"
+    },
+    {
+      "id": "1c38cbb7-4968-4454-aec3-96d96552c6b9",
+      "name": "Lighting"
+    },
+    {
+      "id": "91459bfd-da17-4d3e-89fb-c611b1079de2",
+      "name": "Wallpaper"
+    },
+    {
+      "id": "860e9a3c-a710-4e8c-a8df-52301a0f387c",
+      "name": "Wall Murals"
+    },
+    {
+      "id": "f27cb7bd-2757-4eeb-98ca-d9be7794ed39",
+      "name": "Wall Cladding"
+    },
+    {
+      "id": "42cc8167-b165-4f83-b716-9d4d9ed3645f",
+      "name": "Wall Painting"
+    },
+    {
+      "id": "db0d92f0-cc2d-4365-af6f-29d7f1e0e79c",
+      "name": "Blinds"
+    },
+    {
+      "id": "1406f1c5-0bfb-44f6-b523-cbf5b749aae9",
+      "name": "Curtains"
+    },
+    {
+      "id": "cd5d3967-c772-4d6d-98d4-aa205930f888",
+      "name": "Modular Kitchen"
+    },
+    {
+      "id": "0372c004-4325-4d49-827a-f37974ed3fb8",
+      "name": "Wardrobe"
+    },
+    {
+      "id": "1a2a54e6-0f4a-4618-81ca-c4f7ec2ae301",
+      "name": "Home Interior"
+    },
+    {
+      "id": "22250667-d29c-4aac-aed9-c61cbc2e7cc4",
+      "name": "Cookscape Heights"
+    },
+    {
+      "id": "3727d153-386d-4da5-bd48-a534ccec8ffb",
+      "name": "Cookscape Valley"
+    },
+    {
+      "id": "a1abee75-235f-4599-b891-f90ece822a3b",
+      "name": "Cookscape Gardens"
+    }
+  ],
+  "statuses": [
+    {
+      "id": "6f21ade1-0763-48d6-b95c-9a3061bee167",
+      "name": "Fresh"
+    },
+    {
+      "id": "37df7fa6-7a76-4044-ab6b-684fe651357e",
+      "name": "Yet To Follow-up"
+    },
+    {
+      "id": "9b39dda6-8b86-4fd6-9134-5ee3e35ffd9a",
+      "name": "Follow-up"
+    },
+    {
+      "id": "53657e58-0da3-482f-900c-6be6860ec12b",
+      "name": "Opportunities"
+    },
+    {
+      "id": "b04fc711-2535-42ee-92da-73f80a0157a1",
+      "name": "Order Booked"
+    },
+    {
+      "id": "ff855da4-9c40-48e8-b507-097dc512f506",
+      "name": "Disqualified"
+    }
+  ],
+  "salutations": [
+    {
+      "id": "0553748c-30e7-455c-84bf-10b6e825e75c",
+      "name": "Mr."
+    },
+    {
+      "id": "09f003ef-d4e7-486f-b5a5-e6c69d80978e",
+      "name": "Mrs."
+    },
+    {
+      "id": "24210385-9aec-4a9c-8cf5-925f5815814c",
+      "name": "Ms."
+    },
+    {
+      "id": "0f101242-6fbd-40e0-8c7c-f03d809b9b97",
+      "name": "Dr."
+    }
+  ],
+  "tags": [
+    {
+      "id": "8cc139d5-ae2b-4619-a0f4-cdf91a944eb5",
+      "name": "HOT"
+    },
+    {
+      "id": "a432f5a6-56b9-4e7f-8ab6-e07a9e02d2a0",
+      "name": "FQ"
+    },
+    {
+      "id": "e823bce5-499f-4f37-bd75-24ca9b6787e2",
+      "name": "RN order"
+    },
+    {
+      "id": "3404fc81-8b4b-4047-a959-9420bf841a38",
+      "name": "Follow up"
+    },
+    {
+      "id": "66ab940a-1330-4fbc-a8aa-3c300fd8e2a0",
+      "name": "MSMT"
+    },
+    {
+      "id": "31b6c814-b410-4956-b7cb-15982e59f614",
+      "name": "HRE"
+    },
+    {
+      "id": "9f9551ac-aa94-4ed5-bc26-5a6e674f5e67",
+      "name": "Online"
+    },
+    {
+      "id": "2f6e12d6-809e-4705-b86a-0f8d7e413a21",
+      "name": "Presentation"
+    }
+  ],
+  "bankDetails": [
+    {
+      "id": "1610b53d-ff9b-4ca1-8b2b-81ab90fb465b",
+      "accountHolderName": "Wall to Wall Interiors Pvt Ltd",
+      "accountNumber": "50200012345678",
+      "bankName": "HDFC Bank",
+      "branch": "OMR Branch, Chennai",
+      "createdAt": "2026-08-17T09:20:15.185Z",
+      "updatedAt": "2026-08-17T09:20:15.185Z",
+      "updatedBy": "Admin"
+    }
+  ],
+  "scopes": [
+    {
+      "id": "e9d48b9b-3048-4e55-869c-4be11a6f8ebc",
+      "name": "Full Interior"
+    },
+    {
+      "id": "427bd9db-6e19-450e-b443-3637c7aa0557",
+      "name": "Kitchen & Wardrobe"
+    },
+    {
+      "id": "6fa30760-ca27-492e-a196-2f6eff76837c",
+      "name": "Wall Decor Only"
+    },
+    {
+      "id": "7606126a-4f70-4f53-8d05-9ffe7d20db7f",
+      "name": "False Ceiling & Lighting"
+    }
+  ],
+  "paymentModes": [
+    {
+      "id": "1f48b4b3-36a9-4f6d-9eb2-3d9952199bf5",
+      "name": "Bank Transfer / NEFT"
+    },
+    {
+      "id": "50738458-e5fd-44a6-be2d-7bf78ccac0ee",
+      "name": "UPI / GPay"
+    },
+    {
+      "id": "82492fe2-2470-45e1-ae4b-503c50d4fc19",
+      "name": "Cheque"
+    },
+    {
+      "id": "7d61d225-5a26-4b71-9916-170fa8a3d8d2",
+      "name": "Credit Card"
+    },
+    {
+      "id": "03ddfe42-714a-4dec-999b-817fae4e6b8f",
+      "name": "Cash"
+    }
+  ],
+  "splitUps": [
+    {
+      "id": "10221310-e4cc-4b33-a52a-ec1b40d4936d",
+      "name": "10% Advance"
+    },
+    {
+      "id": "0acc57d7-e0b5-4f78-8bca-55554055337d",
+      "name": "50% Production"
+    },
+    {
+      "id": "1293c472-1722-4fbe-b749-72240aa0e6a5",
+      "name": "40% Handover"
+    },
+    {
+      "id": "51433302-d747-4a75-9af4-e9bebf9386d5",
+      "name": "100% Full Payment"
+    }
+  ],
+  "activityTypes": [
+    {
+      "id": "b1e7ff0f-b638-46a6-b539-391255148fca",
+      "name": "STATUS_CHANGE"
+    },
+    {
+      "id": "3af9c384-adf2-4dc7-b6c0-a50518b79a38",
+      "name": "ASSIGNMENT"
+    },
+    {
+      "id": "f00f4530-b7cc-4186-a1aa-4fc1a4e7cf1d",
+      "name": "NOTE"
+    },
+    {
+      "id": "22b4cf80-6a1c-45f2-b999-e63bba19d6e0",
+      "name": "CALL"
+    },
+    {
+      "id": "b8c80c2a-a65f-4010-823a-272cf9b4ea6a",
+      "name": "MEETING"
+    },
+    {
+      "id": "d4a02a99-9010-42e4-8c8d-558fdd1560d3",
+      "name": "SHOWROOM_VISIT"
+    },
+    {
+      "id": "188f776a-45c3-4236-9b8b-037ac75edc53",
+      "name": "TASK_CREATED"
+    }
+  ],
+  "vendorSources": [],
+  "productionHolds": [],
+  "workNotifications": [],
+  "questionCategories": [],
+  "questions": [],
+  "smsTemplates": [],
+  "emailTemplates": [],
+  "signaturePhotos": [],
+  "users": [
+    {
+      "id": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "username": "admin",
+      "fullName": "Administrator",
+      "email": "admin@wall2wall.com",
+      "password": "$2b$10$1gPnRsdzLt45OkAOtwaWV.6qlrF.4hsm.ugY6aC91XYIRM/K6ewM2",
+      "phone": "9840011001",
+      "role": "ADMIN",
+      "status": true,
+      "metaAccess": false,
+      "avatar": null,
+      "showroomId": "f57986ba-b652-4e4d-af62-ce7fcd3021da",
+      "signaturePhotoId": null,
+      "businessHeadId": null,
+      "createdAt": "2026-08-17T09:20:15.385Z",
+      "updatedAt": "2026-08-17T09:20:15.385Z"
+    },
+    {
+      "id": "316b3bca-6233-4763-9523-e26e93c313ce",
+      "username": "suresh.head",
+      "fullName": "Suresh Gopalan",
+      "email": "suresh.head@wall2wall.com",
+      "password": "$2b$10$29nUyBf2JhPPZVjLoEJSGe7HhIoUb3KsR.ptcgFWCDxT3sMBOxv1q",
+      "phone": "9840011003",
+      "role": "BUSINESS_HEAD",
+      "status": true,
+      "metaAccess": false,
+      "avatar": null,
+      "showroomId": "26e2392b-9301-4918-9654-673629b19a55",
+      "signaturePhotoId": null,
+      "businessHeadId": null,
+      "createdAt": "2026-08-17T09:20:15.619Z",
+      "updatedAt": "2026-08-17T09:20:15.619Z"
+    },
+    {
+      "id": "450725f0-1d7f-4fc8-bf41-0b6e4412cc21",
+      "username": "dmexecutive",
+      "fullName": "Karthik DM",
+      "email": "dmexecutive@wall2wall.com",
+      "password": "$2b$10$I3G1v070k9a4Z1R9PjlB.OJCB8wwbWJQfEwnByHjDteTYJyqy.pKO",
+      "phone": "9840011012",
+      "role": "DM_EXECUTIVE",
+      "status": true,
+      "metaAccess": false,
+      "avatar": null,
+      "showroomId": "f57986ba-b652-4e4d-af62-ce7fcd3021da",
+      "signaturePhotoId": null,
+      "businessHeadId": null,
+      "createdAt": "2026-08-17T09:20:16.701Z",
+      "updatedAt": "2026-08-17T09:20:16.701Z"
+    },
+    {
+      "id": "7b4efbde-ae82-429a-92d3-4da4b5611422",
+      "username": "rohit.dm",
+      "fullName": "Rohit Verma",
+      "email": "rohit.dm@wall2wall.com",
+      "password": "$2b$10$VKpnrhm0SKFvmKe38wYfEuawTRsJKIjRN6v0ihJ9Jbj/AtG/k9waG",
+      "phone": "9840011013",
+      "role": "DM_EXECUTIVE",
+      "status": true,
+      "metaAccess": false,
+      "avatar": null,
+      "showroomId": "f57986ba-b652-4e4d-af62-ce7fcd3021da",
+      "signaturePhotoId": null,
+      "businessHeadId": null,
+      "createdAt": "2026-08-17T09:20:16.810Z",
+      "updatedAt": "2026-08-17T09:20:16.810Z"
+    },
+    {
+      "id": "62bc1a2e-c557-40fa-8dba-5083bc3bb676",
+      "username": "cre",
+      "fullName": "Deepika Sundar",
+      "email": "cre@wall2wall.com",
+      "password": "$2b$10$ySvHuikQ2/4a50DPE1w/pOpk/rV6gByiE3j9oHgNwBNs4ONbLuQtC",
+      "phone": "9840011004",
+      "role": "CRE",
+      "status": true,
+      "metaAccess": false,
+      "avatar": null,
+      "showroomId": "f57986ba-b652-4e4d-af62-ce7fcd3021da",
+      "signaturePhotoId": null,
+      "businessHeadId": "4ad6a6ca-1d04-4f50-a52d-c9d75dec46de",
+      "createdAt": "2026-08-17T09:20:15.744Z",
+      "updatedAt": "2026-08-17T09:20:16.812Z"
+    },
+    {
+      "id": "86b4f8e1-65f2-4226-93ab-7f79d0c0d194",
+      "username": "arun.cre",
+      "fullName": "Arun Kumar",
+      "email": "arun.cre@wall2wall.com",
+      "password": "$2b$10$jSeDzVntSGwwMC2PbpxPaeG.n/fVlsG4et2bJYkABs5A5l4OCPZTK",
+      "phone": "9840011005",
+      "role": "CRE",
+      "status": true,
+      "metaAccess": false,
+      "avatar": null,
+      "showroomId": "f57986ba-b652-4e4d-af62-ce7fcd3021da",
+      "signaturePhotoId": null,
+      "businessHeadId": "4ad6a6ca-1d04-4f50-a52d-c9d75dec46de",
+      "createdAt": "2026-08-17T09:20:15.864Z",
+      "updatedAt": "2026-08-17T09:20:16.812Z"
+    },
+    {
+      "id": "c0112246-9b5d-4d78-bde6-e5f3abb377c7",
+      "username": "ashwini.cre",
+      "fullName": "Ashwini Ramesh",
+      "email": "ashwini.cre@wall2wall.com",
+      "password": "$2b$10$/mRQ.gvliQc3kqKk1d66reCHZoCq98zF41csO/NV22pceseiCqnu6",
+      "phone": "9840011006",
+      "role": "CRE",
+      "status": true,
+      "metaAccess": false,
+      "avatar": null,
+      "showroomId": "26e2392b-9301-4918-9654-673629b19a55",
+      "signaturePhotoId": null,
+      "businessHeadId": "4ad6a6ca-1d04-4f50-a52d-c9d75dec46de",
+      "createdAt": "2026-08-17T09:20:15.997Z",
+      "updatedAt": "2026-08-17T09:20:16.812Z"
+    },
+    {
+      "id": "e7c930b6-33cf-4356-98e9-5bf205309333",
+      "username": "priya.cre",
+      "fullName": "Priya Mani",
+      "email": "priya.cre@wall2wall.com",
+      "password": "$2b$10$SQuScwmAcolH2mX/TIM.XOTqCy8sebJy8rRqJFI5KSknHl.sC8SA6",
+      "phone": "9840011007",
+      "role": "CRE",
+      "status": true,
+      "metaAccess": false,
+      "avatar": null,
+      "showroomId": "f0daddc5-e87d-4e74-a0d7-9d98deffe0b7",
+      "signaturePhotoId": null,
+      "businessHeadId": "4ad6a6ca-1d04-4f50-a52d-c9d75dec46de",
+      "createdAt": "2026-08-17T09:20:16.118Z",
+      "updatedAt": "2026-08-17T09:20:16.812Z"
+    },
+    {
+      "id": "6c81c1a8-7148-4688-a28a-403d1ae62a36",
+      "username": "designer",
+      "fullName": "Ananya Rao",
+      "email": "designer@wall2wall.com",
+      "password": "$2b$10$Vy5v7rMDNst2b.RFZ70O0OAFNC2WcIWL2xSkfWZwgLkfHIenyPrje",
+      "phone": "9840011008",
+      "role": "DESIGNER",
+      "status": true,
+      "metaAccess": false,
+      "avatar": null,
+      "showroomId": "f57986ba-b652-4e4d-af62-ce7fcd3021da",
+      "signaturePhotoId": null,
+      "businessHeadId": "4ad6a6ca-1d04-4f50-a52d-c9d75dec46de",
+      "createdAt": "2026-08-17T09:20:16.246Z",
+      "updatedAt": "2026-08-17T09:20:16.812Z"
+    },
+    {
+      "id": "b52b8dce-86f5-405b-b724-80a120720237",
+      "username": "bala.designer",
+      "fullName": "Bala Murali",
+      "email": "bala.designer@wall2wall.com",
+      "password": "$2b$10$8XKs/JxrdEKCqCsyyrHK0.tAP84Pf3tVjdGKShc/u2JP1wDQBSS3m",
+      "phone": "9840011009",
+      "role": "DESIGNER",
+      "status": true,
+      "metaAccess": false,
+      "avatar": null,
+      "showroomId": "26e2392b-9301-4918-9654-673629b19a55",
+      "signaturePhotoId": null,
+      "businessHeadId": "4ad6a6ca-1d04-4f50-a52d-c9d75dec46de",
+      "createdAt": "2026-08-17T09:20:16.363Z",
+      "updatedAt": "2026-08-17T09:20:16.812Z"
+    },
+    {
+      "id": "d3e984e9-dc7e-469c-854a-800c7efd1a80",
+      "username": "chitra.designer",
+      "fullName": "Chitra Sundaram",
+      "email": "chitra.designer@wall2wall.com",
+      "password": "$2b$10$c80.DrAYL6QGTVPjXiHJ..YS8slZCSiR/aLUAsLv7RyL.FobYMmyS",
+      "phone": "9840011010",
+      "role": "DESIGNER",
+      "status": true,
+      "metaAccess": false,
+      "avatar": null,
+      "showroomId": "f0daddc5-e87d-4e74-a0d7-9d98deffe0b7",
+      "signaturePhotoId": null,
+      "businessHeadId": "4ad6a6ca-1d04-4f50-a52d-c9d75dec46de",
+      "createdAt": "2026-08-17T09:20:16.474Z",
+      "updatedAt": "2026-08-17T09:20:16.812Z"
+    },
+    {
+      "id": "7189ba07-437a-4a6b-bf85-793148b797bf",
+      "username": "eshwar.designer",
+      "fullName": "Eshwar Tiwari",
+      "email": "eshwar.designer@wall2wall.com",
+      "password": "$2b$10$I37H/AjkjQEi942gH3prVe1RAwc2tQpNrgo2HGY/5uLLSiLxKXNQ6",
+      "phone": "9840011011",
+      "role": "DESIGNER",
+      "status": true,
+      "metaAccess": false,
+      "avatar": null,
+      "showroomId": "bfde9fe3-cf92-4973-a04d-6d4c1362afe7",
+      "signaturePhotoId": null,
+      "businessHeadId": "4ad6a6ca-1d04-4f50-a52d-c9d75dec46de",
+      "createdAt": "2026-08-17T09:20:16.590Z",
+      "updatedAt": "2026-08-17T09:20:16.812Z"
+    },
+    {
+      "id": "4ad6a6ca-1d04-4f50-a52d-c9d75dec46de",
+      "username": "businesshead",
+      "fullName": "Rajesh Sharma",
+      "email": "businesshead@wall2wall.com",
+      "password": "$2b$10$HXEg8BNrk0djPqZ1sFnlkOGlGSGuA7xmBTv9z2E4JUjkJ4MG6VpwW",
+      "phone": "9840011002",
+      "role": "BUSINESS_HEAD",
+      "status": true,
+      "metaAccess": false,
+      "avatar": null,
+      "showroomId": "f57986ba-b652-4e4d-af62-ce7fcd3021da",
+      "signaturePhotoId": null,
+      "businessHeadId": null,
+      "createdAt": "2026-08-17T09:20:15.506Z",
+      "updatedAt": "2026-08-29T11:41:34.834Z"
+    }
+  ],
+  "leads": [
+    {
+      "id": "19fec61c-7f18-4e4b-a2c4-46faf7d41986",
+      "leadId": 1,
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "phone": "9876543210",
+      "brandId": "86d8783d-b720-47f0-9b5f-a8f7f9277dbe",
+      "projectId": "22250667-d29c-4aac-aed9-c61cbc2e7cc4",
+      "sourceId": "f36c0a45-0e88-4464-b83f-1698ad89a7cb",
+      "statusId": "6f21ade1-0763-48d6-b95c-9a3061bee167",
+      "currentStageId": "2b76932e-9356-4dcb-95ba-734e98ed7fc5",
+      "rating": 4,
+      "nextFollowUp": null,
+      "comments": "Interested in 3BHK",
+      "assignedToId": "62bc1a2e-c557-40fa-8dba-5083bc3bb676",
+      "createdById": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.820Z",
+      "updatedAt": "2026-08-17T09:20:16.820Z",
+      "dataCollected": "2026-08-17T09:20:16.820Z",
+      "instructionToPass": null,
+      "leadType": "Direct Lead",
+      "contactableDate": "2026-08-17T09:20:16.816Z",
+      "ratingName": "Hot Lead",
+      "metaLeadId": null,
+      "metaFormId": null,
+      "metaAdId": null,
+      "metaCampaignId": null,
+      "metaAdAccountId": null,
+      "orderValue": 150000
+    },
+    {
+      "id": "e5a082e7-15dc-4339-856e-5df6df0e9cb8",
+      "leadId": 2,
+      "name": "Jane Smith",
+      "email": "jane.smith@example.com",
+      "phone": "9876543211",
+      "brandId": "86d8783d-b720-47f0-9b5f-a8f7f9277dbe",
+      "projectId": "3727d153-386d-4da5-bd48-a534ccec8ffb",
+      "sourceId": "82d153f8-a296-4dfa-a7bf-1549c8898adb",
+      "statusId": "6f21ade1-0763-48d6-b95c-9a3061bee167",
+      "currentStageId": "2b76932e-9356-4dcb-95ba-734e98ed7fc5",
+      "rating": 4,
+      "nextFollowUp": null,
+      "comments": "Looking for immediate possession",
+      "assignedToId": "62bc1a2e-c557-40fa-8dba-5083bc3bb676",
+      "createdById": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.833Z",
+      "updatedAt": "2026-08-17T09:20:16.833Z",
+      "dataCollected": "2026-08-17T09:20:16.833Z",
+      "instructionToPass": null,
+      "leadType": "Direct Lead",
+      "contactableDate": "2026-08-17T09:20:16.832Z",
+      "ratingName": "Hot Lead",
+      "metaLeadId": null,
+      "metaFormId": null,
+      "metaAdId": null,
+      "metaCampaignId": null,
+      "metaAdAccountId": null,
+      "orderValue": 150000
+    },
+    {
+      "id": "b8415599-9762-4b13-ba0a-4ba314ebda36",
+      "leadId": 3,
+      "name": "Alice Johnson",
+      "email": "alice.j@example.com",
+      "phone": "9876543212",
+      "brandId": "86d8783d-b720-47f0-9b5f-a8f7f9277dbe",
+      "projectId": "a1abee75-235f-4599-b891-f90ece822a3b",
+      "sourceId": "b1a1faef-855f-422f-8c9a-1bc9bbd863b7",
+      "statusId": "6f21ade1-0763-48d6-b95c-9a3061bee167",
+      "currentStageId": "2b76932e-9356-4dcb-95ba-734e98ed7fc5",
+      "rating": 4,
+      "nextFollowUp": null,
+      "comments": "Budget constraint",
+      "assignedToId": "62bc1a2e-c557-40fa-8dba-5083bc3bb676",
+      "createdById": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.838Z",
+      "updatedAt": "2026-08-17T09:20:16.838Z",
+      "dataCollected": "2026-08-17T09:20:16.838Z",
+      "instructionToPass": null,
+      "leadType": "Direct Lead",
+      "contactableDate": "2026-08-17T09:20:16.837Z",
+      "ratingName": "Hot Lead",
+      "metaLeadId": null,
+      "metaFormId": null,
+      "metaAdId": null,
+      "metaCampaignId": null,
+      "metaAdAccountId": null,
+      "orderValue": 150000
+    },
+    {
+      "id": "e67e28f0-6345-4bc8-a1c3-f49234aec797",
+      "leadId": 4,
+      "name": "Bob Brown",
+      "email": "bob.b@example.com",
+      "phone": "9876543213",
+      "brandId": "86d8783d-b720-47f0-9b5f-a8f7f9277dbe",
+      "projectId": "22250667-d29c-4aac-aed9-c61cbc2e7cc4",
+      "sourceId": "3d7df047-d7db-44ab-85a9-7731eb3ee3b2",
+      "statusId": "6f21ade1-0763-48d6-b95c-9a3061bee167",
+      "currentStageId": "2b76932e-9356-4dcb-95ba-734e98ed7fc5",
+      "rating": 4,
+      "nextFollowUp": null,
+      "comments": "Wants details on amenities",
+      "assignedToId": "62bc1a2e-c557-40fa-8dba-5083bc3bb676",
+      "createdById": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.843Z",
+      "updatedAt": "2026-08-17T09:20:16.843Z",
+      "dataCollected": "2026-08-17T09:20:16.843Z",
+      "instructionToPass": null,
+      "leadType": "Direct Lead",
+      "contactableDate": "2026-08-17T09:20:16.841Z",
+      "ratingName": "Hot Lead",
+      "metaLeadId": null,
+      "metaFormId": null,
+      "metaAdId": null,
+      "metaCampaignId": null,
+      "metaAdAccountId": null,
+      "orderValue": 150000
+    },
+    {
+      "id": "7d542167-5261-4c07-9cdd-04bdbcce8045",
+      "leadId": 5,
+      "name": "Dr. Jane Cooper",
+      "email": "jane.cooper@example.com",
+      "phone": "9876543210",
+      "brandId": "86d8783d-b720-47f0-9b5f-a8f7f9277dbe",
+      "projectId": "cd5d3967-c772-4d6d-98d4-aa205930f888",
+      "sourceId": "50642cff-5ba9-4e76-b8f9-2cb1a1cf371d",
+      "statusId": "6f21ade1-0763-48d6-b95c-9a3061bee167",
+      "currentStageId": "1041cf6b-fd27-45ab-b6e7-08096344105f",
+      "rating": 5,
+      "nextFollowUp": "2026-08-19T09:20:16.846Z",
+      "comments": "Looking for high-gloss acrylic modular kitchen and breakfast counter.",
+      "assignedToId": "62bc1a2e-c557-40fa-8dba-5083bc3bb676",
+      "createdById": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.848Z",
+      "updatedAt": "2026-08-17T09:20:16.848Z",
+      "dataCollected": "2026-08-17T09:20:16.848Z",
+      "instructionToPass": null,
+      "leadType": "Direct Lead",
+      "contactableDate": "2026-08-17T09:20:16.846Z",
+      "ratingName": "Very High",
+      "metaLeadId": null,
+      "metaFormId": null,
+      "metaAdId": null,
+      "metaCampaignId": null,
+      "metaAdAccountId": null,
+      "orderValue": 450000
+    },
+    {
+      "id": "be4890d1-5eed-4de4-ba19-5dee8c7a5555",
+      "leadId": 6,
+      "name": "Robert Fox",
+      "email": "robert.fox@gmail.com",
+      "phone": "9840123456",
+      "brandId": "86d8783d-b720-47f0-9b5f-a8f7f9277dbe",
+      "projectId": "91459bfd-da17-4d3e-89fb-c611b1079de2",
+      "sourceId": "f36c0a45-0e88-4464-b83f-1698ad89a7cb",
+      "statusId": "9b39dda6-8b86-4fd6-9134-5ee3e35ffd9a",
+      "currentStageId": "1041cf6b-fd27-45ab-b6e7-08096344105f",
+      "rating": 4,
+      "nextFollowUp": "2026-08-19T09:20:16.859Z",
+      "comments": "Interested in textured 3D wall claddings and custom living room wallpaper.",
+      "assignedToId": "86b4f8e1-65f2-4226-93ab-7f79d0c0d194",
+      "createdById": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.860Z",
+      "updatedAt": "2026-08-17T09:20:16.860Z",
+      "dataCollected": "2026-08-17T09:20:16.860Z",
+      "instructionToPass": null,
+      "leadType": "Direct Lead",
+      "contactableDate": "2026-08-17T09:20:16.859Z",
+      "ratingName": "High",
+      "metaLeadId": null,
+      "metaFormId": null,
+      "metaAdId": null,
+      "metaCampaignId": null,
+      "metaAdAccountId": null,
+      "orderValue": 220000
+    },
+    {
+      "id": "5696e97f-661c-4f70-9f7e-06668dbdee30",
+      "leadId": 7,
+      "name": "Esther Howard",
+      "email": "esther.h@yahoo.com",
+      "phone": "7766554433",
+      "brandId": "86d8783d-b720-47f0-9b5f-a8f7f9277dbe",
+      "projectId": "0372c004-4325-4d49-827a-f37974ed3fb8",
+      "sourceId": "3d7df047-d7db-44ab-85a9-7731eb3ee3b2",
+      "statusId": "b04fc711-2535-42ee-92da-73f80a0157a1",
+      "currentStageId": "1041cf6b-fd27-45ab-b6e7-08096344105f",
+      "rating": 5,
+      "nextFollowUp": "2026-08-19T09:20:16.869Z",
+      "comments": "Walk-in client at OMR showroom. Finalized 3-door sliding wardrobes and TV unit.",
+      "assignedToId": "6c81c1a8-7148-4688-a28a-403d1ae62a36",
+      "createdById": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.870Z",
+      "updatedAt": "2026-08-17T09:20:16.870Z",
+      "dataCollected": "2026-08-17T09:20:16.870Z",
+      "instructionToPass": null,
+      "leadType": "Direct Lead",
+      "contactableDate": "2026-08-17T09:20:16.869Z",
+      "ratingName": "High Priority",
+      "metaLeadId": null,
+      "metaFormId": null,
+      "metaAdId": null,
+      "metaCampaignId": null,
+      "metaAdAccountId": null,
+      "orderValue": 680000
+    },
+    {
+      "id": "b7acf2e6-f12f-4abf-9342-23bcced2ba3b",
+      "leadId": 8,
+      "name": "Cameron Williamson",
+      "email": "williamson.c@outlook.com",
+      "phone": "8899001122",
+      "brandId": "4c560973-58d5-445d-a722-16f0f1344a79",
+      "projectId": "fb344041-3d78-494b-8d30-587fcd8618a4",
+      "sourceId": "82d153f8-a296-4dfa-a7bf-1549c8898adb",
+      "statusId": "53657e58-0da3-482f-900c-6be6860ec12b",
+      "currentStageId": "1041cf6b-fd27-45ab-b6e7-08096344105f",
+      "rating": 4,
+      "nextFollowUp": "2026-08-19T09:20:16.885Z",
+      "comments": "Architect referral. False ceiling and ambient magnetic track lighting for 3BHK.",
+      "assignedToId": "b52b8dce-86f5-405b-b724-80a120720237",
+      "createdById": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.886Z",
+      "updatedAt": "2026-08-17T09:20:16.886Z",
+      "dataCollected": "2026-08-17T09:20:16.886Z",
+      "instructionToPass": null,
+      "leadType": "Direct Lead",
+      "contactableDate": "2026-08-17T09:20:16.885Z",
+      "ratingName": "Medium-High",
+      "metaLeadId": null,
+      "metaFormId": null,
+      "metaAdId": null,
+      "metaCampaignId": null,
+      "metaAdAccountId": null,
+      "orderValue": 310000
+    },
+    {
+      "id": "6c1d0ea5-f61f-43bb-8365-f021dee3531c",
+      "leadId": 9,
+      "name": "Annette Black",
+      "email": "annette.b@gmail.com",
+      "phone": "9988776655",
+      "brandId": "86d8783d-b720-47f0-9b5f-a8f7f9277dbe",
+      "projectId": "42cc8167-b165-4f83-b716-9d4d9ed3645f",
+      "sourceId": "e3c20fc7-e693-4203-a255-0839c2ec2641",
+      "statusId": "37df7fa6-7a76-4044-ab6b-684fe651357e",
+      "currentStageId": "1041cf6b-fd27-45ab-b6e7-08096344105f",
+      "rating": 3,
+      "nextFollowUp": "2026-08-19T09:20:16.895Z",
+      "comments": "Instagram direct inquiry regarding Italian stucco and metallic wall texture.",
+      "assignedToId": "62bc1a2e-c557-40fa-8dba-5083bc3bb676",
+      "createdById": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.896Z",
+      "updatedAt": "2026-08-17T09:20:16.896Z",
+      "dataCollected": "2026-08-17T09:20:16.896Z",
+      "instructionToPass": null,
+      "leadType": "Direct Lead",
+      "contactableDate": "2026-08-17T09:20:16.895Z",
+      "ratingName": "Warm",
+      "metaLeadId": null,
+      "metaFormId": null,
+      "metaAdId": null,
+      "metaCampaignId": null,
+      "metaAdAccountId": null,
+      "orderValue": 125000
+    },
+    {
+      "id": "88274f12-c203-43ce-94ae-7408a71b0541",
+      "leadId": 10,
+      "name": "Vikramaditya Varma",
+      "email": "vikram.varma@enterprise.in",
+      "phone": "9841029384",
+      "brandId": "86d8783d-b720-47f0-9b5f-a8f7f9277dbe",
+      "projectId": "1a2a54e6-0f4a-4618-81ca-c4f7ec2ae301",
+      "sourceId": "b1a1faef-855f-422f-8c9a-1bc9bbd863b7",
+      "statusId": "9b39dda6-8b86-4fd6-9134-5ee3e35ffd9a",
+      "currentStageId": "1041cf6b-fd27-45ab-b6e7-08096344105f",
+      "rating": 5,
+      "nextFollowUp": "2026-08-19T09:20:16.901Z",
+      "comments": "Luxury villa interior in ECR. Full turnkey interior including partitions and acoustic panelling.",
+      "assignedToId": "6c81c1a8-7148-4688-a28a-403d1ae62a36",
+      "createdById": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.903Z",
+      "updatedAt": "2026-08-17T09:20:16.903Z",
+      "dataCollected": "2026-08-17T09:20:16.903Z",
+      "instructionToPass": null,
+      "leadType": "Direct Lead",
+      "contactableDate": "2026-08-17T09:20:16.901Z",
+      "ratingName": "VIP Client",
+      "metaLeadId": null,
+      "metaFormId": null,
+      "metaAdId": null,
+      "metaCampaignId": null,
+      "metaAdAccountId": null,
+      "orderValue": 1200000
+    },
+    {
+      "id": "c2c495ba-4298-4267-bc3b-10f9976d1854",
+      "leadId": 11,
+      "name": "Meenakshi Sundaresan",
+      "email": "meenu.sundar@gmail.com",
+      "phone": "9444123890",
+      "brandId": "fb3bfabf-27be-4d23-a2fc-6c97a228ed90",
+      "projectId": "db0d92f0-cc2d-4365-af6f-29d7f1e0e79c",
+      "sourceId": "0907ed98-9bcb-449c-9851-7e8bc96b58b1",
+      "statusId": "6f21ade1-0763-48d6-b95c-9a3061bee167",
+      "currentStageId": "1041cf6b-fd27-45ab-b6e7-08096344105f",
+      "rating": 3,
+      "nextFollowUp": "2026-08-19T09:20:16.909Z",
+      "comments": "Motorized zebra blinds for 6 bedroom windows.",
+      "assignedToId": "86b4f8e1-65f2-4226-93ab-7f79d0c0d194",
+      "createdById": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.910Z",
+      "updatedAt": "2026-08-17T09:20:16.910Z",
+      "dataCollected": "2026-08-17T09:20:16.910Z",
+      "instructionToPass": null,
+      "leadType": "Direct Lead",
+      "contactableDate": "2026-08-17T09:20:16.909Z",
+      "ratingName": "Standard",
+      "metaLeadId": null,
+      "metaFormId": null,
+      "metaAdId": null,
+      "metaCampaignId": null,
+      "metaAdAccountId": null,
+      "orderValue": 95000
+    },
+    {
+      "id": "2361321b-d62e-437d-aa51-660e0efc3b15",
+      "leadId": 12,
+      "name": "Siddharth Roy",
+      "email": "sid.roy@gmail.com",
+      "phone": "9789012345",
+      "brandId": "86d8783d-b720-47f0-9b5f-a8f7f9277dbe",
+      "projectId": "860e9a3c-a710-4e8c-a8df-52301a0f387c",
+      "sourceId": "6cfeae85-9731-4ae4-add8-57b2114e73a7",
+      "statusId": "ff855da4-9c40-48e8-b507-097dc512f506",
+      "currentStageId": "1041cf6b-fd27-45ab-b6e7-08096344105f",
+      "rating": 1,
+      "nextFollowUp": "2026-08-19T09:20:16.915Z",
+      "comments": "Client out of delivery service region (outside Tamil Nadu / Karnataka).",
+      "assignedToId": "62bc1a2e-c557-40fa-8dba-5083bc3bb676",
+      "createdById": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.916Z",
+      "updatedAt": "2026-08-17T09:20:16.916Z",
+      "dataCollected": "2026-08-17T09:20:16.916Z",
+      "instructionToPass": null,
+      "leadType": "Direct Lead",
+      "contactableDate": "2026-08-17T09:20:16.915Z",
+      "ratingName": "Unqualified",
+      "metaLeadId": null,
+      "metaFormId": null,
+      "metaAdId": null,
+      "metaCampaignId": null,
+      "metaAdAccountId": null,
+      "orderValue": 15000
+    },
+    {
+      "id": "3defbca4-5287-4fc2-adb4-7c5b97f597d8",
+      "leadId": 13,
+      "name": "Priya Sharma",
+      "email": "priya.sharma@example.com",
+      "phone": "9123456789",
+      "brandId": null,
+      "projectId": null,
+      "sourceId": "0907ed98-9bcb-449c-9851-7e8bc96b58b1",
+      "statusId": "6f21ade1-0763-48d6-b95c-9a3061bee167",
+      "currentStageId": null,
+      "rating": 4,
+      "nextFollowUp": null,
+      "comments": "--- Meta Lead Ad Submission ---\n📋 Form ID: FORM_987654\n📢 Ad ID: AD_12345678\n🎯 Campaign ID: CAMP_554433\n📍 City: Bangalore\n\n--- Form Answers ---\n• budget_range: 10L - 15L\n• property_type: 3 BHK Apartment",
+      "assignedToId": null,
+      "createdById": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-25T09:23:06.842Z",
+      "updatedAt": "2026-08-25T09:23:06.842Z",
+      "dataCollected": "2026-08-25T09:23:06.842Z",
+      "instructionToPass": "Lead captured via Meta Ads Form (Ad ID: AD_12345678)",
+      "leadType": "Direct Lead",
+      "contactableDate": null,
+      "ratingName": null,
+      "metaLeadId": "TEST_LEAD_1787649786735",
+      "metaFormId": "FORM_987654",
+      "metaAdId": "AD_12345678",
+      "metaCampaignId": "CAMP_554433",
+      "metaAdAccountId": null,
+      "orderValue": null
+    }
+  ],
+  "tasks": [
+    {
+      "id": "cd22886d-a2ac-4ca6-8c5f-4b52d9c69fe9",
+      "title": "Follow up with Dr. Jane Cooper",
+      "description": "Review requirements for Modular Kitchen project and share estimate.",
+      "status": "TODO",
+      "priority": "HIGH",
+      "leadId": "7d542167-5261-4c07-9cdd-04bdbcce8045",
+      "assignedToId": "62bc1a2e-c557-40fa-8dba-5083bc3bb676",
+      "createdById": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "dueDate": "2026-08-20T09:20:16.852Z",
+      "completedAt": null,
+      "createdAt": "2026-08-17T09:20:16.853Z",
+      "updatedAt": "2026-08-17T09:20:16.853Z"
+    },
+    {
+      "id": "d10460a4-cccd-4d98-b02a-7d3c65780f66",
+      "title": "Follow up with Robert Fox",
+      "description": "Review requirements for Wallpaper project and share estimate.",
+      "status": "TODO",
+      "priority": "HIGH",
+      "leadId": "be4890d1-5eed-4de4-ba19-5dee8c7a5555",
+      "assignedToId": "86b4f8e1-65f2-4226-93ab-7f79d0c0d194",
+      "createdById": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "dueDate": "2026-08-20T09:20:16.867Z",
+      "completedAt": null,
+      "createdAt": "2026-08-17T09:20:16.868Z",
+      "updatedAt": "2026-08-17T09:20:16.868Z"
+    },
+    {
+      "id": "b385c924-bb6b-4804-808f-d891144810b3",
+      "title": "Follow up with Esther Howard",
+      "description": "Review requirements for Wardrobe project and share estimate.",
+      "status": "COMPLETED",
+      "priority": "HIGH",
+      "leadId": "5696e97f-661c-4f70-9f7e-06668dbdee30",
+      "assignedToId": "6c81c1a8-7148-4688-a28a-403d1ae62a36",
+      "createdById": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "dueDate": "2026-08-20T09:20:16.883Z",
+      "completedAt": null,
+      "createdAt": "2026-08-17T09:20:16.884Z",
+      "updatedAt": "2026-08-17T09:20:16.884Z"
+    },
+    {
+      "id": "b33e061a-9891-4e99-9fd6-b84eb87091c2",
+      "title": "Follow up with Cameron Williamson",
+      "description": "Review requirements for False Ceiling project and share estimate.",
+      "status": "TODO",
+      "priority": "HIGH",
+      "leadId": "b7acf2e6-f12f-4abf-9342-23bcced2ba3b",
+      "assignedToId": "b52b8dce-86f5-405b-b724-80a120720237",
+      "createdById": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "dueDate": "2026-08-20T09:20:16.893Z",
+      "completedAt": null,
+      "createdAt": "2026-08-17T09:20:16.894Z",
+      "updatedAt": "2026-08-17T09:20:16.894Z"
+    },
+    {
+      "id": "e8fd70b8-4c1e-4b50-86da-d238f4553540",
+      "title": "Follow up with Annette Black",
+      "description": "Review requirements for Wall Painting project and share estimate.",
+      "status": "TODO",
+      "priority": "MEDIUM",
+      "leadId": "6c1d0ea5-f61f-43bb-8365-f021dee3531c",
+      "assignedToId": "62bc1a2e-c557-40fa-8dba-5083bc3bb676",
+      "createdById": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "dueDate": "2026-08-20T09:20:16.899Z",
+      "completedAt": null,
+      "createdAt": "2026-08-17T09:20:16.901Z",
+      "updatedAt": "2026-08-17T09:20:16.901Z"
+    },
+    {
+      "id": "fa2da71f-c5bc-4e34-be71-245863e19fe3",
+      "title": "Follow up with Vikramaditya Varma",
+      "description": "Review requirements for Home Interior project and share estimate.",
+      "status": "TODO",
+      "priority": "HIGH",
+      "leadId": "88274f12-c203-43ce-94ae-7408a71b0541",
+      "assignedToId": "6c81c1a8-7148-4688-a28a-403d1ae62a36",
+      "createdById": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "dueDate": "2026-08-20T09:20:16.907Z",
+      "completedAt": null,
+      "createdAt": "2026-08-17T09:20:16.908Z",
+      "updatedAt": "2026-08-17T09:20:16.908Z"
+    },
+    {
+      "id": "b88af276-675b-4c44-a9a6-2561fc5c3987",
+      "title": "Follow up with Meenakshi Sundaresan",
+      "description": "Review requirements for Blinds project and share estimate.",
+      "status": "TODO",
+      "priority": "MEDIUM",
+      "leadId": "c2c495ba-4298-4267-bc3b-10f9976d1854",
+      "assignedToId": "86b4f8e1-65f2-4226-93ab-7f79d0c0d194",
+      "createdById": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "dueDate": "2026-08-20T09:20:16.914Z",
+      "completedAt": null,
+      "createdAt": "2026-08-17T09:20:16.915Z",
+      "updatedAt": "2026-08-17T09:20:16.915Z"
+    },
+    {
+      "id": "c8353d38-0284-4fa5-a5d8-d743f648ae56",
+      "title": "Follow up with Siddharth Roy",
+      "description": "Review requirements for Wall Murals project and share estimate.",
+      "status": "TODO",
+      "priority": "MEDIUM",
+      "leadId": "2361321b-d62e-437d-aa51-660e0efc3b15",
+      "assignedToId": "62bc1a2e-c557-40fa-8dba-5083bc3bb676",
+      "createdById": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "dueDate": "2026-08-20T09:20:16.920Z",
+      "completedAt": null,
+      "createdAt": "2026-08-17T09:20:16.921Z",
+      "updatedAt": "2026-08-17T09:20:16.921Z"
+    }
+  ],
+  "appointments": [
+    {
+      "id": "c61d7cac-7f6f-4d84-b9ce-0994998b4a9e",
+      "leadId": "5696e97f-661c-4f70-9f7e-06668dbdee30",
+      "appointmentDate": "2026-08-18T09:20:16.879Z",
+      "location": "Client Site",
+      "comments": "Final measurement and laser leveling check.",
+      "status": "Scheduled",
+      "createdAt": "2026-08-17T09:20:16.880Z",
+      "updatedAt": "2026-08-17T09:20:16.880Z"
+    },
+    {
+      "id": "5114dd98-fed6-453d-976c-7ecbac488015",
+      "leadId": "b7acf2e6-f12f-4abf-9342-23bcced2ba3b",
+      "appointmentDate": "2026-08-18T09:20:16.892Z",
+      "location": "Client Site",
+      "comments": "Final measurement and laser leveling check.",
+      "status": "Scheduled",
+      "createdAt": "2026-08-17T09:20:16.893Z",
+      "updatedAt": "2026-08-17T09:20:16.893Z"
+    }
+  ],
+  "showroomVisits": [
+    {
+      "id": "acc580ea-8b85-4556-b496-2bcf770b3abe",
+      "leadId": "5696e97f-661c-4f70-9f7e-06668dbdee30",
+      "visitDate": "2026-08-17T09:20:16.874Z",
+      "showroomId": "f57986ba-b652-4e4d-af62-ce7fcd3021da",
+      "comments": "Client inspected modular display modules and catalogue samples.",
+      "createdAt": "2026-08-17T09:20:16.875Z",
+      "updatedAt": "2026-08-17T09:20:16.875Z"
+    },
+    {
+      "id": "b79f1731-c4e7-43ca-9a5b-d7eb52eec01f",
+      "leadId": "b7acf2e6-f12f-4abf-9342-23bcced2ba3b",
+      "visitDate": "2026-08-17T09:20:16.891Z",
+      "showroomId": "f57986ba-b652-4e4d-af62-ce7fcd3021da",
+      "comments": "Client inspected modular display modules and catalogue samples.",
+      "createdAt": "2026-08-17T09:20:16.892Z",
+      "updatedAt": "2026-08-17T09:20:16.892Z"
+    }
+  ],
+  "leadActivities": [
+    {
+      "id": "6de74737-f02b-40b4-88b9-6769eb9e3c45",
+      "leadId": "19fec61c-7f18-4e4b-a2c4-46faf7d41986",
+      "type": "STATUS_CHANGE",
+      "content": "Lead imported from backup file with notes: \"Interested in 3BHK\". Status set to Fresh.",
+      "userId": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.820Z"
+    },
+    {
+      "id": "030876a7-3949-4de6-bcb4-a15648f9d331",
+      "leadId": "19fec61c-7f18-4e4b-a2c4-46faf7d41986",
+      "type": "ASSIGNMENT",
+      "content": "Lead assigned to CRE Deepika Sundar.",
+      "userId": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.820Z"
+    },
+    {
+      "id": "bd2f0e54-e879-44c7-a12e-2516b9683cdd",
+      "leadId": "e5a082e7-15dc-4339-856e-5df6df0e9cb8",
+      "type": "STATUS_CHANGE",
+      "content": "Lead imported from backup file with notes: \"Looking for immediate possession\". Status set to Fresh.",
+      "userId": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.833Z"
+    },
+    {
+      "id": "4ec1ef91-8d49-4f8e-b043-d64b2b6bb37f",
+      "leadId": "e5a082e7-15dc-4339-856e-5df6df0e9cb8",
+      "type": "ASSIGNMENT",
+      "content": "Lead assigned to CRE Deepika Sundar.",
+      "userId": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.833Z"
+    },
+    {
+      "id": "18924e2d-f144-4d52-9357-48ba5f3c6d10",
+      "leadId": "b8415599-9762-4b13-ba0a-4ba314ebda36",
+      "type": "STATUS_CHANGE",
+      "content": "Lead imported from backup file with notes: \"Budget constraint\". Status set to Fresh.",
+      "userId": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.838Z"
+    },
+    {
+      "id": "853bc01a-a57b-40ce-ab95-bf08dcdf340d",
+      "leadId": "b8415599-9762-4b13-ba0a-4ba314ebda36",
+      "type": "ASSIGNMENT",
+      "content": "Lead assigned to CRE Deepika Sundar.",
+      "userId": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.838Z"
+    },
+    {
+      "id": "09e071ac-958b-4d91-9cf3-8244ef9e2456",
+      "leadId": "e67e28f0-6345-4bc8-a1c3-f49234aec797",
+      "type": "STATUS_CHANGE",
+      "content": "Lead imported from backup file with notes: \"Wants details on amenities\". Status set to Fresh.",
+      "userId": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.843Z"
+    },
+    {
+      "id": "a5c29055-2fd5-491d-a08e-572e4766de77",
+      "leadId": "e67e28f0-6345-4bc8-a1c3-f49234aec797",
+      "type": "ASSIGNMENT",
+      "content": "Lead assigned to CRE Deepika Sundar.",
+      "userId": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.843Z"
+    },
+    {
+      "id": "8afe6717-ad96-454c-a440-2af8bf2b2ea9",
+      "leadId": "7d542167-5261-4c07-9cdd-04bdbcce8045",
+      "type": "STATUS_CHANGE",
+      "content": "Lead captured via Google Ads campaign.",
+      "userId": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.851Z"
+    },
+    {
+      "id": "975082c0-ad5a-4488-b4bd-9eba96a0f705",
+      "leadId": "7d542167-5261-4c07-9cdd-04bdbcce8045",
+      "type": "ASSIGNMENT",
+      "content": "Assigned to Deepika Sundar for initial discovery call.",
+      "userId": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.852Z"
+    },
+    {
+      "id": "3fa00463-5298-457b-818e-842664c5e016",
+      "leadId": "be4890d1-5eed-4de4-ba19-5dee8c7a5555",
+      "type": "STATUS_CHANGE",
+      "content": "Lead captured from Facebook ad inquiry.",
+      "userId": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.863Z"
+    },
+    {
+      "id": "fb39e36d-b906-4f6c-b098-179e63a1f9d2",
+      "leadId": "be4890d1-5eed-4de4-ba19-5dee8c7a5555",
+      "type": "ASSIGNMENT",
+      "content": "Assigned to Arun Kumar.",
+      "userId": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.864Z"
+    },
+    {
+      "id": "8033c73b-9b3a-4e1b-981a-f64778bbd6a1",
+      "leadId": "be4890d1-5eed-4de4-ba19-5dee8c7a5555",
+      "type": "CALL",
+      "content": "Called client. Discussed scope, client requested catalogue on WhatsApp.",
+      "userId": "86b4f8e1-65f2-4226-93ab-7f79d0c0d194",
+      "createdAt": "2026-08-17T09:20:16.866Z"
+    },
+    {
+      "id": "b081b4d0-7f0f-431f-87c9-7a2f34dbf587",
+      "leadId": "be4890d1-5eed-4de4-ba19-5dee8c7a5555",
+      "type": "NOTE",
+      "content": "Client prefers warm earth-tone palettes.",
+      "userId": "86b4f8e1-65f2-4226-93ab-7f79d0c0d194",
+      "createdAt": "2026-08-17T09:20:16.867Z"
+    },
+    {
+      "id": "65decd41-7e7c-4b12-88da-e66581d4dd29",
+      "leadId": "5696e97f-661c-4f70-9f7e-06668dbdee30",
+      "type": "STATUS_CHANGE",
+      "content": "Walk-in lead registered at OMR Showroom.",
+      "userId": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.872Z"
+    },
+    {
+      "id": "04d53d97-918e-4695-87a6-a52e774be323",
+      "leadId": "5696e97f-661c-4f70-9f7e-06668dbdee30",
+      "type": "SHOWROOM_VISIT",
+      "content": "Client visited showroom, inspected material samples.",
+      "userId": "6c81c1a8-7148-4688-a28a-403d1ae62a36",
+      "createdAt": "2026-08-17T09:20:16.873Z"
+    },
+    {
+      "id": "94248a75-2b23-4380-84c9-ee7d1af901ac",
+      "leadId": "5696e97f-661c-4f70-9f7e-06668dbdee30",
+      "type": "STATUS_CHANGE",
+      "content": "Design approved and token advance received. Order Booked.",
+      "userId": "6c81c1a8-7148-4688-a28a-403d1ae62a36",
+      "createdAt": "2026-08-17T09:20:16.874Z"
+    },
+    {
+      "id": "0ecd4604-3e2e-4279-838a-0cff42f91eb4",
+      "leadId": "b7acf2e6-f12f-4abf-9342-23bcced2ba3b",
+      "type": "STATUS_CHANGE",
+      "content": "Online inquiry on website pricing calculator.",
+      "userId": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.888Z"
+    },
+    {
+      "id": "e5c6f654-285e-41f9-b90c-9ec58cfdbbd6",
+      "leadId": "b7acf2e6-f12f-4abf-9342-23bcced2ba3b",
+      "type": "ASSIGNMENT",
+      "content": "Assigned to Bala Murali for 2D drafting.",
+      "userId": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.889Z"
+    },
+    {
+      "id": "1f56bf0f-eb51-42ac-b6f4-3193b2eee9c0",
+      "leadId": "b7acf2e6-f12f-4abf-9342-23bcced2ba3b",
+      "type": "MEETING",
+      "content": "Initial design presentation done over video conference.",
+      "userId": "b52b8dce-86f5-405b-b724-80a120720237",
+      "createdAt": "2026-08-17T09:20:16.890Z"
+    },
+    {
+      "id": "e5cadaee-6b05-4338-b190-58ce13eb790d",
+      "leadId": "6c1d0ea5-f61f-43bb-8365-f021dee3531c",
+      "type": "STATUS_CHANGE",
+      "content": "Captured via Instagram Lead Generation.",
+      "userId": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.898Z"
+    },
+    {
+      "id": "d31f3ecf-31cf-49dc-b89e-20a3031ac7a7",
+      "leadId": "6c1d0ea5-f61f-43bb-8365-f021dee3531c",
+      "type": "ASSIGNMENT",
+      "content": "Assigned to Deepika Sundar.",
+      "userId": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.899Z"
+    },
+    {
+      "id": "9fd0d559-068d-4f6d-9f9c-2b75f69a433e",
+      "leadId": "88274f12-c203-43ce-94ae-7408a71b0541",
+      "type": "STATUS_CHANGE",
+      "content": "Client referred by existing premium customer.",
+      "userId": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.905Z"
+    },
+    {
+      "id": "e3643c3b-7e2b-44a9-b7f7-7a28bbeece4b",
+      "leadId": "88274f12-c203-43ce-94ae-7408a71b0541",
+      "type": "ASSIGNMENT",
+      "content": "Assigned directly to Senior Designer Ananya Rao.",
+      "userId": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.906Z"
+    },
+    {
+      "id": "5dc0d1e1-fa92-4b68-9c70-f3b745626d25",
+      "leadId": "88274f12-c203-43ce-94ae-7408a71b0541",
+      "type": "CALL",
+      "content": "Site inspection scheduled for this weekend.",
+      "userId": "6c81c1a8-7148-4688-a28a-403d1ae62a36",
+      "createdAt": "2026-08-17T09:20:16.907Z"
+    },
+    {
+      "id": "93a44816-8243-4d04-b10b-8ee79767f653",
+      "leadId": "c2c495ba-4298-4267-bc3b-10f9976d1854",
+      "type": "STATUS_CHANGE",
+      "content": "Lead entered through Meta Ad campaign.",
+      "userId": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.912Z"
+    },
+    {
+      "id": "b7cc1afe-5d33-4023-93c4-c620cec1934b",
+      "leadId": "c2c495ba-4298-4267-bc3b-10f9976d1854",
+      "type": "ASSIGNMENT",
+      "content": "Assigned to Arun Kumar.",
+      "userId": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.914Z"
+    },
+    {
+      "id": "51d936b0-c82b-4da0-9da5-65f8b1b4dd88",
+      "leadId": "2361321b-d62e-437d-aa51-660e0efc3b15",
+      "type": "STATUS_CHANGE",
+      "content": "Direct inquiry created.",
+      "userId": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-17T09:20:16.918Z"
+    },
+    {
+      "id": "dc36187c-c114-4edf-8af1-193f57f6da09",
+      "leadId": "2361321b-d62e-437d-aa51-660e0efc3b15",
+      "type": "STATUS_CHANGE",
+      "content": "Marked as Disqualified - service out of area.",
+      "userId": "62bc1a2e-c557-40fa-8dba-5083bc3bb676",
+      "createdAt": "2026-08-17T09:20:16.919Z"
+    },
+    {
+      "id": "e574f4b4-6cc9-4c29-a8df-d66124419919",
+      "leadId": "3defbca4-5287-4fc2-adb4-7c5b97f597d8",
+      "type": "SYSTEM",
+      "content": "Lead automatically ingested from Meta Lead Ads (Lead ID: TEST_LEAD_1787649786735)",
+      "userId": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-25T09:23:06.858Z"
+    },
+    {
+      "id": "cc71ff1b-60ef-45ff-aa47-e6203f24bb2d",
+      "leadId": "3defbca4-5287-4fc2-adb4-7c5b97f597d8",
+      "type": "NOTE",
+      "content": "New Meta Lead Ad submitted (Form: FORM_987654 | Ad: AD_12345678):\n--- Meta Lead Ad Submission ---\n📋 Form ID: FORM_987654\n📢 Ad ID: AD_12345678\n🎯 Campaign ID: CAMP_554433\n📍 City: Bangalore\n\n--- Form Answers ---\n• budget_range: 10L - 15L\n• property_type: 3 BHK Apartment",
+      "userId": "8001e6e0-b0c2-4e89-84c4-bf0a9460d252",
+      "createdAt": "2026-08-25T09:23:06.876Z"
+    }
+  ]
+}
