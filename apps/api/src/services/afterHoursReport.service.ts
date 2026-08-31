@@ -67,8 +67,9 @@ export async function sendHourlyAfterHoursReport(options?: {
   toTime?: Date;
   isManualTrigger?: boolean;
 }): Promise<{ success: boolean; message: string; activityCount: number }> {
+  const intervalMinutes = parseInt(process.env.AFTER_HOURS_INTERVAL_MINUTES || '15', 10);
   const toTime = options?.toTime || new Date();
-  const fromTime = options?.fromTime || new Date(toTime.getTime() - 60 * 60 * 1000); // 1 hour ago
+  const fromTime = options?.fromTime || new Date(toTime.getTime() - intervalMinutes * 60 * 1000); // 15 minutes ago by default
 
   const recipientEmail = process.env.AFTER_HOURS_REPORT_EMAIL || process.env.ALERT_EMAIL || 'admin@wall2wall.com';
   const smtpHost = process.env.SMTP_HOST;
@@ -283,24 +284,25 @@ export async function sendHourlyAfterHoursReport(options?: {
 }
 
 /**
- * Initializes the hourly cron job for after-hours reporting.
- * Runs every hour at minute 0: checks if current IST time is after 5:00 PM (17:00) or before 6:00 AM (06:00).
+ * Initializes the cron job for after-hours reporting.
+ * Runs every 15 minutes: checks if current IST time is after 4:00 PM (16:00) or before 6:00 AM (06:00).
  */
 export function initAfterHoursCron() {
   const startHour = parseInt(process.env.AFTER_HOURS_START_HOUR || '16', 10); // 16 = 4:00 PM IST
   const endHour = parseInt(process.env.AFTER_HOURS_END_HOUR || '6', 10);      // 6 = 6:00 AM IST
+  const intervalMinutes = parseInt(process.env.AFTER_HOURS_INTERVAL_MINUTES || '15', 10);
 
-  console.log(`⏰ [After-Hours Reporter] Cron initialized. Active window: ${startHour}:00 IST (4:00 PM) to ${endHour}:00 IST.`);
+  console.log(`⏰ [After-Hours Reporter] Cron initialized. Running every ${intervalMinutes} minutes during active window: ${startHour}:00 IST (4:00 PM) to ${endHour}:00 IST.`);
 
-  // Runs at the 0th minute of every hour (e.g. 17:00, 18:00, 19:00, 20:00, etc.)
-  cron.schedule('0 * * * *', async () => {
+  // Runs every 15 minutes (at :00, :15, :30, :45)
+  cron.schedule('*/15 * * * *', async () => {
     const { istHour, nowIst } = getNowIst();
 
-    // Check if within window (e.g. >= 17 OR < 6)
+    // Check if within window (e.g. >= 16 OR < 6)
     const isAfterHours = istHour >= startHour || istHour < endHour;
 
     if (isAfterHours) {
-      console.log(`🌙 [After-Hours Reporter] Triggering hourly report at ${formatIstDateTime(nowIst)} IST...`);
+      console.log(`🌙 [After-Hours Reporter] Triggering 15-minute report at ${formatIstDateTime(nowIst)} IST...`);
       try {
         await sendHourlyAfterHoursReport();
       } catch (err) {
