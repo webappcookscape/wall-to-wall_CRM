@@ -143,8 +143,9 @@ export const leadService = {
     return response.data.data;
   },
 
-  deleteUser: async (id: string): Promise<any> => {
-    const response = await axios.delete(`${API_BASE_URL}/users/${id}`);
+  deleteUser: async (id: string, force = false): Promise<any> => {
+    const url = force ? `${API_BASE_URL}/users/${id}?force=true` : `${API_BASE_URL}/users/${id}`;
+    const response = await axios.delete(url);
     return response.data;
   },
 

@@ -73,6 +73,11 @@ export interface Lead {
   updatedAt: string;
   activities?: LeadActivity[];
   orderValue?: number | null;
+  metaLeadId?: string | null;
+  metaFormId?: string | null;
+  metaAdId?: string | null;
+  metaCampaignId?: string | null;
+  metaAdAccountId?: string | null;
 }
 
 export interface MasterData {
