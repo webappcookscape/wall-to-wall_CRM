@@ -26,6 +26,9 @@ cd ../..
 # 3. Rebuild the Backend
 echo "⚙️ Step 3: Rebuilding Backend (apps/api)..."
 cd apps/api
+echo "Applying database migrations..."
+npx prisma migrate deploy
+npx prisma generate
 echo "Compiling backend TypeScript..."
 npm run build
 cd ../..
