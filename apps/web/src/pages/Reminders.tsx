@@ -105,19 +105,24 @@ const Reminders: React.FC = () => {
         fetchReminders();
     }, [fetchReminders]);
 
-    const getUrgencyColor = (dateStr: string) => {
-        const date = new Date(dateStr);
+    const getDiffDays = (dateStr: string) => {
+        if (!dateStr) return 0;
+        const target = new Date(dateStr);
         const now = new Date();
-        const diffDays = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const startOfTarget = new Date(target.getFullYear(), target.getMonth(), target.getDate()).getTime();
+        return Math.round((startOfTarget - startOfToday) / (1000 * 60 * 60 * 24));
+    };
+
+    const getUrgencyColor = (dateStr: string) => {
+        const diffDays = getDiffDays(dateStr);
         if (diffDays < 0) return 'border-l-red-500 bg-red-50/50';
         if (diffDays === 0) return 'border-l-amber-500 bg-amber-50/40';
         return 'border-l-emerald-500 bg-emerald-50/30';
     };
 
     const getUrgencyBadge = (dateStr: string) => {
-        const date = new Date(dateStr);
-        const now = new Date();
-        const diffDays = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        const diffDays = getDiffDays(dateStr);
         if (diffDays < 0) return { label: 'Overdue', cls: 'bg-red-500 text-white' };
         if (diffDays === 0) return { label: 'Due Today', cls: 'bg-amber-500 text-white' };
         if (diffDays === 1) return { label: 'Tomorrow', cls: 'bg-blue-600 text-white' };

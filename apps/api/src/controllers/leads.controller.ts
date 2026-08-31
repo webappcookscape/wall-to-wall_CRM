@@ -139,26 +139,30 @@ export const getLeads = asyncHandler(async (req: Request, res: Response) => {
   }
   
   if (timeframe) {
-    const now = new Date();
-    const startOfDay = new Date(now.setHours(0, 0, 0, 0));
-    const endOfDay = new Date(now.setHours(23, 59, 59, 999));
+    const istOffsetMs = 5.5 * 60 * 60 * 1000;
+    const nowUtc = new Date();
+    const nowIst = new Date(nowUtc.getTime() + istOffsetMs);
+    
+    const istYear = nowIst.getUTCFullYear();
+    const istMonth = nowIst.getUTCMonth();
+    const istDate = nowIst.getUTCDate();
+    
+    const startOfDay = new Date(Date.UTC(istYear, istMonth, istDate, 0, 0, 0) - istOffsetMs);
+    const endOfDay = new Date(Date.UTC(istYear, istMonth, istDate, 23, 59, 59, 999) - istOffsetMs);
+
+    const tomorrowStart = new Date(Date.UTC(istYear, istMonth, istDate + 1, 0, 0, 0) - istOffsetMs);
+    const tomorrowEnd = new Date(Date.UTC(istYear, istMonth, istDate + 1, 23, 59, 59, 999) - istOffsetMs);
+
+    const weekEnd = new Date(Date.UTC(istYear, istMonth, istDate + 7, 23, 59, 59, 999) - istOffsetMs);
+    const monthEnd = new Date(Date.UTC(istYear, istMonth + 1, istDate, 23, 59, 59, 999) - istOffsetMs);
 
     if (timeframe === 'today') {
-      // Today's leads: due today OR overdue (no future ones)
-      where.contactableDate = { lte: endOfDay };
+      where.contactableDate = { gte: startOfDay, lte: endOfDay };
     } else if (timeframe === 'tomorrow') {
-      const tomorrowStart = new Date(startOfDay);
-      tomorrowStart.setDate(tomorrowStart.getDate() + 1);
-      const tomorrowEnd = new Date(endOfDay);
-      tomorrowEnd.setDate(tomorrowEnd.getDate() + 1);
       where.contactableDate = { gte: tomorrowStart, lte: tomorrowEnd };
     } else if (timeframe === 'week') {
-      const weekEnd = new Date(startOfDay);
-      weekEnd.setDate(weekEnd.getDate() + 7);
       where.contactableDate = { gte: startOfDay, lte: weekEnd };
     } else if (timeframe === 'month') {
-      const monthEnd = new Date(startOfDay);
-      monthEnd.setMonth(monthEnd.getMonth() + 1);
       where.contactableDate = { gte: startOfDay, lte: monthEnd };
     } else if (timeframe === 'overdue') {
       where.contactableDate = { lt: startOfDay };

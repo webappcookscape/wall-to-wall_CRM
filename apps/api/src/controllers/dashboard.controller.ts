@@ -60,7 +60,14 @@ export const getDashboardStats = asyncHandler(async (req: Request, res: Response
     // Design Allocation
     prisma.lead.count({ where: scopedLeadWhere({ status: { name: { contains: 'Design', mode: 'insensitive' } } }) }),
 
-    prisma.lead.count({ where: scopedLeadWhere({ contactableDate: { lte: new Date(new Date().setHours(23, 59, 59, 999)) } }) }),
+    // Reminders Due (Due today + overdue in IST)
+    (() => {
+      const istOffsetMs = 5.5 * 60 * 60 * 1000;
+      const nowUtc = new Date();
+      const nowIst = new Date(nowUtc.getTime() + istOffsetMs);
+      const endOfDay = new Date(Date.UTC(nowIst.getUTCFullYear(), nowIst.getUTCMonth(), nowIst.getUTCDate(), 23, 59, 59, 999) - istOffsetMs);
+      return prisma.lead.count({ where: scopedLeadWhere({ contactableDate: { lte: endOfDay } }) });
+    })(),
   ]);
 
   apiResponse.success(res, {
