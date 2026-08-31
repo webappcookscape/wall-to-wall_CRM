@@ -4,6 +4,7 @@ import { asyncHandler, apiResponse } from '../utils/apiUtils.js';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
 import bcrypt from 'bcryptjs';
+import { recordAuditLog } from '../services/afterHoursReport.service.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'cookscape_crm_secret';
 const JWT_EXPIRES_IN = '7d';
@@ -44,19 +45,24 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   });
 
   if (!user) {
+    recordAuditLog({
+      action: 'FAILED_LOGIN',
+      details: `Failed login attempt for identifier: ${identifier}`,
+      ipAddress: (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || req.ip,
+      userAgent: req.headers['user-agent'],
+    }).catch(() => {});
     return apiResponse.error(res, 'Invalid credentials', 401);
   }
 
   if (!user.status) {
-    return apiResponse.error(res, 'Your account is inactive. Contact admin.', 403);
+    return apiResponse.error(res, 'Account is disabled. Please contact administrator.', 403);
   }
 
+  // 1. Try standard bcrypt comparison
   let isPasswordValid = false;
-
-  // 1. Check if user password matches hashed password in DB
-  if ((user as any).password) {
+  if (user.password && String(user.password).startsWith('$2')) {
     try {
-      isPasswordValid = await bcrypt.compare(password, (user as any).password);
+      isPasswordValid = await bcrypt.compare(password, user.password);
     } catch {
       isPasswordValid = false;
     }
@@ -73,6 +79,13 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   }
 
   if (!isPasswordValid) {
+    recordAuditLog({
+      userId: user.id,
+      action: 'FAILED_LOGIN',
+      details: `Incorrect password for user: ${user.fullName} (${user.role})`,
+      ipAddress: (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || req.ip,
+      userAgent: req.headers['user-agent'],
+    }).catch(() => {});
     return apiResponse.error(res, 'Invalid credentials', 401);
   }
 
@@ -91,6 +104,15 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     { expiresIn: JWT_EXPIRES_IN }
   );
   
+  // Record successful login audit log
+  recordAuditLog({
+    userId: user.id,
+    action: 'USER_LOGIN',
+    details: `${user.fullName} (${user.role}) logged in successfully`,
+    ipAddress: (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || req.ip,
+    userAgent: req.headers['user-agent'],
+  }).catch(() => {});
+
   const { password: _, ...userWithoutPassword } = user;
 
   return apiResponse.success(res, { token, user: userWithoutPassword }, 'Login successful');
