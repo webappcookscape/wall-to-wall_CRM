@@ -62,6 +62,16 @@ export const leadService = {
     return response.data.data;
   },
 
+  bulkImportLeads: async (payload: {
+    leads: any[];
+    defaultBrandId?: string;
+    defaultProjectId?: string;
+    defaultSourceId?: string;
+  }): Promise<any> => {
+    const response = await axios.post(`${API_BASE_URL}/leads/import`, payload);
+    return response.data;
+  },
+
   getContactableCounts: async (userId?: string): Promise<any> => {
     const response = await axios.get(`${API_BASE_URL}/leads/contactable-counts`, { params: { userId } });
     return response.data.data;

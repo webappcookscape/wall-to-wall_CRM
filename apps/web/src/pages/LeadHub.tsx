@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import DataTable from '../components/ui/DataTable';
 import type { Column } from '../components/ui/DataTable';
 import { leadService } from '../services/api';
@@ -14,6 +14,7 @@ import {
   Trash2
 } from 'lucide-react';
 import LeadModal from '../components/modals/LeadModal';
+import UploadLeadModal from '../components/modals/UploadLeadModal';
 import { useAuth } from '../contexts/AuthContext';
 
 const LeadHub: React.FC = () => {
@@ -25,12 +26,12 @@ const LeadHub: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [leadToEdit, setLeadToEdit] = useState<Lead | undefined>(undefined);
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
   const [targetUserId, setTargetUserId] = useState('');
   const [isSubmittingBulk, setIsSubmittingBulk] = useState(false);
   const [deletingLeadId, setDeletingLeadId] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [masters, setMasters] = useState<MasterData | null>(null);
   const [activeFilters, setActiveFilters] = useState<any>({
@@ -89,19 +90,6 @@ const LeadHub: React.FC = () => {
   const handleUpdateProjects = async () => {
     await fetchMasters();
     alert('Projects updated successfully!');
-  };
-
-  const handleFileUploadClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      alert(`File "${e.target.files[0].name}" uploaded successfully!`);
-      e.target.value = '';
-    }
   };
 
   const handleBulkAssign = async () => {
@@ -281,13 +269,6 @@ const LeadHub: React.FC = () => {
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4">
         <h4 className="page-title text-xl font-bold text-gray-700 m-0">Lead Hub</h4>
         <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 w-full lg:w-auto">
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            className="hidden" 
-            onChange={handleFileChange} 
-            accept=".csv,.xlsx,.xls"
-          />
           {isAdmin && (
             <>
               <button
@@ -297,13 +278,13 @@ const LeadHub: React.FC = () => {
                 <RefreshCw size={14} className="shrink-0" /> <span className="truncate">Update Projects</span>
               </button>
               <button
-                onClick={handleFileUploadClick}
+                onClick={() => setIsUploadModalOpen(true)}
                 className="btn-custom !bg-brand hover:!bg-[#004d30] !rounded-full !px-3 sm:!px-4 !py-1.5 text-[10px] sm:text-[11px] flex items-center justify-center gap-1.5 sm:gap-2"
               >
                 <FileUp size={14} className="shrink-0" /> <span className="truncate">Custom Upload</span>
               </button>
               <button
-                onClick={handleFileUploadClick}
+                onClick={() => setIsUploadModalOpen(true)}
                 className="btn-custom !bg-brand hover:!bg-[#004d30] !rounded-full !px-3 sm:!px-4 !py-1.5 text-[10px] sm:text-[11px] flex items-center justify-center gap-1.5 sm:gap-2"
               >
                 <Upload size={14} className="shrink-0" /> <span className="truncate">Upload Lead</span>
@@ -458,6 +439,16 @@ const LeadHub: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Upload Leads Modal */}
+      <UploadLeadModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        onSuccess={() => {
+          fetchLeads();
+          setIsUploadModalOpen(false);
+        }}
+      />
     </div>
   );
 };

@@ -818,3 +818,135 @@ export const deleteLead = asyncHandler(async (req: Request, res: Response) => {
     throw error;
   }
 });
+
+export const bulkImportLeads = asyncHandler(async (req: Request, res: Response) => {
+  const currentUser = getRequestUser(req);
+  ensureLeadCreateAccess(currentUser);
+
+  const { leads, defaultBrandId, defaultProjectId, defaultSourceId } = req.body;
+
+  if (!Array.isArray(leads) || leads.length === 0) {
+    return apiResponse.error(res, 'No leads provided in payload', 400);
+  }
+
+  // Pre-fetch master tables for quick mapping by name or ID
+  const [brands, projects, sources, freshStatus] = await Promise.all([
+    prisma.brand.findMany(),
+    prisma.project.findMany(),
+    prisma.source.findMany(),
+    prisma.leadStatus.findUnique({ where: { name: 'Fresh' } })
+  ]);
+
+  const brandMap = new Map(brands.map(b => [b.name.toLowerCase(), b.id]));
+  const projectMap = new Map(projects.map(p => [p.name.toLowerCase(), p.id]));
+  const sourceMap = new Map(sources.map(s => [s.name.toLowerCase(), s.id]));
+
+  let importedCount = 0;
+  let skippedCount = 0;
+  const errors: string[] = [];
+
+  let validCreatedById = currentUser.id;
+  if (validCreatedById) {
+    const userExists = await prisma.user.findUnique({ where: { id: validCreatedById }, select: { id: true } });
+    if (!userExists) validCreatedById = undefined;
+  }
+  if (!validCreatedById) {
+    const defaultUser = await prisma.user.findFirst({ where: { role: 'ADMIN' }, select: { id: true } });
+    validCreatedById = defaultUser?.id || (await prisma.user.findFirst({ select: { id: true } }))?.id || '';
+  }
+
+  for (let i = 0; i < leads.length; i++) {
+    const raw = leads[i];
+    const name = String(raw.name || raw.Name || raw.CustomerName || raw['Customer Name'] || raw.clientName || '').trim();
+    const rawPhone = String(raw.phone || raw.Phone || raw.phNo1 || raw.Mobile || raw.Contact || '').trim();
+    const normalizedPhone = rawPhone.replace(/\D/g, '');
+
+    if (!name || !normalizedPhone) {
+      errors.push(`Row ${i + 1}: Name and valid phone number are required.`);
+      skippedCount++;
+      continue;
+    }
+
+    const email = (raw.email || raw.Email) ? String(raw.email || raw.Email).trim() : null;
+    
+    // Resolve brand
+    let brandId = defaultBrandId || null;
+    const rawBrand = String(raw.brand || raw.Brand || '').trim().toLowerCase();
+    if (rawBrand && brandMap.has(rawBrand)) {
+      brandId = brandMap.get(rawBrand);
+    } else if (raw.brandId && brands.some(b => b.id === raw.brandId)) {
+      brandId = raw.brandId;
+    }
+
+    // Resolve project
+    let projectId = defaultProjectId || null;
+    const rawProject = String(raw.project || raw.Project || raw.projectName || '').trim().toLowerCase();
+    if (rawProject && projectMap.has(rawProject)) {
+      projectId = projectMap.get(rawProject);
+    } else if (raw.projectId && projects.some(p => p.id === raw.projectId)) {
+      projectId = raw.projectId;
+    }
+
+    // Resolve source
+    let sourceId = defaultSourceId || null;
+    const rawSource = String(raw.source || raw.Source || raw.sourceName || '').trim().toLowerCase();
+    if (rawSource && sourceMap.has(rawSource)) {
+      sourceId = sourceMap.get(rawSource);
+    } else if (raw.sourceId && sources.some(s => s.id === raw.sourceId)) {
+      sourceId = raw.sourceId;
+    }
+
+    const comments = raw.notes || raw.Notes || raw.comments || raw.Comments || raw.feedback || raw.feedBack || null;
+    const rating = Number(raw.rating || raw.Rating || 0) || 0;
+
+    try {
+      const createdLead = await prisma.lead.create({
+        data: {
+          name,
+          phone: normalizedPhone,
+          email,
+          brandId,
+          projectId,
+          sourceId,
+          statusId: freshStatus?.id || null,
+          createdById: validCreatedById,
+          rating: rating >= 0 && rating <= 10 ? rating : 0,
+          comments: comments ? String(comments) : null
+        }
+      });
+
+      // Log creation activity
+      await prisma.leadActivity.create({
+        data: {
+          leadId: createdLead.id,
+          type: 'SYSTEM',
+          content: `Lead imported via Bulk Upload by ${currentUser.role || 'User'}`,
+          userId: validCreatedById || null
+        }
+      });
+
+      if (comments) {
+        await prisma.leadActivity.create({
+          data: {
+            leadId: createdLead.id,
+            type: 'NOTE',
+            content: String(comments),
+            userId: validCreatedById || null
+          }
+        });
+      }
+
+      importedCount++;
+    } catch (err: any) {
+      errors.push(`Row ${i + 1} (${name}): ${err.message || 'Failed to insert'}`);
+      skippedCount++;
+    }
+  }
+
+  return apiResponse.success(res, {
+    total: leads.length,
+    importedCount,
+    skippedCount,
+    errors: errors.slice(0, 10)
+  }, `Successfully imported ${importedCount} leads.`);
+});
