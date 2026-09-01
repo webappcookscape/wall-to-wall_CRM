@@ -118,6 +118,9 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, l
           const localMidnight = new Date(formData.nextFollowUp + (formData.nextFollowUp.includes('T') ? '' : 'T00:00:00'));
           updatePayload.contactableDate = isNaN(localMidnight.getTime()) ? formData.nextFollowUp : localMidnight.toISOString();
           updatePayload.assignedToId = formData.reminderAssignTo || undefined;
+          if (formData.content) {
+            updatePayload.instructionToPass = formData.content;
+          }
         }
 
         if ((type === 'FOLLOWUP' || type === 'REMINDER') && formData.content) {
