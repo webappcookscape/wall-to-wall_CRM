@@ -100,6 +100,22 @@ export interface MasterData {
   workNotifications?: any[];
 }
 
+export interface EmployeePerformance {
+  id: string;
+  fullName: string;
+  email: string;
+  role: string;
+  avatar?: string;
+  totalAssigned: number;
+  yettofollow: number;
+  followup: number;
+  opportunities: number;
+  orderbook: number;
+  disqualified: number;
+  remindersDue: number;
+  conversionRate: string;
+}
+
 export interface DashboardStats {
   totalLeads?: number;
   freshlead: number;
@@ -113,5 +129,22 @@ export interface DashboardStats {
   designlead: number;
   designCompleted?: number;
   remindersDue?: number;
+  upcomingReminders?: {
+    id: string;
+    leadId: number;
+    name: string;
+    phone: string;
+    contactableDate: string;
+    status?: { name: string };
+    project?: { name: string };
+    assignedTo?: { fullName: string };
+  }[];
+  selectedEmployee?: {
+    id: string;
+    fullName: string;
+    role: string;
+    email: string;
+  } | null;
+  employeeBreakdown?: EmployeePerformance[];
 }
 

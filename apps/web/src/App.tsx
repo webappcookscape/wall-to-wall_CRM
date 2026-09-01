@@ -4,7 +4,6 @@ import Navbar from './components/layout/Navbar';
 import Dashboard from './pages/Dashboard';
 import Leads from './pages/Leads';
 import LeadHub from './pages/LeadHub';
-import Customers from './pages/Customers';
 import Users from './pages/Users';
 import Profile from './pages/Profile';
 import SignaturePhoto from './pages/SignaturePhoto';
@@ -75,7 +74,6 @@ const App: React.FC = () => {
           <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/leads" element={<ProtectedRoute><Leads /></ProtectedRoute>} />
           <Route path="/leadhub" element={<ManagerRoute><LeadHub /></ManagerRoute>} />
-          <Route path="/customers" element={<ProtectedRoute><Customers /></ProtectedRoute>} />
           <Route path="/users" element={<AdminRoute><Users /></AdminRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/signature-photos" element={<AdminRoute><SignaturePhoto /></AdminRoute>} />

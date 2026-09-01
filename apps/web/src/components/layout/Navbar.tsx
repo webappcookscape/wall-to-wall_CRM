@@ -133,7 +133,6 @@ const Navbar: React.FC = () => {
       icon: <Settings size={18} />,
       submenu: [
         { title: 'User Management', path: '/users' },
-        { title: 'Customer Management', path: '/customers' },
         { title: 'Signature Photos', path: '/signature-photos' },
         { 
           title: 'Master Data', 

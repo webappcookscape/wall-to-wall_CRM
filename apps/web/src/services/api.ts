@@ -67,8 +67,8 @@ export const leadService = {
     return response.data.data;
   },
   
-  getStats: async (): Promise<DashboardStats> => {
-    const response = await axios.get(`${API_BASE_URL}/dashboard/stats`);
+  getStats: async (params?: { userId?: string; timeframe?: string }): Promise<DashboardStats> => {
+    const response = await axios.get(`${API_BASE_URL}/dashboard/stats`, { params });
     return response.data.data;
   },
 
