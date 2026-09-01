@@ -32,6 +32,7 @@ model User {
   signaturePhoto SignaturePhoto? @relation(fields: [signaturePhotoId], references: [id])
   businessHead   User?          @relation("BusinessHeadSubordinates", fields: [businessHeadId], references: [id])
   subordinates   User[]         @relation("BusinessHeadSubordinates")
+  auditLogs      AuditLog[]
 }
 
 model Lead {
@@ -282,4 +283,15 @@ enum Priority {
   MEDIUM
   HIGH
   URGENT
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  action    String   // LOGIN, LOGOUT, LEAD_CREATE, LEAD_UPDATE, STATUS_CHANGE, NOTE_ADDED, REPORT_VIEW
+  details   String?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
 }

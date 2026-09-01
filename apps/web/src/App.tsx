@@ -24,7 +24,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
     <div className="min-h-screen bg-[#F4F7FA]">
       <Navbar />
       <div className="wrapper py-4">
-        <main className="max-w-[1400px] mx-auto px-4 sm:px-6 ">
+        <main className="w-full px-2 sm:px-4 md:px-6">
           {children}
         </main>
       </div>
@@ -41,7 +41,7 @@ const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     <div className="min-h-screen bg-[#F4F7FA]">
       <Navbar />
       <div className="wrapper py-4">
-        <main className="max-w-[1400px] mx-auto px-4 sm:px-6">
+        <main className="w-full px-2 sm:px-4 md:px-6">
           {children}
         </main>
       </div>
@@ -58,7 +58,7 @@ const ManagerRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     <div className="min-h-screen bg-[#F4F7FA]">
       <Navbar />
       <div className="wrapper py-4">
-        <main className="max-w-[1400px] mx-auto px-4 sm:px-6">
+        <main className="w-full px-2 sm:px-4 md:px-6">
           {children}
         </main>
       </div>

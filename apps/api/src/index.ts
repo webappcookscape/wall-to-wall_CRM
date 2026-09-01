@@ -20,6 +20,7 @@ import { authenticate } from './middleware/auth.middleware.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createWhatsAppLead } from './controllers/whatsapp.controller.js';
+import { initAfterHoursCron } from './services/afterHoursReport.service.js';
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(currentDir, '../.env') });
@@ -116,4 +117,5 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
+  initAfterHoursCron();
 });

@@ -162,55 +162,58 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 md:p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[95vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-6 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[92vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="!text-white bg-[#3b3e47] p-4 flex items-center justify-between ">
-          <h4 className="text-sm font-bold text-white uppercase m-0">{lead ? 'Edit Lead' : 'Create New Lead'}</h4>
-          <button onClick={onClose} className="text-white opacity-50 hover:opacity-100">
-            <X size={20} />
+        <div className="!text-white bg-[#313a46] p-5 flex items-center justify-between">
+          <h4 className="text-base md:text-lg font-black text-white uppercase tracking-wider m-0 font-rubik">{lead ? 'Edit Lead' : 'Create New Lead'}</h4>
+          <button onClick={onClose} className="text-white/60 hover:text-white transition-colors">
+            <X size={22} />
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase">Full Name <span className="text-red-500">*</span></label>
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Full Name <span className="text-red-500">*</span></label>
               <input 
                 required
                 type="text" 
-                className="form-control !py-1.5 !text-[12px]"
+                className="form-control !py-2.5 !px-3.5 !text-sm font-medium rounded-lg border-gray-300"
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
+                placeholder="Enter client's full name"
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase">Phone <span className="text-red-500">*</span></label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Phone <span className="text-red-500">*</span></label>
               <input 
                 required
                 type="tel" 
-                className="form-control !py-1.5 !text-[12px]"
+                className="form-control !py-2.5 !px-3.5 !text-sm font-medium rounded-lg border-gray-300"
                 value={formData.phone}
                 onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                placeholder="10-digit mobile number"
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase">Email</label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Email</label>
               <input 
                 type="email" 
-                className="form-control !py-1.5 !text-[12px]"
+                className="form-control !py-2.5 !px-3.5 !text-sm font-medium rounded-lg border-gray-300"
                 value={formData.email}
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
+                placeholder="client@example.com"
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase">Rating</label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Rating</label>
               <select 
-                className="form-control !py-1.5 !text-[12px]"
+                className="form-control !py-2.5 !px-3.5 !text-sm font-medium rounded-lg border-gray-300"
                 value={formData.rating}
                 onChange={(e) => handleRatingChange(Number(e.target.value))}
               >
@@ -221,11 +224,11 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead 
               </select>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase">Brand <span className="text-red-500">*</span></label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Brand <span className="text-red-500">*</span></label>
               <select 
                 required
-                className="form-control !py-1.5 !text-[12px]"
+                className="form-control !py-2.5 !px-3.5 !text-sm font-medium rounded-lg border-gray-300"
                 value={formData.brandId}
                 onChange={(e) => setFormData({...formData, brandId: e.target.value})}
               >
@@ -234,11 +237,11 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead 
               </select>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase">Source <span className="text-red-500">*</span></label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Source <span className="text-red-500">*</span></label>
               <select 
                 required
-                className="form-control !py-1.5 !text-[12px]"
+                className="form-control !py-2.5 !px-3.5 !text-sm font-medium rounded-lg border-gray-300"
                 value={formData.sourceId}
                 onChange={(e) => setFormData({...formData, sourceId: e.target.value})}
               >
@@ -247,10 +250,10 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead 
               </select>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase">Project</label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Project</label>
               <select 
-                className="form-control !py-1.5 !text-[12px]"
+                className="form-control !py-2.5 !px-3.5 !text-sm font-medium rounded-lg border-gray-300"
                 value={formData.projectId}
                 onChange={(e) => setFormData({...formData, projectId: e.target.value})}
               >
@@ -259,11 +262,11 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead 
               </select>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase">Next Follow Up</label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Next Follow Up</label>
               <input 
                 type="datetime-local"
-                className="form-control !py-1.5 !text-[12px]"
+                className="form-control !py-2.5 !px-3.5 !text-sm font-medium rounded-lg border-gray-300"
                 value={formData.nextFollowUp}
                 onChange={(e) => {
                   const val = e.target.value;
@@ -272,24 +275,22 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead 
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase">Date Collected <span className="text-red-500">*</span></label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Date Collected <span className="text-red-500">*</span></label>
               <input 
                 required
                 type="date"
-                className="form-control !py-1.5 !text-[12px]"
+                className="form-control !py-2.5 !px-3.5 !text-sm font-medium rounded-lg border-gray-300"
                 value={formData.dataCollected}
                 onChange={(e) => setFormData({...formData, dataCollected: e.target.value})}
               />
             </div>
 
-
-
             {(userRole === 'ADMIN' || userRole === 'BUSINESS_HEAD' || userRole === 'CRE' || userRole === 'DESIGNER') && (
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-gray-400 uppercase">Assigned To</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Assigned To</label>
                 <select 
-                  className="form-control !py-1.5 !text-[12px]"
+                  className="form-control !py-2.5 !px-3.5 !text-sm font-medium rounded-lg border-gray-300"
                   value={formData.assignedToId || ''}
                   onChange={(e) => setFormData({...formData, assignedToId: e.target.value})}
                 >
@@ -302,81 +303,80 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead 
             )}
           </div>
 
-          {(userRole === "DM_EXECUTIVE" && user?.metaAccess) && (
+          {(userRole === "ADMIN" || (userRole === "DM_EXECUTIVE" && user?.metaAccess)) && (
+            <div className="space-y-4 border-t border-gray-100 pt-5 bg-blue-50/40 p-4 rounded-xl border border-blue-100">
+              <div>
+                <h5 className="text-sm font-black uppercase text-blue-900 m-0 font-rubik tracking-wide">Meta / Facebook Lead Details</h5>
+                <p className="text-xs text-gray-500 mt-1 mb-0">
+                  Enter the IDs from the Facebook Lead Ad. The <strong>Meta Lead ID</strong> is required to send offline conversion events back to Meta.
+                </p>
+              </div>
 
-                    <div className="space-y-3 border-t border-gray-100 pt-4">
-                      <div>
-                        <h5 className="text-[11px] font-bold uppercase text-gray-500 m-0">Meta Lead Details</h5>
-                        <p className="text-[10px] text-gray-400 m-0">
-                          Enter the IDs from the Facebook Lead Ad. The <strong>Meta Lead ID</strong> is required to send offline
-                          conversion events (like 'Qualified' or 'Order Booked') back to Meta for ad optimization.
-                        </p>
-                      </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-600 uppercase tracking-wider block">Meta Lead ID</label>
+                  <input
+                    type="text"
+                    className="form-control !py-2 !px-3 !text-sm font-mono rounded-lg border-gray-300"
+                    value={formData.metaLeadId}
+                    onChange={(e) => setFormData({...formData, metaLeadId: e.target.value})}
+                    placeholder="Unique leadgen_id"
+                  />
+                </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase">Meta Lead ID</label>
-                          <input
-                            type="text"
-                            className="form-control !py-1.5 !text-[12px]"
-                            value={formData.metaLeadId}
-                            onChange={(e) => setFormData({...formData, metaLeadId: e.target.value})}
-                            placeholder="Unique leadgen_id"
-                          />
-                        </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-600 uppercase tracking-wider block">Meta Form ID</label>
+                  <input
+                    type="text"
+                    className="form-control !py-2 !px-3 !text-sm font-mono rounded-lg border-gray-300"
+                    value={formData.metaFormId}
+                    onChange={(e) => setFormData({...formData, metaFormId: e.target.value})}
+                    placeholder="Instant form ID"
+                  />
+                </div>
 
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase">Meta Form ID</label>
-                          <input
-                            type="text"
-                            className="form-control !py-1.5 !text-[12px]"
-                            value={formData.metaFormId}
-                            onChange={(e) => setFormData({...formData, metaFormId: e.target.value})}
-                            placeholder="Instant form ID"
-                          />
-                        </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-600 uppercase tracking-wider block">Meta Ad ID</label>
+                  <input
+                    type="text"
+                    className="form-control !py-2 !px-3 !text-sm font-mono rounded-lg border-gray-300"
+                    value={formData.metaAdId}
+                    onChange={(e) => setFormData({...formData, metaAdId: e.target.value})}
+                    placeholder="Ad ID"
+                  />
+                </div>
 
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase">Meta Ad ID</label>
-                          <input
-                            type="text"
-                            className="form-control !py-1.5 !text-[12px]"
-                            value={formData.metaAdId}
-                            onChange={(e) => setFormData({...formData, metaAdId: e.target.value})}
-                            placeholder="Ad ID"
-                          />
-                        </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-600 uppercase tracking-wider block">Meta Campaign ID</label>
+                  <input
+                    type="text"
+                    className="form-control !py-2 !px-3 !text-sm font-mono rounded-lg border-gray-300"
+                    value={formData.metaCampaignId}
+                    onChange={(e) => setFormData({...formData, metaCampaignId: e.target.value})}
+                    placeholder="Campaign ID"
+                  />
+                </div>
 
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase">Meta Campaign ID</label>
-                          <input
-                            type="text"
-                            className="form-control !py-1.5 !text-[12px]"
-                            value={formData.metaCampaignId}
-                            onChange={(e) => setFormData({...formData, metaCampaignId: e.target.value})}
-                            placeholder="Campaign ID"
-                          />
-                        </div>
-
-                        <div className="space-y-1 md:col-span-2">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase">Meta Ad Account ID</label>
-                          <input
-                            type="text"
-                            className="form-control !py-1.5 !text-[12px]"
-                            value={formData.metaAdAccountId}
-                            onChange={(e) => setFormData({...formData, metaAdAccountId: e.target.value})}
-                            placeholder="Ad account ID"
-                          />
-                        </div>
-                      </div>
-                    </div>
+                <div className="space-y-1.5 md:col-span-2">
+                  <label className="text-xs font-bold text-gray-600 uppercase tracking-wider block">Meta Ad Account ID</label>
+                  <input
+                    type="text"
+                    className="form-control !py-2 !px-3 !text-sm font-mono rounded-lg border-gray-300"
+                    value={formData.metaAdAccountId}
+                    onChange={(e) => setFormData({...formData, metaAdAccountId: e.target.value})}
+                    placeholder="Ad account ID"
+                  />
+                </div>
+              </div>
+            </div>
           )}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase">Instruction to pass <span className="text-red-500">*</span></label>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Instruction to pass <span className="text-red-500">*</span></label>
             <textarea 
               required
               rows={2}
-              className="form-control !py-1.5 !text-[12px] resize-none"
+              className="form-control !py-2.5 !px-3.5 !text-sm font-medium rounded-lg border-gray-300 resize-none"
               value={formData.instructionToPass}
               onChange={(e) => setFormData({...formData, instructionToPass: e.target.value})}
               placeholder="Add instructions for the assigned team member..."
@@ -384,7 +384,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead 
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-bold text-gray-400 uppercase">Tags</label>
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Tags</label>
             <div className="flex flex-wrap gap-2">
                 {masters?.leadTags?.map((tag: any) => (
                     <button
@@ -398,10 +398,10 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead 
                                 setFormData({...formData, tagIds: [...formData.tagIds, tag.id]});
                             }
                         }}
-                        className={`px-2 py-1 rounded text-[10px] font-bold uppercase transition-all border ${
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase transition-all border ${
                             formData.tagIds.includes(tag.id) 
-                            ? 'bg-brand text-white border-brand' 
-                            : 'bg-white text-gray-400 border-gray-200'
+                            ? 'bg-brand text-white border-brand shadow-sm' 
+                            : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
                         }`}
                     >
                         {tag.name}
@@ -410,28 +410,29 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead 
             </div>
           </div>
 
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase">Comments (Appends to existing)</label>
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Comments (Appends to existing)</label>
             <textarea 
               rows={3}
-              className="form-control !py-1.5 !text-[12px] resize-none"
+              className="form-control !py-2.5 !px-3.5 !text-sm font-medium rounded-lg border-gray-300 resize-none"
               value={formData.comments}
               onChange={(e) => setFormData({...formData, comments: e.target.value})}
+              placeholder="Enter client remarks or follow-up notes..."
             />
           </div>
 
-          <div className="flex gap-3 pt-2 justify-end">
+          <div className="flex gap-3 pt-3 justify-end border-t border-gray-100">
             <button 
               type="button"
               onClick={onClose}
-              className="px-4 py-1.5 rounded bg-gray-100 text-gray-600 font-bold text-[11px] uppercase"
+              className="px-5 py-2.5 rounded-lg bg-gray-100 text-gray-700 font-bold text-xs md:text-sm uppercase hover:bg-gray-200 transition-colors"
             >
               Cancel
             </button>
             <button 
               disabled={isSubmitting}
               type="submit"
-              className="px-6 py-1.5 rounded bg-brand text-white font-bold text-[11px] uppercase disabled:opacity-50"
+              className="px-7 py-2.5 rounded-lg bg-brand text-white font-bold text-xs md:text-sm uppercase shadow-sm hover:bg-brand/90 disabled:opacity-50 transition-all"
             >
               {isSubmitting ? 'Saving...' : lead ? 'Update Lead' : 'Create Lead'}
             </button>

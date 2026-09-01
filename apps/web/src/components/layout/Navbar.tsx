@@ -10,7 +10,8 @@ import {
   ChevronDown,
   Menu,
   X,
-  ArrowRightLeft
+  ArrowRightLeft,
+  Phone
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { leadService } from '../../services/api';
@@ -35,6 +36,56 @@ const Navbar: React.FC = () => {
   const [lastSeenCount, setLastSeenCount] = useState<number>(() => {
     return parseInt(localStorage.getItem('lastSeenLeadsCount') || '0', 10);
   });
+  const [lastSeenRemindersCount, setLastSeenRemindersCount] = useState<number>(() => {
+    return parseInt(localStorage.getItem('lastSeenRemindersCount') || '0', 10);
+  });
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [dueReminders, setDueReminders] = useState<any[]>([]);
+  const [isRemindersLoading, setIsRemindersLoading] = useState(false);
+
+  const unreadRemindersCount = (stats?.remindersDue !== undefined && stats.remindersDue > lastSeenRemindersCount) 
+    ? stats.remindersDue - lastSeenRemindersCount 
+    : 0;
+
+  const markRemindersSeen = () => {
+    if (stats?.remindersDue !== undefined) {
+      localStorage.setItem('lastSeenRemindersCount', String(stats.remindersDue));
+      setLastSeenRemindersCount(stats.remindersDue);
+    }
+  };
+
+  const fetchDueReminders = async () => {
+    setIsRemindersLoading(true);
+    try {
+      const res = await leadService.getLeads({ page: 1, limit: 5, timeframe: 'today' });
+      setDueReminders(res.data || []);
+    } catch (e) {
+      console.error('Failed to fetch due reminders in navbar:', e);
+    } finally {
+      setIsRemindersLoading(false);
+    }
+  };
+
+  const requestDesktopNotification = async () => {
+    if (!('Notification' in window)) {
+      alert('Desktop notifications are not supported in this browser.');
+      return;
+    }
+    if (Notification.permission === 'granted') {
+      new Notification('Wall to Wall CRM', {
+        body: `You have ${stats?.remindersDue || 0} reminders scheduled for today!`,
+        icon: '/assets/logos/Wall-to-wall_logo.jpeg'
+      });
+    } else if (Notification.permission !== 'denied') {
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        new Notification('Wall to Wall CRM', {
+          body: 'Desktop notifications enabled successfully!',
+          icon: '/assets/logos/Wall-to-wall_logo.jpeg'
+        });
+      }
+    }
+  };
 
   useEffect(() => {
     if (location.pathname === '/leadhub' || location.pathname === '/leads') {
@@ -43,7 +94,13 @@ const Navbar: React.FC = () => {
         setLastSeenCount(stats.totalLeads);
       }
     }
-  }, [location.pathname, stats?.totalLeads]);
+    if (location.pathname === '/reminders') {
+      if (stats?.remindersDue !== undefined) {
+        localStorage.setItem('lastSeenRemindersCount', String(stats.remindersDue));
+        setLastSeenRemindersCount(stats.remindersDue);
+      }
+    }
+  }, [location.pathname, stats?.totalLeads, stats?.remindersDue]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -98,8 +155,6 @@ const Navbar: React.FC = () => {
             { title: 'Payment Modes', path: '/master/payment-mode' },
             { title: 'Production Holds', path: '/master/production-hold' },
             { title: 'Work Notifications', path: '/master/work-notification' },
-            { title: 'Projects', path: '/master/project' },
-            { title: 'Brands', path: '/master/brand' },
           ]
         },
         { title: 'SMS Templates', path: '/master/sms-template' },
@@ -108,7 +163,7 @@ const Navbar: React.FC = () => {
     }] : []),
     { title: 'Lead Hub', path: '/leadhub', icon: <Users size={18} />, badge: (stats?.totalLeads && stats.totalLeads > lastSeenCount) ? stats.totalLeads - lastSeenCount : undefined },
     { title: 'Leads', path: '/leads', icon: <User size={18} />, badge: (stats?.totalLeads && stats.totalLeads > lastSeenCount) ? stats.totalLeads - lastSeenCount : undefined },
-    { title: 'Reminders', path: '/reminders', icon: <Bell size={18} />, badge: stats?.remindersDue || undefined },
+    { title: 'Reminders', path: '/reminders', icon: <Bell size={18} />, badge: unreadRemindersCount > 0 ? unreadRemindersCount : undefined },
     { title: 'Report', path: '/report', icon: <Flag size={18} /> },
   ];
 
@@ -116,7 +171,7 @@ const Navbar: React.FC = () => {
     <header className="w-full">
       {/* Topbar Main */}
       <div className="bg-white border-b border-gray-100 h-[60px] md:h-[70px] flex items-center shadow-sm">
-        <div className="container-fluid max-w-[1400px] mx-auto px-4 md:px-6 w-full flex justify-between items-center">
+        <div className="w-full px-4 md:px-6 flex justify-between items-center">
           {/* Logo */}
           <Link to="/" className="block">
             <img 
@@ -128,35 +183,144 @@ const Navbar: React.FC = () => {
 
           {/* Topbar Right */}
           <div className="flex items-center gap-6">
-            <Link to="/reminders" className="relative cursor-pointer">
-              <Bell size={22} className="text-gray-400" />
-              <span className="absolute -top-1 -right-1 bg-danger text-white text-[10px] font-bold px-1.5 rounded-full border-2 border-white">
-                {stats?.remindersDue || 0}
-              </span>
-            </Link>
+            {/* Notification & Reminder Hub */}
+            <div className="relative">
+              <button 
+                onClick={() => {
+                  const nextOpen = !isNotificationOpen;
+                  setIsNotificationOpen(nextOpen);
+                  if (nextOpen) {
+                    fetchDueReminders();
+                    markRemindersSeen();
+                  }
+                }}
+                className="relative p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-500 hover:text-brand focus:outline-none"
+                title="Notifications & Reminders"
+              >
+                <Bell size={22} className={unreadRemindersCount > 0 ? 'text-amber-500 animate-pulse' : 'text-gray-500'} />
+                {unreadRemindersCount > 0 && (
+                  <span className="absolute top-0.5 right-0.5 bg-danger text-white text-xs font-black px-1.5 py-0.2 rounded-full border-2 border-white min-w-[18px] text-center shadow-sm">
+                    {unreadRemindersCount}
+                  </span>
+                )}
+              </button>
 
+              {/* Notification Dropdown */}
+              {isNotificationOpen && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-40" 
+                    onClick={() => setIsNotificationOpen(false)} 
+                  />
+                  <div className="absolute right-0 top-full mt-2 w-80 md:w-96 bg-white rounded-2xl shadow-2xl border border-gray-200/80 z-50 overflow-hidden animate-in zoom-in-95 duration-200">
+                    <div className="p-4 bg-[#313a46] text-white flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Bell size={18} className="text-amber-400" />
+                        <h4 className="text-sm font-black uppercase tracking-wide font-rubik m-0">Reminders & Alerts</h4>
+                      </div>
+                      <button 
+                        onClick={markRemindersSeen}
+                        className="bg-white/10 hover:bg-white/20 text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase transition-colors"
+                        title="Mark all reminders as seen"
+                      >
+                        {stats?.remindersDue || 0} Total · Mark Seen
+                      </button>
+                    </div>
+
+                    <div className="divide-y divide-gray-100 max-h-80 overflow-y-auto">
+                      {isRemindersLoading ? (
+                        <div className="p-8 flex flex-col items-center justify-center gap-2">
+                          <div className="w-6 h-6 border-2 border-brand border-t-transparent animate-spin rounded-full" />
+                          <span className="text-xs font-bold text-gray-400 uppercase">Loading alerts...</span>
+                        </div>
+                      ) : dueReminders.length === 0 ? (
+                        <div className="p-8 text-center">
+                          <p className="text-sm font-bold text-gray-700 m-0">🎉 All caught up!</p>
+                          <p className="text-xs text-gray-400 mt-0.5">No overdue or pending reminders for today.</p>
+                        </div>
+                      ) : (
+                        dueReminders.map((lead: any) => (
+                          <div key={lead.id} className="p-3.5 hover:bg-gray-50 transition-colors flex items-start justify-between gap-3">
+                            <div className="space-y-0.5 flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <h6 className="text-sm font-bold text-gray-800 truncate m-0 font-rubik">{lead.name}</h6>
+                                <span className="text-[10px] font-black px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 uppercase">
+                                  Due
+                                </span>
+                              </div>
+                              <p className="text-xs font-semibold text-brand m-0">{lead.phone}</p>
+                              {lead.instructionToPass && (
+                                <p className="text-xs text-gray-500 italic truncate m-0">{lead.instructionToPass}</p>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1.5 flex-shrink-0">
+                              <a 
+                                href={`tel:${lead.phone}`} 
+                                className="p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-colors"
+                                title="Call Client"
+                              >
+                                <Phone size={14} />
+                              </a>
+                              <Link 
+                                to="/reminders" 
+                                onClick={() => setIsNotificationOpen(false)}
+                                className="p-2 rounded-lg bg-blue-50 text-brand hover:bg-brand hover:text-white transition-colors"
+                                title="Open Reminder"
+                              >
+                                <ArrowRightLeft size={14} />
+                              </Link>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    <div className="p-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+                      <button 
+                        onClick={requestDesktopNotification}
+                        className="text-xs font-bold text-gray-500 hover:text-brand transition-colors"
+                      >
+                        🔔 Enable Desktop Alerts
+                      </button>
+                      <Link 
+                        to="/reminders" 
+                        onClick={() => setIsNotificationOpen(false)}
+                        className="text-xs font-extrabold text-brand hover:underline"
+                      >
+                        View All Schedule →
+                      </Link>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Profile User Dropdown */}
             <div className="flex items-center gap-3 pl-6 border-l border-gray-100 group relative cursor-pointer py-2">
-              <img 
-                src="https://crm.cookscape.com/global/assets/images/users/avatar-1.jpg" 
-                alt="user" 
-                className="w-8 h-8 rounded-full border border-gray-200" 
-              />
+              <div className="w-9 h-9 rounded-full bg-brand text-white font-black text-sm flex items-center justify-center border-2 border-white shadow-sm font-rubik">
+                {(user?.fullName || user?.username || 'U').charAt(0).toUpperCase()}
+              </div>
               <div className="flex flex-col">
                 <span className="text-sm font-bold text-gray-700 flex items-center gap-1">
-                  {user?.fullName || 'admin user!'} <ChevronDown size={14} className="text-gray-400" />
+                  {user?.fullName || user?.username || 'Staff User'} <ChevronDown size={14} className="text-gray-400" />
+                </span>
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider -mt-0.5">
+                  {user?.role?.replace('_', ' ')}
                 </span>
               </div>
               
               {/* Profile Dropdown */}
-              <div className="absolute right-0 top-full mt-1 w-48 bg-white shadow-lg border border-gray-100 rounded-md py-2 hidden group-hover:block z-50">
-                <div className="px-4 py-2 border-b border-gray-50 mb-1">
-                   <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Welcome!</p>
-                   <p className="text-sm font-bold text-gray-700 truncate">{user?.fullName || 'admin user!'}</p>
+              <div className="absolute right-0 top-full mt-1 w-52 bg-white shadow-xl border border-gray-100 rounded-xl py-2 hidden group-hover:block z-50">
+                <div className="px-4 py-2.5 border-b border-gray-100 mb-1">
+                   <p className="text-[10px] text-gray-400 uppercase font-extrabold tracking-wider">Logged in as</p>
+                   <p className="text-sm font-bold text-gray-800 truncate m-0">{user?.fullName || user?.username}</p>
+                   <p className="text-xs text-brand font-semibold m-0">{user?.email}</p>
                 </div>
-                <Link to="/profile" className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-brand">My Profile</Link>
+                <Link to="/profile" className="block px-4 py-2 text-xs md:text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:text-brand">My Profile</Link>
+                <Link to="/reminders" className="block px-4 py-2 text-xs md:text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:text-brand">My Reminders</Link>
                 <button 
                   onClick={logout}
-                  className="w-full text-left block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-danger"
+                  className="w-full text-left block px-4 py-2 text-xs md:text-sm font-bold text-danger hover:bg-red-50"
                 >
                   Logout
                 </button>
@@ -175,7 +339,7 @@ const Navbar: React.FC = () => {
 
       {/* Navigation Bar Custom */}
       <nav className="bg-[var(--color-dark)] hidden xl:block">
-        <div className="container-fluid max-w-[1400px] mx-auto px-6 flex items-center justify-between">
+        <div className="w-full px-4 md:px-6 flex items-center justify-between">
           <ul className="flex items-center">
             {menuItems.map((item, idx) => {
               if (item.title === 'Lead Hub' && user?.role !== 'ADMIN' && user?.role !== 'BUSINESS_HEAD') return null;
@@ -236,7 +400,7 @@ const Navbar: React.FC = () => {
           {/* Switch to Project Button */}
           <div className="ml-auto">
             <a 
-              href="https://projects.orbixdesigns.com/" 
+              href="https://projects.wall2wall.com/" 
               className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#FF512F] to-[#DD2476] text-white rounded-full font-bold text-sm transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(255,81,47,0.4)] active:scale-95"
             >
               <ArrowRightLeft size={16} />
@@ -358,7 +522,7 @@ const Navbar: React.FC = () => {
               
               <div className="px-4 mt-6">
                 <a 
-                  href="https://projects.orbixdesigns.com/" 
+                  href="https://projects.wall2wall.com/" 
                   className="flex items-center justify-center gap-3 w-full py-4 bg-gradient-to-r from-[#FF512F] to-[#DD2476] text-white rounded-xl font-bold text-sm shadow-xl"
                 >
                   <ArrowRightLeft size={20} />

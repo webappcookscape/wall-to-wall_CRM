@@ -142,7 +142,7 @@ const Login: React.FC = () => {
           </div>
 
           <div className="mt-5 pb-1 text-center">
-            <p className="text-sm text-gray-400">2026 &copy; CRM COOKSCAPE. All rights reserved.</p>
+            <p className="text-sm text-gray-400">2026 &copy; WALL TO WALL CRM. All rights reserved.</p>
           </div>
         </div>
       </div>

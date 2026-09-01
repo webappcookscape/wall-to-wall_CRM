@@ -6,13 +6,13 @@ import {
   Filter, 
   Edit, 
   UserX, 
-  UserCheck, 
-  MoreVertical,
+  UserCheck,
   Mail,
   Smartphone,
   Shield,
   Building2,
-  Calendar
+  Calendar,
+  Trash2
 } from 'lucide-react';
 import { leadService } from '../services/api';
 import type { User, Role } from '../types/crm';
@@ -38,6 +38,48 @@ const Users = () => {
       setIsLoading(false);
     }
   }, []);
+
+  const handleToggleStatus = async (user: User) => {
+    try {
+      await leadService.updateUser(user.id, { status: !user.status });
+      fetchUsers();
+    } catch (error: any) {
+      console.error('Error toggling user status:', error);
+      alert(error.response?.data?.message || 'Failed to update user status');
+    }
+  };
+
+  const handleDeleteUser = async (user: User) => {
+    if (!window.confirm(`Are you sure you want to delete "${user.fullName}" (@${user.username})?`)) {
+      return;
+    }
+
+    try {
+      await leadService.deleteUser(user.id);
+      fetchUsers();
+    } catch (error: any) {
+      if (error.response?.status === 409 && error.response?.data?.hasAssignedProjects) {
+        const data = error.response.data;
+        const confirmForce = window.confirm(
+          `⚠️ ASSIGNED LEADS/PROJECTS FOUND!\n\n` +
+          `"${user.fullName}" is currently assigned to ${data.count} lead(s) in project(s):\n` +
+          `👉 ${data.projects?.length > 0 ? data.projects.join(', ') : 'General Projects'}\n\n` +
+          `Click OK to FORCE delete and unassign all these leads, or Cancel to reassign them manually.`
+        );
+        if (confirmForce) {
+          try {
+            await leadService.deleteUser(user.id, true);
+            fetchUsers();
+          } catch (forceError: any) {
+            alert(forceError.response?.data?.message || 'Failed to force delete user');
+          }
+        }
+      } else {
+        console.error('Error deleting user:', error);
+        alert(error.response?.data?.message || 'Failed to delete user');
+      }
+    }
+  };
 
   useEffect(() => {
     fetchUsers();
@@ -222,13 +264,18 @@ const Users = () => {
                           <Edit size={16} />
                         </button>
                         <button 
-                          className={`p-2 rounded-lg transition-colors border border-transparent ${user.status ? 'text-rose-500 hover:bg-rose-50 hover:border-rose-100' : 'text-emerald-500 hover:bg-emerald-50 hover:border-emerald-100'}`}
-                          title={user.status ? 'Deactivate' : 'Activate'}
+                          onClick={() => handleToggleStatus(user)}
+                          className={`p-2 rounded-lg transition-colors border border-transparent ${user.status ? 'text-amber-500 hover:bg-amber-50 hover:border-amber-100' : 'text-emerald-500 hover:bg-emerald-50 hover:border-emerald-100'}`}
+                          title={user.status ? 'Deactivate User' : 'Activate User'}
                         >
                           {user.status ? <UserX size={16} /> : <UserCheck size={16} />}
                         </button>
-                        <button className="p-2 text-gray-400 hover:bg-gray-100 rounded-lg transition-colors">
-                           <MoreVertical size={16} />
+                        <button 
+                          onClick={() => handleDeleteUser(user)}
+                          className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors border border-transparent hover:border-rose-100" 
+                          title="Delete User"
+                        >
+                          <Trash2 size={16} />
                         </button>
                       </div>
                     </td>
