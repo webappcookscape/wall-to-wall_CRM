@@ -1,10 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authService } from '../services/api';
 import type { User } from '../types/crm';
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
+  isInitialized: boolean;
   login: (identifier: string, password?: string, isGoogle?: boolean) => Promise<void>;
   logout: () => void;
   toggleRole: () => void; // Development only
@@ -18,27 +19,55 @@ const getErrorMessage = (error: any, fallback: string) =>
   fallback;
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isInitialized, setIsInitialized] = useState(false);
-
-  useEffect(() => {
-    const initAuth = async () => {
+  // Synchronously restore cached user profile from localStorage if available
+  const [user, setUser] = useState<User | null>(() => {
+    try {
       const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const fetchedUser = await authService.getMe();
-          setUser(fetchedUser);
-        } catch (error) {
-          console.error('Failed to fetch user profile', error);
-          localStorage.removeItem('token');
-        }
+      const cachedUser = localStorage.getItem('user');
+      if (token && cachedUser) {
+        return JSON.parse(cachedUser);
       }
+    } catch (e) {
+      console.error('Error reading cached user:', e);
+    }
+    return null;
+  });
+
+  const [isLoading, setIsLoading] = useState<boolean>(() => {
+    return !!localStorage.getItem('token');
+  });
+  const [isInitialized, setIsInitialized] = useState<boolean>(false);
+
+  const initAuth = useCallback(async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setUser(null);
       setIsLoading(false);
       setIsInitialized(true);
-    };
-    initAuth();
+      return;
+    }
+
+    try {
+      const fetchedUser = await authService.getMe();
+      setUser(fetchedUser);
+      localStorage.setItem('user', JSON.stringify(fetchedUser));
+    } catch (error: any) {
+      console.error('Failed to verify user profile token:', error);
+      // If 401 or token expired, clean up
+      if (error?.response?.status === 401 || error?.response?.status === 403) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setUser(null);
+      }
+    } finally {
+      setIsLoading(false);
+      setIsInitialized(true);
+    }
   }, []);
+
+  useEffect(() => {
+    initAuth();
+  }, [initAuth]);
 
   const login = async (identifier: string, password?: string, isGoogle?: boolean) => {
     try {
@@ -52,10 +81,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       const { token, user: loggedInUser } = authResponse;
       localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(loggedInUser));
       setUser(loggedInUser);
+      setIsInitialized(true);
     } catch (error: any) {
       console.error('Login failed', error);
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
       setUser(null);
       throw new Error(
         getErrorMessage(
@@ -69,16 +101,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
-    localStorage.clear();
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setUser(null);
+    setIsLoading(false);
     window.location.href = '/login';
   };
 
   const toggleRole = () => {
-    setUser(prev => prev ? {
-      ...prev,
-      role: prev.role === 'ADMIN' ? 'CRE' : 'ADMIN'
-    } : null);
+    setUser(prev => {
+      if (!prev) return null;
+      const updated: User = {
+        ...prev,
+        role: (prev.role === 'ADMIN' ? 'CRE' : 'ADMIN') as User['role']
+      };
+      localStorage.setItem('user', JSON.stringify(updated));
+      return updated;
+    });
   };
 
   // Expose helpers for development
@@ -86,9 +125,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     (window as any).authHelpers = { toggleRole };
   }
 
+  // If initializing a session for the very first time without cached user
+  if (!isInitialized && isLoading && !user) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#F4F7FA] gap-3">
+        <div className="w-10 h-10 border-4 border-brand border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-xs font-bold uppercase tracking-wider text-gray-400">Loading Wall to Wall CRM...</p>
+      </div>
+    );
+  }
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout, toggleRole }}>
-      {isInitialized ? children : null}
+    <AuthContext.Provider value={{ user, isLoading, isInitialized, login, logout, toggleRole }}>
+      {children}
     </AuthContext.Provider>
   );
 };

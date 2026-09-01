@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
@@ -7,11 +7,17 @@ import { GoogleLogin } from '@react-oauth/google';
 const landingImage = '/assets/logos/wall2wall_crm.png';
 
 const Login: React.FC = () => {
-  const { login, isLoading } = useAuth();
+  const { user, login, isLoading } = useAuth();
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isLoading && user) {
+      navigate('/', { replace: true });
+    }
+  }, [user, isLoading, navigate]);
 
   const handleTraditionalLogin = async (e: React.FormEvent) => {
     e.preventDefault();

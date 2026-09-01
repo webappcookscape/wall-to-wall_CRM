@@ -16,8 +16,16 @@ import Report from './pages/Report';
 import Reminders from './pages/Reminders';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
+const RouteLoader = () => (
+  <div className="min-h-screen flex flex-col items-center justify-center bg-[#F4F7FA] gap-3">
+    <div className="w-10 h-10 border-4 border-brand border-t-transparent rounded-full animate-spin"></div>
+    <p className="text-xs font-bold uppercase tracking-wider text-gray-400">Verifying session...</p>
+  </div>
+);
+
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+  if (isLoading) return <RouteLoader />;
   if (!user) return <Navigate to="/login" replace />;
   return (
     <div className="min-h-screen bg-[#F4F7FA]">
@@ -33,7 +41,8 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
 // Admin-only route — redirects CRE / non-admin employees back to dashboard
 const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+  if (isLoading) return <RouteLoader />;
   if (!user) return <Navigate to="/login" replace />;
   if (user.role !== 'ADMIN') return <Navigate to="/" replace />;
   return (
@@ -50,7 +59,8 @@ const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 // Manager route — allows ADMIN and BUSINESS_HEAD
 const ManagerRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+  if (isLoading) return <RouteLoader />;
   if (!user) return <Navigate to="/login" replace />;
   if (user.role !== 'ADMIN' && user.role !== 'BUSINESS_HEAD') return <Navigate to="/" replace />;
   return (
