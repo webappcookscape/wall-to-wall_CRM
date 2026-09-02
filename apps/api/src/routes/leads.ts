@@ -26,6 +26,8 @@ router.put('/:id', updateLead);
 router.put('/:id/assign', assignLead);
 router.post('/bulk-assign', bulkAssignLeads);
 router.post('/bulk-delete', bulkDeleteLeads);
+router.delete('/bulk-delete', bulkDeleteLeads);
+router.delete('/bulk', bulkDeleteLeads);
 router.post('/:id/activities', addActivity);
 router.post('/activities', getAllActivities);
 
