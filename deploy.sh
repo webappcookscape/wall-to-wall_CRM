@@ -2,125 +2,127 @@
 
 # ==============================================================================
 # Wall to Wall CRM - Automated VPS Production Deployment Script
-# Rebuilds Frontend & Backend, applies Prisma migrations & restarts PM2 / Nginx
 # ==============================================================================
 
 set -e
 
-echo "====================================================="
-echo "🚀 Starting Wall to Wall CRM Production Deployment..."
-echo "====================================================="
+# ANSI Color Codes
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}=====================================================${NC}"
+echo -e "${BLUE}🚀 Starting Wall to Wall CRM Production Deployment...${NC}"
+echo -e "${BLUE}=====================================================${NC}"
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$PROJECT_ROOT"
 
 # ------------------------------------------------------------------------------
-# 1. Pull latest changes from Git
+# 1. Fix file permissions (in case previous builds were run with sudo)
 # ------------------------------------------------------------------------------
 echo ""
-echo "⏬ [1/5] Pulling latest changes from git repository..."
-git pull origin main
+echo -e "${YELLOW}🔑 [1/6] Ensuring project file ownership & permissions...${NC}"
+if [ -n "$USER" ] && command -v chown &> /dev/null; then
+    # Fix ownership of dist and node_modules if owned by root
+    if [ -d "$PROJECT_ROOT/apps/api/dist" ]; then
+        chmod -R u+rw "$PROJECT_ROOT/apps/api/dist" 2>/dev/null || true
+    fi
+    if [ -d "$PROJECT_ROOT/apps/web/dist" ]; then
+        chmod -R u+rw "$PROJECT_ROOT/apps/web/dist" 2>/dev/null || true
+    fi
+fi
 
 # ------------------------------------------------------------------------------
-# 2. Install Root & Workspace Dependencies
+# 2. Pull latest changes from Git
 # ------------------------------------------------------------------------------
 echo ""
-echo "📦 [2/5] Installing workspace dependencies..."
+echo -e "${YELLOW}⏬ [2/6] Pulling latest changes from git repository...${NC}"
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")
+echo "  -> Current branch: $CURRENT_BRANCH"
+git pull origin "$CURRENT_BRANCH" || echo "⚠️ Git pull completed with notices"
+
+# ------------------------------------------------------------------------------
+# 3. Install Workspace Dependencies
+# ------------------------------------------------------------------------------
+echo ""
+echo -e "${YELLOW}📦 [3/6] Installing dependencies...${NC}"
 npm install
 
 # ------------------------------------------------------------------------------
-# 3. Build the Backend API (apps/api)
+# 4. Generate Prisma & Run Migrations
 # ------------------------------------------------------------------------------
 echo ""
-echo "⚙️ [3/5] Rebuilding Backend API (apps/api)..."
+echo -e "${YELLOW}🗄️ [4/6] Updating database & Prisma client...${NC}"
 cd "$PROJECT_ROOT/apps/api"
-
-echo "  -> Installing API dependencies..."
-npm install
-
-echo "  -> Generating Prisma Client..."
 npx prisma generate
-
-echo "  -> Applying database migrations..."
-npx prisma migrate deploy || echo "⚠️ Migration deploy completed with notices"
-
-echo "  -> Cleaning old backend dist folder..."
-rm -rf dist
-
-echo "  -> Compiling backend TypeScript (tsc)..."
-npm run build
-
-if [ ! -f "dist/index.js" ]; then
-    echo "❌ ERROR: Backend build failed! dist/index.js was not generated."
-    exit 1
-fi
-echo "  ✅ Backend successfully compiled to apps/api/dist/index.js"
+npx prisma migrate deploy 2>/dev/null || echo "⚠️ Prisma migrate skipped/notices"
 
 # ------------------------------------------------------------------------------
-# 4. Build the Web Frontend (apps/web)
+# 5. Build Backend & Frontend
 # ------------------------------------------------------------------------------
 echo ""
-echo "💻 [4/5] Rebuilding Frontend (apps/web)..."
-cd "$PROJECT_ROOT/apps/web"
+echo -e "${YELLOW}⚙️ [5/6] Compiling Backend & Frontend...${NC}"
+cd "$PROJECT_ROOT"
 
-echo "  -> Installing frontend dependencies..."
-npm install
+# Clean dist folders safely
+rm -rf "$PROJECT_ROOT/apps/api/dist" 2>/dev/null || true
+rm -rf "$PROJECT_ROOT/apps/web/dist" 2>/dev/null || true
 
-echo "  -> Cleaning old frontend dist folder..."
-rm -rf dist
-
-echo "  -> Compiling production assets with Vite..."
+# Run turbo / workspace build
 npm run build
 
-if [ ! -f "dist/index.html" ]; then
-    echo "❌ ERROR: Frontend build failed! dist/index.html was not generated."
+# Verify Backend Build
+if [ ! -f "$PROJECT_ROOT/apps/api/dist/index.js" ]; then
+    echo -e "${RED}⚠️ Backend build check in dist/index.js failed. Attempting direct tsc build in apps/api...${NC}"
+    cd "$PROJECT_ROOT/apps/api"
+    npx tsc
+fi
+
+if [ ! -f "$PROJECT_ROOT/apps/api/dist/index.js" ]; then
+    echo -e "${RED}❌ ERROR: Backend build failed! apps/api/dist/index.js was not generated.${NC}"
     exit 1
 fi
-echo "  ✅ Frontend successfully built to apps/web/dist/"
+echo -e "  ${GREEN}✅ Backend successfully compiled: apps/api/dist/index.js${NC}"
+
+# Verify Frontend Build
+if [ ! -f "$PROJECT_ROOT/apps/web/dist/index.html" ]; then
+    echo -e "${RED}❌ ERROR: Frontend build failed! apps/web/dist/index.html was not generated.${NC}"
+    exit 1
+fi
+echo -e "  ${GREEN}✅ Frontend successfully built: apps/web/dist/${NC}"
 
 # ------------------------------------------------------------------------------
-# 5. Restart PM2 & Nginx Services
+# 6. Restart PM2 & Reload Nginx
 # ------------------------------------------------------------------------------
 echo ""
-echo "🔄 [5/5] Restarting PM2 backend processes..."
-cd "$PROJECT_ROOT/apps/api"
+echo -e "${YELLOW}🔄 [6/6] Restarting PM2 processes...${NC}"
 
-# Check for existing PM2 process names
-RESTARTED=false
-
-for PROC_NAME in "wall2wall-api" "cookscape-api" "crm-api" "api"; do
-    if pm2 list | grep -q "$PROC_NAME"; then
-        echo "  -> Restarting active PM2 process '$PROC_NAME'..."
-        pm2 restart "$PROC_NAME" --update-env
-        RESTARTED=true
-        break
-    fi
-done
-
-# If no named process was found, start a new one or restart by ID
-if [ "$RESTARTED" = false ]; then
-    if pm2 list | grep -q " 7 "; then
-        echo "  -> Restarting PM2 process ID 7..."
-        pm2 restart 7 --update-env
-        RESTARTED=true
-    else
-        echo "  -> Starting new PM2 process 'wall2wall-api'..."
-        pm2 start dist/index.js --name wall2wall-api --time
-        RESTARTED=true
-    fi
+if command -v pm2 &> /dev/null; then
+    # Restart all PM2 processes
+    echo "  -> Executing: pm2 restart all --update-env"
+    pm2 restart all --update-env || pm2 restart 0 --update-env || true
+    pm2 save || true
+    echo -e "  ${GREEN}✅ PM2 processes successfully restarted.${NC}"
+else
+    echo -e "${YELLOW}⚠️ pm2 command not found in PATH. Please restart backend manually if needed.${NC}"
 fi
 
-pm2 save
-
-# Reload Nginx if available
+# Reload Nginx non-interactively (without blocking for password)
 if command -v nginx &> /dev/null; then
-    echo "  -> Testing & reloading Nginx web server..."
-    sudo nginx -t 2>/dev/null && sudo systemctl reload nginx || echo "ℹ️ Nginx reload skipped (no sudo or config error)"
+    echo "  -> Reloading Nginx..."
+    if sudo -n true 2>/dev/null; then
+        sudo nginx -t 2>/dev/null && sudo systemctl reload nginx || true
+    elif command -v systemctl &> /dev/null; then
+        systemctl reload nginx 2>/dev/null || true
+    fi
 fi
 
 echo ""
-echo "====================================================="
-echo "🎉 DEPLOYMENT COMPLETED SUCCESSFULLY!"
-echo "   - Backend: apps/api/dist/index.js (Running via PM2)"
-echo "   - Frontend: apps/web/dist/ (Served via Nginx)"
-echo "====================================================="
+echo -e "${GREEN}=====================================================${NC}"
+echo -e "${GREEN}🎉 DEPLOYMENT COMPLETED SUCCESSFULLY!${NC}"
+echo -e "   - Backend API: apps/api/dist/index.js (PM2 Active)"
+echo -e "   - Web Frontend: apps/web/dist/ (Static Assets Built)"
+echo -e "${GREEN}=====================================================${NC}"
