@@ -768,6 +768,75 @@ export const bulkAssignLeads = asyncHandler(async (req: Request, res: Response) 
   apiResponse.success(res, null, `Successfully assigned ${leadIds.length} leads`);
 });
 
+export const bulkDeleteLeads = asyncHandler(async (req: Request, res: Response) => {
+  const currentUser = getRequestUser(req);
+  const { leadIds } = req.body;
+
+  if (!leadIds || !Array.isArray(leadIds) || leadIds.length === 0) {
+    return apiResponse.error(res, 'Lead IDs are required', 400);
+  }
+
+  const normalizedLeadIds = leadIds.map(id => String(id));
+  await Promise.all(normalizedLeadIds.map(leadId =>
+    ensureLeadDeleteAccess(leadId, currentUser)
+  ));
+
+  try {
+    const deletedCount = await prisma.$transaction(async (tx) => {
+      // 1. Delete related appointments
+      await tx.appointment.deleteMany({
+        where: { leadId: { in: normalizedLeadIds } },
+      });
+
+      // 2. Delete related showroom visits
+      await tx.showroomVisit.deleteMany({
+        where: { leadId: { in: normalizedLeadIds } },
+      });
+
+      // 3. Delete related lead activities
+      await tx.leadActivity.deleteMany({
+        where: { leadId: { in: normalizedLeadIds } },
+      });
+
+      // 4. Delete related tasks
+      await tx.task.deleteMany({
+        where: { leadId: { in: normalizedLeadIds } },
+      });
+
+      // 5. Clean up many-to-many tag relations
+      try {
+        await tx.$executeRawUnsafe(
+          `DELETE FROM "_LeadToLeadTag" WHERE "A" = ANY($1::text[])`,
+          normalizedLeadIds
+        );
+      } catch (err) {
+        // Fallback: update tags to empty if join table raw query not supported
+        for (const leadId of normalizedLeadIds) {
+          try {
+            await tx.lead.update({
+              where: { id: leadId },
+              data: { tags: { set: [] } },
+            });
+          } catch (e) {
+            // ignore if not found
+          }
+        }
+      }
+
+      // 6. Finally, delete the leads themselves
+      const resDelete = await tx.lead.deleteMany({
+        where: { id: { in: normalizedLeadIds } },
+      });
+
+      return resDelete.count;
+    });
+
+    apiResponse.success(res, { count: deletedCount }, `Successfully deleted ${deletedCount} lead(s) completely`);
+  } catch (error: any) {
+    throw error;
+  }
+});
+
 export const deleteLead = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const user = getRequestUser(req);

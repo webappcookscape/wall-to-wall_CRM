@@ -8,6 +8,7 @@ import {
   getLead, 
   addActivity, 
   bulkAssignLeads, 
+  bulkDeleteLeads,
   bulkImportLeads,
   getAllActivities, 
   deleteLead 
@@ -24,6 +25,7 @@ router.delete('/:id', deleteLead);
 router.put('/:id', updateLead);
 router.put('/:id/assign', assignLead);
 router.post('/bulk-assign', bulkAssignLeads);
+router.post('/bulk-delete', bulkDeleteLeads);
 router.post('/:id/activities', addActivity);
 router.post('/activities', getAllActivities);
 

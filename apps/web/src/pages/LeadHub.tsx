@@ -31,6 +31,8 @@ const LeadHub: React.FC = () => {
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
   const [targetUserId, setTargetUserId] = useState('');
   const [isSubmittingBulk, setIsSubmittingBulk] = useState(false);
+  const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
+  const [isSubmittingBulkDelete, setIsSubmittingBulkDelete] = useState(false);
   const [deletingLeadId, setDeletingLeadId] = useState<string | null>(null);
   
   const [masters, setMasters] = useState<MasterData | null>(null);
@@ -110,6 +112,23 @@ const LeadHub: React.FC = () => {
       alert('Failed to bulk assign leads.');
     } finally {
       setIsSubmittingBulk(false);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedLeads.length === 0) return;
+    setIsSubmittingBulkDelete(true);
+    try {
+      const res = await leadService.bulkDeleteLeads(selectedLeads);
+      alert(res?.message || `Successfully deleted ${selectedLeads.length} leads completely.`);
+      setSelectedLeads([]);
+      setIsBulkDeleteModalOpen(false);
+      await fetchLeads();
+    } catch (error: any) {
+      console.error('Error in bulk delete:', error);
+      alert(error?.response?.data?.message || 'Failed to bulk delete leads.');
+    } finally {
+      setIsSubmittingBulkDelete(false);
     }
   };
 
@@ -339,16 +358,29 @@ const LeadHub: React.FC = () => {
 
       {/* Bulk Action Bar */}
       {selectedLeads.length > 0 && (
-          <div className="bg-gray-800 text-white p-3 rounded mb-4 flex items-center justify-between">
+          <div className="bg-gray-800 text-white p-3 rounded mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
               <span className="text-xs font-bold">{selectedLeads.length} Leads Selected</span>
-              <div className="flex gap-3">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                   <button 
                     onClick={() => setIsBulkModalOpen(true)}
-                    className="bg-brand text-white px-3 py-1 rounded text-[10px] font-bold uppercase"
+                    className="bg-brand hover:bg-[#004d30] text-white px-3 py-1.5 rounded text-[10px] font-bold uppercase transition-all flex items-center gap-1.5"
                   >
-                    Bulk Assign
+                    <Users size={13} /> Bulk Assign
                   </button>
-                  <button className="text-gray-400 hover:text-white text-[10px] font-bold uppercase" onClick={() => setSelectedLeads([])}>Cancel</button>
+                  {isAdmin && (
+                    <button 
+                      onClick={() => setIsBulkDeleteModalOpen(true)}
+                      className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-[10px] font-bold uppercase transition-all flex items-center gap-1.5"
+                    >
+                      <Trash2 size={13} /> Bulk Delete
+                    </button>
+                  )}
+                  <button 
+                    className="text-gray-400 hover:text-white px-2 py-1 text-[10px] font-bold uppercase transition-colors ml-auto sm:ml-0" 
+                    onClick={() => setSelectedLeads([])}
+                  >
+                    Cancel
+                  </button>
               </div>
           </div>
       )}
@@ -435,6 +467,67 @@ const LeadHub: React.FC = () => {
                     )}
                   </button>
                </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Delete Modal */}
+      {isBulkDeleteModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-200">
+            <div className="bg-red-600 p-6 flex items-center justify-between text-white">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white/20 rounded-xl">
+                  <Trash2 size={20} className="text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white font-rubik uppercase tracking-tight">Bulk Delete Leads</h3>
+                  <p className="text-[11px] text-red-100 m-0">Permanent deletion of selected records</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => !isSubmittingBulkDelete && setIsBulkDeleteModalOpen(false)} 
+                className="p-2 hover:bg-white/10 rounded-full transition-colors text-white"
+              >
+                <ChevronRight className="rotate-90" size={20} />
+              </button>
+            </div>
+            <div className="p-6 md:p-8 space-y-5">
+              <div className="bg-red-50 border border-red-200/80 rounded-xl p-4 text-red-800 text-sm">
+                <p className="font-bold text-xs uppercase tracking-wider mb-1 text-red-700">Warning: Permanent Action</p>
+                <p className="text-xs text-red-600/90 leading-relaxed m-0">
+                  You are about to delete <strong className="text-red-900 font-bold">{selectedLeads.length}</strong> lead(s) completely.
+                  This will permanently remove all related appointments, showroom visits, activities, and tasks. This action <strong className="underline">cannot be undone</strong>.
+                </p>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button 
+                  disabled={isSubmittingBulkDelete}
+                  onClick={() => setIsBulkDeleteModalOpen(false)}
+                  className="px-5 py-3.5 rounded-xl border border-gray-200 text-gray-500 font-bold text-[10px] hover:bg-gray-50 transition-all uppercase tracking-[0.2em] disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button 
+                  disabled={isSubmittingBulkDelete}
+                  onClick={handleBulkDelete}
+                  className="flex-1 px-5 py-3.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-[10px] transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-lg shadow-red-600/20 disabled:opacity-50"
+                >
+                  {isSubmittingBulkDelete ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white animate-spin rounded-full" />
+                      <span>Deleting...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 size={14} />
+                      <span>Delete {selectedLeads.length} Leads Permanently</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>

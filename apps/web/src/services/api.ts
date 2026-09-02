@@ -122,6 +122,11 @@ export const leadService = {
     return response.data;
   },
 
+  bulkDeleteLeads: async (leadIds: string[]): Promise<any> => {
+    const response = await axios.post(`${API_BASE_URL}/leads/bulk-delete`, { leadIds });
+    return response.data;
+  },
+
   updateLead: async (leadId: string, leadData: Partial<Lead>): Promise<Lead> => {
     const response = await axios.put(`${API_BASE_URL}/leads/${leadId}`, leadData);
     return response.data.data;
