@@ -8,6 +8,18 @@ const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const prisma = new PrismaClient();
 
 async function resetAndSeed() {
+  console.log('🔄 Ensuring PostgreSQL Role enum has all 7 roles...');
+  try {
+    await prisma.$executeRawUnsafe(`ALTER TABLE "User" ALTER COLUMN "role" DROP DEFAULT;`);
+    await prisma.$executeRawUnsafe(`ALTER TABLE "User" ALTER COLUMN "role" TYPE text USING "role"::text;`);
+    await prisma.$executeRawUnsafe(`DROP TYPE IF EXISTS "Role" CASCADE;`);
+    await prisma.$executeRawUnsafe(`CREATE TYPE "Role" AS ENUM ('ADMIN', 'BUSINESS_HEAD', 'DM_EXECUTIVE', 'FA', 'LA', 'VENDOR_MANAGEMENT', 'CLIENT_FACILITATOR');`);
+    await prisma.$executeRawUnsafe(`ALTER TABLE "User" ALTER COLUMN "role" TYPE "Role" USING "role"::"Role";`);
+    await prisma.$executeRawUnsafe(`ALTER TABLE "User" ALTER COLUMN "role" SET DEFAULT 'CLIENT_FACILITATOR'::"Role";`);
+  } catch (err) {
+    console.warn('⚠️ Enum setup notice:', err);
+  }
+
   console.log('🧹 1. Cleaning up all transactional data (leads, activities, tasks, visits, appointments, users)...');
 
   // Delete child records first to satisfy foreign key constraints

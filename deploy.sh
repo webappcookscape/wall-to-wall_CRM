@@ -57,6 +57,7 @@ npm install
 echo ""
 echo -e "${YELLOW}🗄️ [4/6] Updating database & Prisma client...${NC}"
 cd "$PROJECT_ROOT/apps/api"
+npx tsx scripts/update-roles-enum.ts 2>/dev/null || true
 npx prisma generate
 npx prisma migrate deploy 2>/dev/null || echo "⚠️ Prisma migrate skipped/notices"
 
