@@ -124,9 +124,13 @@ export interface DashboardStats {
   opportunities: number;
   orderbook: number;
   disqualified: number;
-  creleads: number;
-  fealeads: number;
-  designlead: number;
+  cfleads?: number;
+  creleads?: number;
+  faleads?: number;
+  laleads?: number;
+  vendorleads?: number;
+  fealeads?: number;
+  designlead?: number;
   designCompleted?: number;
   remindersDue?: number;
   upcomingReminders?: {
