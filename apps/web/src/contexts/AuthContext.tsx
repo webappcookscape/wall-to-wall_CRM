@@ -113,7 +113,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!prev) return null;
       const updated: User = {
         ...prev,
-        role: (prev.role === 'ADMIN' ? 'CRE' : 'ADMIN') as User['role']
+        role: (prev.role === 'ADMIN' ? 'CLIENT_FACILITATOR' : 'ADMIN') as User['role']
       };
       localStorage.setItem('user', JSON.stringify(updated));
       return updated;

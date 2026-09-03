@@ -62,10 +62,11 @@ export const getDashboardStats = asyncHandler(async (req: Request, res: Response
     opportunities,
     orderBooked,
     disqualified,
-    creLeads,
+    cfLeads,
     designCompleted,
-    fealeads,
-    designlead,
+    faLeads,
+    laLeads,
+    vendorLeads,
     remindersDue,
     upcomingReminders,
     selectedEmployee
@@ -87,24 +88,20 @@ export const getDashboardStats = asyncHandler(async (req: Request, res: Response
     prisma.lead.count({ where: scopedLeadWhere({ status: { name: 'Order Booked' } }) }),
     prisma.lead.count({ where: scopedLeadWhere({ status: { name: 'Disqualified' } }) }),
     
-    // CRE Leads (Assigned to CRE)
-    prisma.lead.count({ where: scopedLeadWhere({ assignedTo: { role: 'CRE' } }) }),
+    // Client Facilitator Leads
+    prisma.lead.count({ where: scopedLeadWhere({ assignedTo: { role: 'CLIENT_FACILITATOR' } }) }),
 
     // Design Completed
     prisma.lead.count({ where: scopedLeadWhere({ status: { name: 'Design Completed' } }) }),
 
-    // Feasibility Desk
-    prisma.lead.count({ 
-      where: scopedLeadWhere({ 
-        OR: [
-          { status: { name: { contains: 'Feasibility', mode: 'insensitive' } } },
-          { currentStage: { name: { contains: 'Feasibility', mode: 'insensitive' } } }
-        ]
-      }) 
-    }),
+    // FA Leads
+    prisma.lead.count({ where: scopedLeadWhere({ assignedTo: { role: 'FA' } }) }),
 
-    // Design Leads (Assigned to Designer)
-    prisma.lead.count({ where: scopedLeadWhere({ assignedTo: { role: 'DESIGNER' } }) }),
+    // LA Leads
+    prisma.lead.count({ where: scopedLeadWhere({ assignedTo: { role: 'LA' } }) }),
+
+    // Vendor Management Leads
+    prisma.lead.count({ where: scopedLeadWhere({ assignedTo: { role: 'VENDOR_MANAGEMENT' } }) }),
 
     // Reminders Due (Due today + overdue in IST)
     prisma.lead.count({ where: scopedLeadWhere({ contactableDate: { lte: endOfDay } }) }),
@@ -139,7 +136,7 @@ export const getDashboardStats = asyncHandler(async (req: Request, res: Response
     const activeUsers = await prisma.user.findMany({
       where: { 
         status: true,
-        role: { in: ['CRE', 'DESIGNER', 'BUSINESS_HEAD', 'DM_EXECUTIVE'] }
+        role: { in: ['ADMIN', 'BUSINESS_HEAD', 'DM_EXECUTIVE', 'FA', 'LA', 'VENDOR_MANAGEMENT', 'CLIENT_FACILITATOR'] }
       },
       select: {
         id: true,
@@ -208,10 +205,14 @@ export const getDashboardStats = asyncHandler(async (req: Request, res: Response
     opportunities: opportunities,
     orderbook: orderBooked,
     disqualified: disqualified,
-    creleads: creLeads,
+    cfleads: cfLeads,
+    creleads: cfLeads,
     designCompleted: designCompleted,
-    fealeads: fealeads || 0,
-    designlead: designlead || 0,
+    faleads: faLeads,
+    designlead: faLeads,
+    laleads: laLeads,
+    fealeads: laLeads,
+    vendorleads: vendorLeads,
     remindersDue,
     upcomingReminders: upcomingReminders || [],
     selectedEmployee: selectedEmployee || null,

@@ -100,9 +100,11 @@ const Users = () => {
     switch (role) {
       case 'ADMIN': return 'bg-indigo-50 text-indigo-600 border-indigo-100';
       case 'BUSINESS_HEAD': return 'bg-purple-50 text-purple-600 border-purple-100';
-      case 'DESIGNER': return 'bg-pink-50 text-pink-600 border-pink-100';
-      case 'CRE': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
       case 'DM_EXECUTIVE': return 'bg-sky-50 text-sky-600 border-sky-100';
+      case 'FA': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
+      case 'LA': return 'bg-teal-50 text-teal-600 border-teal-100';
+      case 'VENDOR_MANAGEMENT': return 'bg-amber-50 text-amber-600 border-amber-100';
+      case 'CLIENT_FACILITATOR': return 'bg-blue-50 text-blue-600 border-blue-100';
       default: return 'bg-gray-50 text-gray-600 border-gray-100';
     }
   };
@@ -153,9 +155,11 @@ const Users = () => {
                   <option value="ALL">All Roles</option>
                   <option value="ADMIN">Admin</option>
                   <option value="BUSINESS_HEAD">Business Head</option>
-                  <option value="CRE">CRE</option>
                   <option value="DM_EXECUTIVE">DM Executive</option>
-                  <option value="DESIGNER">Designer</option>
+                  <option value="FA">FA</option>
+                  <option value="LA">LA</option>
+                  <option value="VENDOR_MANAGEMENT">Vendor Management</option>
+                  <option value="CLIENT_FACILITATOR">Client Facilitator</option>
                 </select>
               </div>
            </div>

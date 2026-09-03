@@ -16,7 +16,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSuccess, user 
     username: '',
     email: '',
     phone: '',
-    role: 'CRE',
+    role: 'CLIENT_FACILITATOR',
     showroomId: '',
     signaturePhotoId: '',
     businessHeadId: '',
@@ -59,7 +59,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSuccess, user 
         username: user.username || '',
         email: user.email || '',
         phone: user.phone || '',
-        role: user.role || 'CRE',
+        role: user.role || 'CLIENT_FACILITATOR',
         showroomId: user.showroomId || '',
         signaturePhotoId: user.signaturePhotoId || '',
         businessHeadId: user.businessHeadId || '',
@@ -73,7 +73,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSuccess, user 
         username: '',
         email: '',
         phone: '',
-        role: 'CRE',
+        role: 'CLIENT_FACILITATOR',
         showroomId: '',
         businessHeadId: '',
         status: true,
@@ -209,11 +209,13 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSuccess, user 
                      value={formData.role}
                      onChange={(e) => setFormData({ ...formData, role: e.target.value as Role })}
                    >
-                     <option value="CRE">CRE</option>
+                     <option value="CLIENT_FACILITATOR">Client Facilitator</option>
                      <option value="ADMIN">Admin</option>
                      <option value="BUSINESS_HEAD">Business Head</option>
                      <option value="DM_EXECUTIVE">DM Executive</option>
-                     <option value="DESIGNER">Designer</option>
+                     <option value="FA">FA</option>
+                     <option value="LA">LA</option>
+                     <option value="VENDOR_MANAGEMENT">Vendor Management</option>
                    </select>
                  </div>
 
@@ -249,7 +251,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSuccess, user 
                     </select>
                   </div>
 
-                  {['CRE', 'DESIGNER', 'DM_EXECUTIVE'].includes(formData.role || '') && (
+                  {['CLIENT_FACILITATOR', 'FA', 'LA', 'VENDOR_MANAGEMENT', 'DM_EXECUTIVE'].includes(formData.role || '') && (
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
                         <UserIcon size={12} className="text-brand" /> Business Head

@@ -89,9 +89,11 @@ const Dashboard: React.FC = () => {
     switch (role) {
       case 'ADMIN': return 'bg-purple-100 text-purple-700 border-purple-200';
       case 'BUSINESS_HEAD': return 'bg-indigo-100 text-indigo-700 border-indigo-200';
-      case 'DESIGNER': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
-      case 'CRE': return 'bg-blue-100 text-blue-700 border-blue-200';
       case 'DM_EXECUTIVE': return 'bg-amber-100 text-amber-700 border-amber-200';
+      case 'FA': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+      case 'LA': return 'bg-teal-100 text-teal-700 border-teal-200';
+      case 'VENDOR_MANAGEMENT': return 'bg-orange-100 text-orange-700 border-orange-200';
+      case 'CLIENT_FACILITATOR': return 'bg-blue-100 text-blue-700 border-blue-200';
       default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
   };
@@ -100,9 +102,11 @@ const Dashboard: React.FC = () => {
     switch (role) {
       case 'ADMIN': return 'Administrator';
       case 'BUSINESS_HEAD': return 'Business Head';
-      case 'DESIGNER': return 'Interior Designer';
-      case 'CRE': return 'Customer Relationship Exec';
       case 'DM_EXECUTIVE': return 'DM Executive';
+      case 'FA': return 'FA';
+      case 'LA': return 'LA';
+      case 'VENDOR_MANAGEMENT': return 'Vendor Management';
+      case 'CLIENT_FACILITATOR': return 'Client Facilitator';
       default: return role;
     }
   };
@@ -239,7 +243,7 @@ const Dashboard: React.FC = () => {
             <RefreshCw size={15} className={isLoading ? 'animate-spin' : ''} />
           </button>
 
-          {['ADMIN', 'DM_EXECUTIVE', 'BUSINESS_HEAD', 'DESIGNER'].includes(user?.role || '') && (
+          {['ADMIN', 'DM_EXECUTIVE', 'BUSINESS_HEAD', 'FA', 'LA', 'VENDOR_MANAGEMENT', 'CLIENT_FACILITATOR'].includes(user?.role || '') && (
             <button 
               onClick={() => setIsModalOpen(true)}
               className="btn-custom !rounded-xl !px-5 !py-2.5 text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-brand/10"
@@ -376,9 +380,10 @@ const Dashboard: React.FC = () => {
 
           <div className="space-y-3">
             {[
-              { label: 'Assigned to CRE Queue', value: stats?.creleads || 0, role: 'CRE', color: 'bg-blue-500' },
-              { label: 'Assigned to Interior Designers', value: stats?.designlead || 0, role: 'DESIGNER', color: 'bg-emerald-500' },
-              { label: 'Feasibility & Estimation Desk', value: stats?.fealeads || 0, role: 'FEASIBILITY', color: 'bg-indigo-500' },
+              { label: 'Assigned to Client Facilitators', value: stats?.cfleads || stats?.creleads || 0, role: 'CLIENT_FACILITATOR', color: 'bg-blue-500' },
+              { label: 'Assigned to FA Queue', value: stats?.faleads || stats?.designlead || 0, role: 'FA', color: 'bg-emerald-500' },
+              { label: 'Assigned to LA Queue', value: stats?.laleads || stats?.fealeads || 0, role: 'LA', color: 'bg-teal-500' },
+              { label: 'Assigned to Vendor Management', value: stats?.vendorleads || 0, role: 'VENDOR_MANAGEMENT', color: 'bg-orange-500' },
               { label: 'Design Completed / Approved', value: stats?.designCompleted || 0, role: 'COMPLETED', color: 'bg-purple-500' },
             ].map((item, i) => (
               <div key={i} className="p-3.5 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-between">

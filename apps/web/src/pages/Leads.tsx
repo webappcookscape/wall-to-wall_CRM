@@ -148,7 +148,7 @@ const Leads: React.FC = () => {
       <div className="card-box !mb-0 !p-4 md:!p-6 rounded-xl shadow-sm border border-gray-200/80">
         <div className="flex items-center justify-between mb-4">
            <h4 className="text-xl md:text-2xl font-black text-gray-800 uppercase tracking-wide m-0 font-rubik">Leads</h4>
-           {['ADMIN', 'DM_EXECUTIVE', 'BUSINESS_HEAD', 'DESIGNER'].includes(user?.role || '') && (
+           {['ADMIN', 'DM_EXECUTIVE', 'BUSINESS_HEAD', 'FA', 'LA', 'VENDOR_MANAGEMENT', 'CLIENT_FACILITATOR'].includes(user?.role || '') && (
              <div className="flex items-center gap-2">
                <button 
                  onClick={() => setIsUploadModalOpen(true)}

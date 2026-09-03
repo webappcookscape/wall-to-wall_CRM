@@ -286,7 +286,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead 
               />
             </div>
 
-            {(userRole === 'ADMIN' || userRole === 'BUSINESS_HEAD' || userRole === 'CRE' || userRole === 'DESIGNER') && (
+            {['ADMIN', 'BUSINESS_HEAD', 'FA', 'LA', 'VENDOR_MANAGEMENT', 'CLIENT_FACILITATOR'].includes(userRole || '') && (
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Assigned To</label>
                 <select 

@@ -45,20 +45,26 @@ app.use('/api/', limiter as any);
 // Strict limiter for auth endpoints only — prevent brute force
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 30, // 30 login attempts per 15 min
+  max: 100, // 100 login attempts per 15 min
   message: 'Too many login attempts, please try again after 15 minutes',
 });
 app.use('/api/v1/auth/login', authLimiter as any);
 app.use('/api/v1/auth/google-login', authLimiter as any);
 
-const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:5174')
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:3000')
   .split(',')
   .map(origin => origin.trim())
   .filter(Boolean);
 
 app.use(cors({
   origin(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
+    // Allow any localhost / 127.0.0.1 port for local development
+    const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+    if (isLocalhost || allowedOrigins.includes(origin)) {
       callback(null, true);
       return;
     }

@@ -14,7 +14,7 @@ model User {
   email         String         @unique
   password      String?
   phone         String?
-  role          Role           @default(CRE)
+  role          Role           @default(CLIENT_FACILITATOR)
   status        Boolean        @default(true)
   metaAccess    Boolean        @default(false)
   avatar        String?
@@ -265,10 +265,12 @@ model SignaturePhoto {
 
 enum Role {
   ADMIN
-  CRE
-  DESIGNER
   BUSINESS_HEAD
   DM_EXECUTIVE
+  FA
+  LA
+  VENDOR_MANAGEMENT
+  CLIENT_FACILITATOR
 }
 
 enum TaskStatus {
