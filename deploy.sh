@@ -117,7 +117,7 @@ if command -v nginx &> /dev/null; then
     if sudo -n true 2>/dev/null; then
         sudo nginx -t 2>/dev/null && sudo systemctl reload nginx || true
     elif command -v systemctl &> /dev/null; then
-        systemctl reload nginx 2>/dev/null || true
+        systemctl --no-ask-password reload nginx 2>/dev/null || true
     fi
 fi
 
