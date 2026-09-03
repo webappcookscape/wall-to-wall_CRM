@@ -260,6 +260,212 @@ async function resetAndSeed() {
     });
   }
 
+  // 3. Seed 10 Realistic Sample Leads
+  console.log('📋 3. Seeding 10 sample leads with activities & assignments...');
+  const [brands, projects, sources, statuses, stages, tags, allUsers] = await Promise.all([
+    prisma.brand.findMany(),
+    prisma.project.findMany(),
+    prisma.source.findMany(),
+    prisma.leadStatus.findMany(),
+    prisma.stage.findMany(),
+    prisma.leadTag.findMany(),
+    prisma.user.findMany(),
+  ]);
+
+  const userMap = new Map(allUsers.map(u => [u.username, u.id]));
+  const statusMap = new Map(statuses.map(s => [s.name.toLowerCase(), s.id]));
+  const stageMap = new Map(stages.map(s => [s.name.toLowerCase(), s.id]));
+  const brandId = brands[0]?.id || null;
+  const projectId = projects[0]?.id || null;
+  const sourceId = sources[0]?.id || null;
+  const tagIds = tags.slice(0, 2).map(t => ({ id: t.id }));
+  const adminId = userMap.get('admin') || allUsers[0]?.id;
+
+  const sampleLeadsData = [
+    {
+      name: 'Vikram Malhotra',
+      email: 'vikram.malhotra@gmail.com',
+      phone: '9840112341',
+      rating: 5,
+      statusName: 'fresh',
+      stageName: 'initial discussion',
+      assignedUsername: 'clientfacilitator',
+      comments: 'Looking for complete 3BHK modular kitchen and wardrobe design in OMR.',
+      instructionToPass: 'Call back tomorrow morning to arrange a site visit.',
+      orderValue: null,
+      ratingName: 'Hot Lead'
+    },
+    {
+      name: 'Sneha Kulkarni',
+      email: 'sneha.kulkarni@yahoo.com',
+      phone: '9840112342',
+      rating: 4,
+      statusName: 'yet to follow-up',
+      stageName: 'site visit done',
+      assignedUsername: 'fa',
+      comments: 'Site measurement completed yesterday. Awaiting 3D layout rendering.',
+      instructionToPass: 'Share sample material catalogue on WhatsApp.',
+      orderValue: 450000,
+      ratingName: 'Warm Lead'
+    },
+    {
+      name: 'Aditya Iyer',
+      email: 'aditya.iyer@outlook.com',
+      phone: '9840112343',
+      rating: 5,
+      statusName: 'follow-up',
+      stageName: 'estimation shared',
+      assignedUsername: 'la',
+      comments: 'Client requested revised quotation with acrylic finish kitchen cabinets.',
+      instructionToPass: 'Follow up on Saturday regarding the quotation review.',
+      orderValue: 720000,
+      ratingName: 'Hot Lead'
+    },
+    {
+      name: 'Pooja Hegde',
+      email: 'pooja.hegde@gmail.com',
+      phone: '9840112344',
+      rating: 4,
+      statusName: 'opportunities',
+      stageName: 'negotiation',
+      assignedUsername: 'vendor',
+      comments: 'Interested in premium hardware fittings and German soft-close hinges.',
+      instructionToPass: 'Confirm delivery timeline with production team.',
+      orderValue: 620000,
+      ratingName: 'Warm Lead'
+    },
+    {
+      name: 'Rohan Mehra',
+      email: 'rohan.mehra@corporate.in',
+      phone: '9840112345',
+      rating: 5,
+      statusName: 'order booked',
+      stageName: 'production started',
+      assignedUsername: 'businesshead',
+      comments: 'Advance payment of 20% received. Final design approved.',
+      instructionToPass: 'Issue factory work notification and assign supervisor.',
+      orderValue: 950000,
+      ratingName: 'Won'
+    },
+    {
+      name: 'Anjali Menon',
+      email: 'anjali.menon@techcorp.com',
+      phone: '9840112346',
+      rating: 3,
+      statusName: 'follow-up',
+      stageName: 'site visit scheduled',
+      assignedUsername: 'arun.cf',
+      comments: 'Site visit scheduled for Sunday at Nandhanam showroom.',
+      instructionToPass: 'Send showroom location pin and confirmation message.',
+      orderValue: 380000,
+      ratingName: 'Cold Lead'
+    },
+    {
+      name: 'Karthik Raman',
+      email: 'karthik.raman@innovate.co',
+      phone: '9840112347',
+      rating: 4,
+      statusName: 'yet to follow-up',
+      stageName: 'initial discussion',
+      assignedUsername: 'bala.fa',
+      comments: 'Inquired via Meta Facebook Ad campaign for villa interiors.',
+      instructionToPass: 'Introduce the FA designer and schedule virtual meet.',
+      orderValue: null,
+      ratingName: 'Warm Lead'
+    },
+    {
+      name: 'Meera Nambiar',
+      email: 'meera.nambiar@heritage.org',
+      phone: '9840112348',
+      rating: 5,
+      statusName: 'design completed',
+      stageName: 'design finalized',
+      assignedUsername: 'priya.la',
+      comments: '3D walkthrough and full architectural drawings completed.',
+      instructionToPass: 'Present final contract for signature.',
+      orderValue: 880000,
+      ratingName: 'Hot Lead'
+    },
+    {
+      name: 'Sanjay Joshi',
+      email: 'sanjay.joshi@finance.in',
+      phone: '9840112349',
+      rating: 4,
+      statusName: 'fresh',
+      stageName: 'initial discussion',
+      assignedUsername: 'dmexecutive',
+      comments: 'Lead collected from Google Ads search for luxury interior designers in Chennai.',
+      instructionToPass: 'Assign to available Client Facilitator queue.',
+      orderValue: null,
+      ratingName: 'Fresh'
+    },
+    {
+      name: 'Divya Balakrishnan',
+      email: 'divya.bala@gmail.com',
+      phone: '9840112350',
+      rating: 5,
+      statusName: 'opportunities',
+      stageName: 'final review',
+      assignedUsername: 'manoj.vendor',
+      comments: 'Custom wardrobe layout approved with walk-in closet accessories.',
+      instructionToPass: 'Prepare final milestone payment schedule.',
+      orderValue: 540000,
+      ratingName: 'Hot Lead'
+    },
+  ];
+
+  for (let i = 0; i < sampleLeadsData.length; i++) {
+    const item = sampleLeadsData[i];
+    const assignedUserId = userMap.get(item.assignedUsername) || adminId;
+    const resolvedStatusId = statusMap.get(item.statusName) || statuses[0]?.id || null;
+    const resolvedStageId = stageMap.get(item.stageName) || stages[0]?.id || null;
+
+    const lead = await prisma.lead.create({
+      data: {
+        name: item.name,
+        email: item.email,
+        phone: item.phone,
+        rating: item.rating,
+        ratingName: item.ratingName,
+        comments: item.comments,
+        instructionToPass: item.instructionToPass,
+        orderValue: item.orderValue,
+        brandId,
+        projectId,
+        sourceId,
+        statusId: resolvedStatusId,
+        currentStageId: resolvedStageId,
+        assignedToId: assignedUserId,
+        createdById: adminId,
+        contactableDate: new Date(Date.now() + (i * 24 * 3600 * 1000)), // staggered upcoming follow-ups
+        tags: {
+          connect: tagIds
+        }
+      }
+    });
+
+    // Create Initial Lead Activity
+    await prisma.leadActivity.create({
+      data: {
+        leadId: lead.id,
+        userId: adminId,
+        type: 'SYSTEM',
+        content: `Lead created and assigned to ${item.assignedUsername} (${item.ratingName})`
+      }
+    });
+
+    if (item.comments) {
+      await prisma.leadActivity.create({
+        data: {
+          leadId: lead.id,
+          userId: assignedUserId,
+          type: 'NOTE',
+          content: item.comments
+        }
+      });
+    }
+  }
+
   console.log('\n📊 Database Status After Reset:');
   console.log(`- Users count: ${await prisma.user.count()}`);
   console.log(`- Leads count: ${await prisma.lead.count()}`);
@@ -268,7 +474,7 @@ async function resetAndSeed() {
   console.log(`- Appointments count: ${await prisma.appointment.count()}`);
   console.log(`- Showroom Visits count: ${await prisma.showroomVisit.count()}`);
 
-  console.log('\n🎉 Successfully reset! Here are the 2 users created for each role:\n');
+  console.log('\n🎉 Successfully reset and seeded! Here are the 2 users created for each role:\n');
   console.table(createdUsers);
 }
 

@@ -30,9 +30,9 @@ interface ActionButtonProps {
 const ActionButton = ({ icon: Icon, label, color = 'bg-brand', onClick }: ActionButtonProps) => (
   <button 
     onClick={onClick}
-    className={`${color} text-white px-4 py-2.5 rounded-lg text-xs md:text-sm font-bold uppercase flex items-center justify-center gap-2 hover:opacity-90 shadow-sm transition-all`}
+    className={`${color} text-white px-5 py-3 rounded-xl text-xs md:text-sm font-extrabold uppercase tracking-wide flex items-center justify-center gap-2 hover:opacity-90 shadow-sm transition-all`}
   >
-     <Icon size={16} /> {label}
+     <Icon size={18} /> {label}
   </button>
 );
 
@@ -75,8 +75,8 @@ const LeadDetailView: FC<LeadDetailViewProps> = ({ lead, onRefresh }) => {
   if (!lead) {
     return (
       <div className="h-full flex flex-col items-center justify-center text-gray-400 bg-white border border-gray-100 rounded-xl shadow-sm p-12">
-        <User size={64} className="opacity-20 mb-4" />
-        <h4 className="text-sm md:text-base font-bold uppercase tracking-widest text-gray-500">Select a lead to view details</h4>
+        <User size={72} className="opacity-20 mb-4" />
+        <h4 className="text-base md:text-lg font-extrabold uppercase tracking-widest text-gray-500">Select a lead to view details</h4>
       </div>
     );
   }
@@ -84,56 +84,56 @@ const LeadDetailView: FC<LeadDetailViewProps> = ({ lead, onRefresh }) => {
   return (
     <div className="h-full bg-white border border-gray-200/80 shadow-sm overflow-y-auto rounded-xl">
       {/* Header Info */}
-      <div className="p-5 md:p-6 border-b border-gray-100 bg-gray-50/40">
+      <div className="p-6 md:p-7 border-b border-gray-100 bg-gray-50/50">
         <div className="flex justify-between items-start mb-6">
-           <div className="space-y-1.5">
+           <div className="space-y-2">
               <h2 className="text-2xl md:text-3xl font-black text-gray-800 m-0 font-rubik tracking-tight">{lead.name}</h2>
               <div className="text-sm md:text-base font-bold text-gray-700 flex flex-wrap items-center gap-3">
-                 <span className="text-brand font-semibold">{lead.phone}</span>
-                 {lead.email && <span className="text-gray-500 font-medium">· {lead.email}</span>}
+                 <span className="text-brand font-bold">{lead.phone}</span>
+                 {lead.email && <span className="text-gray-500 font-semibold">· {lead.email}</span>}
                  {lead.orderValue && (
-                   <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-0.5 rounded-full text-xs font-black">
+                   <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-3.5 py-1 rounded-full text-xs md:text-sm font-black">
                      Order Value: ₹{lead.orderValue.toLocaleString()}
                    </span>
                  )}
               </div>
            </div>
            
-           <div className="flex flex-col items-end gap-1.5 bg-white p-2.5 rounded-xl border border-gray-100 shadow-sm">
+           <div className="flex flex-col items-end gap-1.5 bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
               <div className="flex text-warning gap-1">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={16} fill={i < (lead.rating || 0) ? "currentColor" : "none"} />
+                  <Star key={i} size={18} fill={i < (lead.rating || 0) ? "currentColor" : "none"} />
                 ))}
               </div>
-              <span className="text-xs font-extrabold text-gray-500 uppercase tracking-wider">Rating ({lead.rating}/5)</span>
+              <span className="text-xs font-black text-gray-600 uppercase tracking-wider">Rating ({lead.rating}/5)</span>
            </div>
         </div>
 
         {/* Info Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-y-5 gap-x-6">
            <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Lead Type</label>
-              <p className="text-sm md:text-base font-bold text-gray-800 m-0">{lead.leadType || 'Direct Lead'}</p>
+              <label className="text-xs md:text-sm font-black text-gray-500 uppercase tracking-wider block">Lead Type</label>
+              <p className="text-sm md:text-base font-extrabold text-gray-800 m-0">{lead.leadType || 'Direct Lead'}</p>
            </div>
            <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Created By</label>
-              <p className="text-sm md:text-base font-bold text-gray-800 m-0">{lead.createdBy?.fullName || '-'}</p>
+              <label className="text-xs md:text-sm font-black text-gray-500 uppercase tracking-wider block">Created By</label>
+              <p className="text-sm md:text-base font-extrabold text-gray-800 m-0">{lead.createdBy?.fullName || '-'}</p>
            </div>
            <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Assigned To</label>
-              <p className="text-sm md:text-base font-bold text-gray-800 m-0">{lead.assignedTo?.fullName || '-'}</p>
+              <label className="text-xs md:text-sm font-black text-gray-500 uppercase tracking-wider block">Assigned To</label>
+              <p className="text-sm md:text-base font-extrabold text-gray-800 m-0">{lead.assignedTo?.fullName || '-'}</p>
            </div>
            <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Status</label>
-              <p className="text-sm md:text-base font-extrabold text-brand uppercase tracking-wide m-0">{statusName}</p>
+              <label className="text-xs md:text-sm font-black text-gray-500 uppercase tracking-wider block">Status</label>
+              <p className="text-sm md:text-base font-black text-brand uppercase tracking-wide m-0">{statusName}</p>
            </div>
            <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Date Collected</label>
-              <p className="text-sm md:text-base font-bold text-gray-800 m-0">{lead.dataCollected ? new Date(lead.dataCollected).toLocaleDateString() : '-'}</p>
+              <label className="text-xs md:text-sm font-black text-gray-500 uppercase tracking-wider block">Date Collected</label>
+              <p className="text-sm md:text-base font-extrabold text-gray-800 m-0">{lead.dataCollected ? new Date(lead.dataCollected).toLocaleDateString() : '-'}</p>
            </div>
            <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Contactable Date & Time</label>
-              <p className="text-sm md:text-base font-bold text-gray-800 m-0">
+              <label className="text-xs md:text-sm font-black text-gray-500 uppercase tracking-wider block">Contactable Date & Time</label>
+              <p className="text-sm md:text-base font-extrabold text-gray-800 m-0">
                 {lead.contactableDate ? new Date(lead.contactableDate).toLocaleString('en-US', { 
                   month: 'short', 
                   day: 'numeric', 
@@ -145,8 +145,8 @@ const LeadDetailView: FC<LeadDetailViewProps> = ({ lead, onRefresh }) => {
               </p>
            </div>
             <div className="space-y-1.5 col-span-2 md:col-span-3 mt-1">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Instructions</label>
-              <p className="text-sm md:text-base font-medium text-gray-800 bg-white p-3.5 rounded-xl border border-gray-200/80 italic leading-relaxed m-0 whitespace-pre-wrap break-words">{lead.instructionToPass || 'No instructions provided'}</p>
+              <label className="text-xs md:text-sm font-black text-gray-500 uppercase tracking-wider block">Instructions</label>
+              <p className="text-sm md:text-base font-semibold text-gray-800 bg-white p-4 rounded-xl border border-gray-200 italic leading-relaxed m-0 whitespace-pre-wrap break-words">{lead.instructionToPass || 'No instructions provided'}</p>
             </div>
             {(lead.metaLeadId || lead.metaCampaignId || lead.metaAdId || lead.metaFormId || lead.metaAdAccountId) && (
               <div className="col-span-2 md:col-span-3 mt-2 bg-blue-50/60 p-4 rounded-xl border border-blue-200/80 shadow-sm">

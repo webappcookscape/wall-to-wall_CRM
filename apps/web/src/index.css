@@ -19,7 +19,7 @@
   body {
     @apply bg-[var(--color-background)] text-[#313a46] antialiased;
     font-family: var(--font-roboto);
-    font-size: 15px;
+    font-size: 16px;
     margin: 0;
     padding-bottom: 60px;
     overflow-x: hidden;
@@ -27,24 +27,24 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-rubik);
-    @apply font-medium text-[#313a46];
+    @apply font-bold text-[#313a46];
   }
 
-  h1 { line-height: 45px; font-size: 38px; }
-  h2 { line-height: 37px; font-size: 32px; }
-  h3 { line-height: 32px; font-size: 26px; }
-  h4 { line-height: 24px; font-size: 20px; }
-  h5 { font-size: 16px; }
-  h6 { font-size: 13px; }
+  h1 { line-height: 48px; font-size: 40px; }
+  h2 { line-height: 40px; font-size: 34px; }
+  h3 { line-height: 34px; font-size: 28px; }
+  h4 { line-height: 28px; font-size: 22px; }
+  h5 { font-size: 18px; }
+  h6 { font-size: 15px; }
 }
 
 @layer components {
   .card-box {
-    @apply bg-white p-5 rounded shadow-sm border border-[#e3eaef] mb-6;
+    @apply bg-white p-6 rounded-xl shadow-sm border border-[#e3eaef] mb-6;
   }
   
   .tilebox-one {
-    @apply relative bg-white p-5 rounded shadow-sm border border-[#e3eaef] mb-6;
+    @apply relative bg-white p-6 rounded-xl shadow-sm border border-[#e3eaef] mb-6;
   }
 
   .tilebox-one i {
@@ -52,18 +52,18 @@
   }
   
   .btn-custom {
-    @apply bg-brand text-white px-5 py-2 rounded-full font-medium transition-all hover:opacity-90 shadow-sm;
+    @apply bg-brand text-white px-6 py-2.5 rounded-xl font-bold text-sm md:text-base transition-all hover:opacity-90 shadow-sm;
   }
 
-  .badge-danger { @apply bg-danger text-white px-2 py-0.5 rounded-full text-[10px] font-bold; }
-  .badge-success { @apply bg-secondary text-white px-2 py-0.5 rounded-full text-[10px] font-bold; }
-  .badge-warning { @apply bg-warning text-white px-2 py-0.5 rounded-full text-[10px] font-bold; }
+  .badge-danger { @apply bg-danger text-white px-2.5 py-1 rounded-full text-xs font-black tracking-wide; }
+  .badge-success { @apply bg-secondary text-white px-2.5 py-1 rounded-full text-xs font-black tracking-wide; }
+  .badge-warning { @apply bg-warning text-white px-2.5 py-1 rounded-full text-xs font-black tracking-wide; }
   
   .form-control {
-    @apply border border-[#d3dee6] rounded px-3 py-2 text-sm focus:border-brand outline-none w-full;
+    @apply border border-[#d3dee6] rounded-lg px-3.5 py-2.5 text-sm md:text-base font-semibold focus:border-brand focus:ring-1 focus:ring-brand outline-none w-full bg-white transition-all;
   }
 
   .nav-menu-item {
-    @apply flex items-center gap-2 px-4 py-3 text-sm font-medium text-white/80 hover:text-white transition-colors;
+    @apply flex items-center gap-2 px-4 py-3 text-sm md:text-base font-bold text-white/90 hover:text-white transition-colors;
   }
 }
