@@ -68,7 +68,9 @@ async function main() {
 
   // 6. Lead Statuses
   console.log('📊 Seeding Lead Statuses...');
+  const excludedStatuses = ['design completed', 'yet to follow-up', 'yet to followup', 'yet-to-followup'];
   for (const item of data.statuses || []) {
+    if (excludedStatuses.includes(item.name?.trim().toLowerCase())) continue;
     await prisma.leadStatus.upsert({
       where: { id: item.id },
       update: { name: item.name },
@@ -137,8 +139,18 @@ async function main() {
 
   // 11. Users (first pass without businessHead to avoid self-reference errors)
   console.log('👥 Seeding Users...');
+  const validRoles = ['ADMIN', 'BUSINESS_HEAD', 'DM_EXECUTIVE', 'FA', 'LA', 'VENDOR_MANAGEMENT', 'CLIENT_FACILITATOR'];
+  const normalizeRole = (role: string) => {
+    if (validRoles.includes(role)) return role;
+    if (role === 'CRE' || role === 'DESIGNER') return 'CLIENT_FACILITATOR';
+    return 'CLIENT_FACILITATOR';
+  };
+
   for (const user of data.users || []) {
     const { businessHeadId, ...userData } = user;
+    if (userData.role) {
+      userData.role = normalizeRole(userData.role);
+    }
     await prisma.user.upsert({
       where: { id: user.id },
       update: { ...userData },

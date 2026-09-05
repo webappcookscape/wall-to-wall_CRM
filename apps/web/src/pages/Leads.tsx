@@ -35,8 +35,6 @@ const Leads: React.FC = () => {
   const [statusId, setStatusId] = useState('');
   const [brandId, setBrandId] = useState('');
   const [projectId, setProjectId] = useState('');
-  const [tagId, setTagId] = useState('');
-  const [stageId, setStageId] = useState('');
   const [rating, setRating] = useState('');
   const [timeframe, setTimeframe] = useState('');
   const [contactDate, setContactDate] = useState('');
@@ -54,8 +52,6 @@ const Leads: React.FC = () => {
         statusId: statusId || undefined,
         brandId: brandId || undefined,
         projectId: projectId || undefined,
-        tagId: tagId || undefined,
-        stageId: stageId || undefined,
         rating: rating || undefined,
         timeframe: timeframe || undefined,
         contactDate: contactDate || undefined,
@@ -127,14 +123,14 @@ const Leads: React.FC = () => {
   // Reset page to 1 when filters change
   useEffect(() => {
     setPage(1);
-  }, [search, statusId, brandId, projectId, tagId, stageId, rating, timeframe, contactDate, selectedUserId]);
+  }, [search, statusId, brandId, projectId, rating, timeframe, contactDate, selectedUserId]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchLeads();
     }, 500); // 500ms debounce for search input
     return () => clearTimeout(timer);
-  }, [page, search, statusId, brandId, projectId, tagId, stageId, rating, timeframe, contactDate, selectedUserId]);
+  }, [page, search, statusId, brandId, projectId, rating, timeframe, contactDate, selectedUserId]);
 
   useEffect(() => {
     fetchCounts();
@@ -166,7 +162,7 @@ const Leads: React.FC = () => {
            )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 gap-3.5 pt-4 border-t border-gray-100">
+        <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 ${canFilterUsers ? 'xl:grid-cols-7' : 'xl:grid-cols-6'} gap-3.5 pt-4 border-t border-gray-100`}>
           <div className="space-y-1.5">
             <label className="text-xs md:text-sm font-black text-gray-700 uppercase tracking-wider block">Brand</label>
             <select value={brandId} onChange={(e) => setBrandId(e.target.value)} className="form-control !py-2.5 !px-3.5 !text-sm font-semibold rounded-lg border-gray-300">
@@ -181,37 +177,24 @@ const Leads: React.FC = () => {
               {masters?.projects.map((p: MasterItem) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </div>
-          <div className="space-y-1.5">
-            <label className="text-xs md:text-sm font-black text-gray-700 uppercase tracking-wider block">Tag</label>
-            <select value={tagId} onChange={(e) => setTagId(e.target.value)} className="form-control !py-2.5 !px-3.5 !text-sm font-semibold rounded-lg border-gray-300">
-              <option value="">-Select-</option>
-              {masters?.leadTags.map((t: MasterItem) => <option key={t.id} value={t.id}>{t.name}</option>)}
-            </select>
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-xs md:text-sm font-black text-gray-700 uppercase tracking-wider block">Users</label>
-            <select
-              disabled={!canFilterUsers}
-              value={selectedUserId}
-              onChange={(e) => {
-                setSelectedUserId(e.target.value);
-                setPage(1);
-              }}
-              className="form-control !py-2.5 !px-3.5 !text-sm font-semibold rounded-lg border-gray-300"
-            >
-              <option value="">{canFilterUsers ? 'All Allowed Users' : user?.fullName}</option>
-              {canFilterUsers && masters?.users.map((u: MasterUser) => (
-                <option key={u.id} value={u.id}>{u.fullName}{u.role ? ` (${u.role})` : ''}</option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-xs md:text-sm font-black text-gray-700 uppercase tracking-wider block">Stage</label>
-            <select value={stageId} onChange={(e) => setStageId(e.target.value)} className="form-control !py-2.5 !px-3.5 !text-sm font-semibold rounded-lg border-gray-300">
-              <option value="">-Select-</option>
-              {masters?.stages.map((s: MasterItem) => <option key={s.id} value={s.id}>{s.name}</option>)}
-            </select>
-          </div>
+          {canFilterUsers && (
+            <div className="space-y-1.5">
+              <label className="text-xs md:text-sm font-black text-gray-700 uppercase tracking-wider block">Users</label>
+              <select
+                value={selectedUserId}
+                onChange={(e) => {
+                  setSelectedUserId(e.target.value);
+                  setPage(1);
+                }}
+                className="form-control !py-2.5 !px-3.5 !text-sm font-semibold rounded-lg border-gray-300"
+              >
+                <option value="">All Allowed Users</option>
+                {masters?.users.map((u: MasterUser) => (
+                  <option key={u.id} value={u.id}>{u.fullName}{u.role ? ` (${u.role})` : ''}</option>
+                ))}
+              </select>
+            </div>
+          )}
           <div className="space-y-1.5">
             <label className="text-xs md:text-sm font-black text-gray-700 uppercase tracking-wider block">Rating</label>
             <select value={rating} onChange={(e) => setRating(e.target.value)} className="form-control !py-2.5 !px-3.5 !text-sm font-semibold rounded-lg border-gray-300">

@@ -124,21 +124,25 @@ const Login: React.FC = () => {
               </div>
             </form>
 
-            <div className="mt-6 flex items-center justify-between">
-              <span className="border-b w-1/5 lg:w-1/4 border-gray-300"></span>
-              <span className="text-xs text-center text-gray-500 uppercase font-semibold">Or</span>
-              <span className="border-b w-1/5 lg:w-1/4 border-gray-300"></span>
-            </div>
+            {import.meta.env.VITE_GOOGLE_CLIENT_ID && (
+              <>
+                <div className="mt-6 flex items-center justify-between">
+                  <span className="border-b w-1/5 lg:w-1/4 border-gray-300"></span>
+                  <span className="text-xs text-center text-gray-500 uppercase font-semibold">Or</span>
+                  <span className="border-b w-1/5 lg:w-1/4 border-gray-300"></span>
+                </div>
 
-            <div className="mt-6 flex justify-center min-h-[44px]">
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={() => setErrorMsg('Google Login Failed')}
-                shape="rectangular"
-                theme="outline"
-                text="continue_with"
-              />
-            </div>
+                <div className="mt-6 flex justify-center min-h-[44px]">
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={() => setErrorMsg('Google Login Failed')}
+                    shape="rectangular"
+                    theme="outline"
+                    text="continue_with"
+                  />
+                </div>
+              </>
+            )}
 
             <div className="mt-8 text-center">
               <p className="text-sm text-gray-500">

@@ -239,7 +239,7 @@ const LeadHub: React.FC = () => {
         </div>
       )
     },
-    {
+    ...(user?.role === 'ADMIN' || user?.role === 'BUSINESS_HEAD' ? [{
         header: 'Assigned To',
         accessor: 'assignedTo',
         render: (row: Lead) => (
@@ -247,7 +247,7 @@ const LeadHub: React.FC = () => {
                 {row.assignedTo?.fullName || <span className="text-gray-300 italic">Unassigned</span>}
             </span>
         )
-    },
+    }] : []),
     {
       header: 'Action',
       accessor: 'actions',

@@ -119,10 +119,12 @@ const LeadDetailView: FC<LeadDetailViewProps> = ({ lead, onRefresh }) => {
               <label className="text-xs md:text-sm font-black text-gray-500 uppercase tracking-wider block">Created By</label>
               <p className="text-sm md:text-base font-extrabold text-gray-800 m-0">{lead.createdBy?.fullName || '-'}</p>
            </div>
-           <div className="space-y-1">
-              <label className="text-xs md:text-sm font-black text-gray-500 uppercase tracking-wider block">Assigned To</label>
-              <p className="text-sm md:text-base font-extrabold text-gray-800 m-0">{lead.assignedTo?.fullName || '-'}</p>
-           </div>
+            {(currentUser?.role === 'ADMIN' || currentUser?.role === 'BUSINESS_HEAD') && (
+              <div className="space-y-1">
+                 <label className="text-xs md:text-sm font-black text-gray-500 uppercase tracking-wider block">Assigned To</label>
+                 <p className="text-sm md:text-base font-extrabold text-gray-800 m-0">{lead.assignedTo?.fullName || '-'}</p>
+              </div>
+            )}
            <div className="space-y-1">
               <label className="text-xs md:text-sm font-black text-gray-500 uppercase tracking-wider block">Status</label>
               <p className="text-sm md:text-base font-black text-brand uppercase tracking-wide m-0">{statusName}</p>

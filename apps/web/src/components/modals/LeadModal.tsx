@@ -286,7 +286,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead 
               />
             </div>
 
-            {['ADMIN', 'BUSINESS_HEAD', 'FA', 'LA', 'VENDOR_MANAGEMENT', 'CLIENT_FACILITATOR'].includes(userRole || '') && (
+            {['ADMIN', 'BUSINESS_HEAD'].includes(userRole || '') && (
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Assigned To</label>
                 <select 
@@ -383,32 +383,6 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead 
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Tags</label>
-            <div className="flex flex-wrap gap-2">
-                {masters?.leadTags?.map((tag: any) => (
-                    <button
-                        key={tag.id}
-                        type="button"
-                        onClick={() => {
-                            const exist = formData.tagIds.includes(tag.id);
-                            if (exist) {
-                                setFormData({...formData, tagIds: formData.tagIds.filter((id: string) => id !== tag.id)});
-                            } else {
-                                setFormData({...formData, tagIds: [...formData.tagIds, tag.id]});
-                            }
-                        }}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase transition-all border ${
-                            formData.tagIds.includes(tag.id) 
-                            ? 'bg-brand text-white border-brand shadow-sm' 
-                            : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
-                        }`}
-                    >
-                        {tag.name}
-                    </button>
-                ))}
-            </div>
-          </div>
 
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Comments (Appends to existing)</label>
