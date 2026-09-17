@@ -53,6 +53,8 @@ const LeadDetailView: FC<LeadDetailViewProps> = ({ lead, onRefresh }) => {
   } else if (isDmEmployee && lead) {
     canEditLead = isOwnerOrAssignee;
   }
+
+  const canAssignLead = ['ADMIN', 'BUSINESS_HEAD', 'CRE', 'DESIGNER', 'DM_EXECUTIVE'].includes(currentUser?.role || '');
   const [modalType, setModalType] = useState<'FOLLOWUP' | 'REMINDER' | 'STATUS' | 'NOTE' | 'SWITCH_USER' | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
@@ -154,6 +156,9 @@ const LeadDetailView: FC<LeadDetailViewProps> = ({ lead, onRefresh }) => {
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2">
            {canEditLead && (
              <ActionButton icon={Edit2} label="Edit" color="bg-brand" onClick={() => setIsEditModalOpen(true)} />
+           )}
+           {canAssignLead && (
+             <ActionButton icon={User} label="Assign" color="bg-indigo-600" onClick={() => setModalType('SWITCH_USER')} />
            )}
            {!isDmEmployee && (
              <ActionButton icon={Activity} label="Followup" color="bg-secondary" onClick={() => setModalType('FOLLOWUP')} />

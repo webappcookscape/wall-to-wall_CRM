@@ -162,7 +162,7 @@ export const ensureLeadAssignAccess = async (leadId: string, targetUserId: strin
 };
 
 export const getAssignableUsersClause = (user: RequestUser): any => {
-  if (user.role === 'ADMIN' || user.role === 'BUSINESS_HEAD' || user.role === 'CRE' || user.role === 'DESIGNER') {
+  if (user.role === 'ADMIN' || user.role === 'BUSINESS_HEAD' || user.role === 'CRE' || user.role === 'DESIGNER' || user.role === DM_EXECUTIVE_ROLE) {
     return {
       status: true,
       role: { not: DM_EXECUTIVE_ROLE },

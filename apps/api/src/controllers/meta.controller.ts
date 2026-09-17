@@ -57,3 +57,37 @@ export const sendLeadEvent = async (req: Request, res: Response) => {
     );
   }
 };
+
+/**
+ * Webhook verification for Meta / Facebook Lead Ads
+ * @route GET /api/v1/meta/webhook
+ */
+export const verifyMetaWebhook = (req: Request, res: Response) => {
+  const mode = req.query['hub.mode'];
+  const token = req.query['hub.verify_token'];
+  const challenge = req.query['hub.challenge'];
+
+  if (mode && token) {
+    if (mode === 'subscribe') {
+      console.log('✅ Meta Webhook challenge verified');
+      return res.status(200).send(challenge);
+    }
+    return res.sendStatus(403);
+  }
+  return res.sendStatus(400);
+};
+
+/**
+ * Incoming Meta Lead Ads webhook.
+ * Automated lead creation from Meta is currently disabled so that DM Executives can manually add and assign leads.
+ * Responds with 200 OK so Meta webhook does not repeatedly fail or retry.
+ * @route POST /api/v1/meta/webhook
+ */
+export const handleMetaWebhook = async (req: Request, res: Response) => {
+  console.log('ℹ️ Incoming Meta webhook event received: Automated lead creation from Meta is currently DISABLED.');
+  return apiResponse.success(
+    res,
+    { autoCreateDisabled: true },
+    'Automated lead creation from Meta is currently disabled'
+  );
+};

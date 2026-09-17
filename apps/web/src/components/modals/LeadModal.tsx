@@ -297,7 +297,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead 
               />
             </div>
 
-            {(userRole === 'ADMIN' || userRole === 'BUSINESS_HEAD' || userRole === 'CRE' || userRole === 'DESIGNER') && (
+            {(userRole === 'ADMIN' || userRole === 'BUSINESS_HEAD' || userRole === 'CRE' || userRole === 'DESIGNER' || userRole === 'DM_EXECUTIVE') && (
               <div className="space-y-1">
                 <label className="text-[10px] font-bold text-gray-400 uppercase">Assigned To</label>
                 <select 
