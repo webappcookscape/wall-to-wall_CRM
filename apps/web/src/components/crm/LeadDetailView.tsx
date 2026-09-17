@@ -52,7 +52,7 @@ const LeadDetailView: FC<LeadDetailViewProps> = ({ lead, onRefresh }) => {
   } else if (currentUser?.role === 'BUSINESS_HEAD' && lead) {
     canEditLead = isOwnerOrAssignee;
   } else if (isDmEmployee && lead) {
-    canEditLead = isFreshLead && isOwnerOrAssignee;
+    canEditLead = isOwnerOrAssignee;
   }
   const [modalType, setModalType] = useState<'FOLLOWUP' | 'REMINDER' | 'STATUS' | 'NOTE' | 'SWITCH_USER' | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);

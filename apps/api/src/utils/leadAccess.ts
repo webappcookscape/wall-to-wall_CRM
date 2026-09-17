@@ -102,13 +102,6 @@ export const ensureLeadUpdateAccess = async (leadId: string, user: RequestUser, 
     if (!isVisible) {
       throw { status: 403, message: 'Access denied: You can only edit leads assigned to you or added by you.' };
     }
-    const statusName = lead.status?.name || 'Fresh';
-    if (statusName.trim().toLowerCase() !== 'fresh') {
-      throw { status: 403, message: 'DM executives can edit only fresh leads.' };
-    }
-    if (lead.assignedToId !== null && lead.assignedToId !== user.id) {
-      throw { status: 403, message: 'DM executives can edit leads only before they are assigned to others.' };
-    }
     return lead;
   }
 
@@ -117,13 +110,13 @@ export const ensureLeadUpdateAccess = async (leadId: string, user: RequestUser, 
   }
 
   if (updatePayload) {
-    const allowedFollowUpFields = ['statusId', 'nextFollowUp', 'contactableDate', 'assignedToId'];
+    const allowedFollowUpFields = ['statusId', 'nextFollowUp', 'contactableDate', 'assignedToId', 'orderValue'];
     const fieldsToUpdate = Object.keys(updatePayload);
     const invalidFields = fieldsToUpdate.filter(field => !allowedFollowUpFields.includes(field));
     if (invalidFields.length > 0) {
       throw { 
         status: 403, 
-        message: `Access denied: Only Admin, Business Head, and DM Executive (for fresh leads) can edit lead details. Your role (${user.role || 'Unknown'}) can only update follow-up fields (invalid fields: ${invalidFields.join(', ')}).` 
+        message: `Access denied: Only Admin, Business Head, and DM Executive can edit lead details. Your role (${user.role || 'Unknown'}) can only update follow-up fields (invalid fields: ${invalidFields.join(', ')}).` 
       };
     }
   }
@@ -140,8 +133,18 @@ export const ensureLeadDeleteAccess = async (leadId: string, user: RequestUser) 
 };
 
 export const ensureLeadAssignAccess = async (leadId: string, targetUserId: string | null, user: RequestUser) => {
-  if (user.role !== 'ADMIN' && user.role !== 'BUSINESS_HEAD' && user.role !== 'CRE' && user.role !== 'DESIGNER') {
-    throw { status: 403, message: 'Only admin, business heads, CRE, and designer users can assign leads.' };
+  const existingLead = await prisma.lead.findUnique({
+    where: { id: leadId },
+    select: { assignedToId: true, createdById: true },
+  });
+
+  // If assignedToId hasn't changed, no assignment permission check is needed
+  if (existingLead && (existingLead.assignedToId || null) === (targetUserId || null)) {
+    return;
+  }
+
+  if (user.role !== 'ADMIN' && user.role !== 'BUSINESS_HEAD' && user.role !== 'CRE' && user.role !== 'DESIGNER' && user.role !== DM_EXECUTIVE_ROLE) {
+    throw { status: 403, message: 'Only admin, business heads, CRE, DM executives, and designer users can assign leads.' };
   }
 
   await ensureLeadViewAccess(leadId, user);
