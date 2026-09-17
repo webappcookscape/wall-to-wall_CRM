@@ -10,25 +10,29 @@ echo "====================================================="
 echo "🚀 Starting Cookscape CRM Automated Deployment..."
 echo "====================================================="
 
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$PROJECT_ROOT"
+
 # 1. Pull the latest codebase
 echo "⏬ Step 1: Pulling latest changes from git..."
 git pull origin main
 
 # 2. Rebuild the Frontend
 echo "💻 Step 2: Rebuilding Frontend (apps/web)..."
-cd apps/web
+cd "$PROJECT_ROOT/apps/web"
 echo "Installing frontend dependencies..."
 npm install
 echo "Compiling production assets..."
 npm run build
-cd ../..
 
 # 3. Rebuild the Backend
 echo "⚙️ Step 3: Rebuilding Backend (apps/api)..."
-cd apps/api
+cd "$PROJECT_ROOT/apps/api"
+echo "Generating Prisma client..."
+npx prisma generate
 echo "Compiling backend TypeScript..."
 npm run build
-cd ../..
+cd "$PROJECT_ROOT"
 
 # 4. Restart services using PM2
 echo "🔄 Step 4: Restarting PM2 processes..."
