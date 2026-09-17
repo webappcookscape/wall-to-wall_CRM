@@ -43,7 +43,6 @@ const LeadDetailView: FC<LeadDetailViewProps> = ({ lead, onRefresh }) => {
   const { user: currentUser } = useAuth();
   const isDmEmployee = currentUser?.role === 'DM_EXECUTIVE';
   const statusName = getLeadStatusName(lead);
-  const isFreshLead = statusName.trim().toLowerCase() === 'fresh';
   const isOwnerOrAssignee = lead ? (lead.assignedToId === currentUser?.id || lead.createdById === currentUser?.id) : false;
 
   let canEditLead = false;
