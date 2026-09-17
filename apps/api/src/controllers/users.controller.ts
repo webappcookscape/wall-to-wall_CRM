@@ -30,7 +30,7 @@ export const createUser = asyncHandler(async (req, res) => {
     fullName: String(fullName),
     email: normalizeCredential(email),
     phone: phone ? String(phone) : null,
-    role: role || 'CLIENT_FACILITATOR',
+    role: role || 'CRE',
     status: status !== undefined ? Boolean(status) : true,
     metaAccess: metaAccess !== undefined ? Boolean(metaAccess) : false,
     showroomId: showroomId && showroomId !== '' ? String(showroomId) : null,

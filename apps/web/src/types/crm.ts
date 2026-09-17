@@ -17,8 +17,8 @@ export interface Source { id: string; name: string; }
 export interface LeadStatus { id: string; name: string; color?: string; }
 export interface Stage { id: string; name: string; }
 
-export type Role = 'ADMIN' | 'BUSINESS_HEAD' | 'DM_EXECUTIVE' | 'FA' | 'LA' | 'VENDOR_MANAGEMENT' | 'CLIENT_FACILITATOR';
-export interface UserBasic { id: string; fullName: string; role?: Role; }
+export type Role = 'ADMIN' | 'CRE' | 'DESIGNER' | 'BUSINESS_HEAD' | 'DM_EXECUTIVE';
+export interface UserBasic { id: string; fullName: string; role?: Role; email?: string; }
 
 export interface User {
   id: string;
@@ -73,11 +73,6 @@ export interface Lead {
   updatedAt: string;
   activities?: LeadActivity[];
   orderValue?: number | null;
-  metaLeadId?: string | null;
-  metaFormId?: string | null;
-  metaAdId?: string | null;
-  metaCampaignId?: string | null;
-  metaAdAccountId?: string | null;
 }
 
 export interface MasterData {
@@ -100,22 +95,6 @@ export interface MasterData {
   workNotifications?: any[];
 }
 
-export interface EmployeePerformance {
-  id: string;
-  fullName: string;
-  email: string;
-  role: string;
-  avatar?: string;
-  totalAssigned: number;
-  yettofollow: number;
-  followup: number;
-  opportunities: number;
-  orderbook: number;
-  disqualified: number;
-  remindersDue: number;
-  conversionRate: string;
-}
-
 export interface DashboardStats {
   totalLeads?: number;
   freshlead: number;
@@ -124,31 +103,10 @@ export interface DashboardStats {
   opportunities: number;
   orderbook: number;
   disqualified: number;
-  cfleads?: number;
-  creleads?: number;
-  faleads?: number;
-  laleads?: number;
-  vendorleads?: number;
-  fealeads?: number;
-  designlead?: number;
+  creleads: number;
+  fealeads: number;
+  designlead: number;
   designCompleted?: number;
   remindersDue?: number;
-  upcomingReminders?: {
-    id: string;
-    leadId: number;
-    name: string;
-    phone: string;
-    contactableDate: string;
-    status?: { name: string };
-    project?: { name: string };
-    assignedTo?: { fullName: string };
-  }[];
-  selectedEmployee?: {
-    id: string;
-    fullName: string;
-    role: string;
-    email: string;
-  } | null;
-  employeeBreakdown?: EmployeePerformance[];
 }
 

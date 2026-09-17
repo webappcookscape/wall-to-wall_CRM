@@ -3,35 +3,21 @@ import DataTable from '../components/ui/DataTable';
 import type { Column } from '../components/ui/DataTable';
 import { leadService } from '../services/api';
 import type { Lead, MasterData } from '../types/crm';
-import {
+import { 
   Users, 
-  Plus, 
-  RefreshCw, 
   FileUp, 
-  Upload,
-  ChevronRight,
-  Edit3,
-  Trash2
+  ChevronRight 
 } from 'lucide-react';
-import LeadModal from '../components/modals/LeadModal';
-import UploadLeadModal from '../components/modals/UploadLeadModal';
-import { useAuth } from '../contexts/AuthContext';
 
-const LeadHub: React.FC = () => {
-  const { user } = useAuth();
-  const isAdmin = user?.role === 'ADMIN';
+const Customers: React.FC = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const [leadToEdit, setLeadToEdit] = useState<Lead | undefined>(undefined);
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
   const [targetUserId, setTargetUserId] = useState('');
   const [isSubmittingBulk, setIsSubmittingBulk] = useState(false);
-  const [deletingLeadId, setDeletingLeadId] = useState<string | null>(null);
   
   const [masters, setMasters] = useState<MasterData | null>(null);
   const [activeFilters, setActiveFilters] = useState<any>({
@@ -57,10 +43,14 @@ const LeadHub: React.FC = () => {
   const fetchLeads = useCallback(async () => {
     setIsLoading(true);
     try {
+      // Find 'Order Booked' status ID
+      const orderBookedStatus = masters?.statuses.find(s => s.name === 'Order Booked');
+      
       const res = await leadService.getLeads({ 
         page, 
         limit: 10,
-        ...activeFilters
+        ...activeFilters,
+        statusIds: orderBookedStatus ? [orderBookedStatus.id] : undefined
       });
       setLeads(res.data);
       setTotal(res.total);
@@ -69,15 +59,17 @@ const LeadHub: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [page, activeFilters]);
+  }, [page, activeFilters, masters]);
 
   useEffect(() => {
     fetchMasters();
   }, []);
 
   useEffect(() => {
-    fetchLeads();
-  }, [fetchLeads]);
+    if (masters) {
+      fetchLeads();
+    }
+  }, [fetchLeads, masters]);
 
   const handleApplyFilters = () => {
     setActiveFilters((prev: any) => ({
@@ -87,10 +79,7 @@ const LeadHub: React.FC = () => {
     setPage(1);
   };
 
-  const handleUpdateProjects = async () => {
-    await fetchMasters();
-    alert('Projects updated successfully!');
-  };
+
 
   const handleBulkAssign = async () => {
     if (!targetUserId) {
@@ -110,24 +99,6 @@ const LeadHub: React.FC = () => {
       alert('Failed to bulk assign leads.');
     } finally {
       setIsSubmittingBulk(false);
-    }
-  };
-
-  const handleDeleteLead = async (lead: Lead) => {
-    const confirmed = window.confirm(`Delete lead "${lead.name}"? This cannot be undone.`);
-    if (!confirmed) return;
-
-    setDeletingLeadId(lead.id);
-    try {
-      await leadService.deleteLead(lead.id);
-      setSelectedLeads(prev => prev.filter(id => id !== lead.id));
-      await fetchLeads();
-      alert('Lead deleted successfully.');
-    } catch (error: any) {
-      console.error('Error deleting lead:', error);
-      alert(error?.response?.data?.message || 'Failed to delete lead.');
-    } finally {
-      setDeletingLeadId(null);
     }
   };
 
@@ -166,7 +137,7 @@ const LeadHub: React.FC = () => {
       )
     },
     { 
-      header: 'Date', 
+      header: 'Booking Date', 
       accessor: 'createdAt',
       render: (row: Lead) => (
         <div className="flex flex-col">
@@ -180,12 +151,12 @@ const LeadHub: React.FC = () => {
       )
     },
     { 
-        header: 'Lead ID', 
+        header: 'Customer ID', 
         accessor: 'leadId',
-        render: (row: Lead) => <span className="text-xs text-gray-500">#{row.leadId}</span>
+        render: (row: Lead) => <span className="text-xs text-gray-500 font-bold">CUST-{row.leadId}</span>
     },
     { 
-      header: 'Lead Details', 
+      header: 'Customer Name', 
       accessor: 'name',
       render: (row: Lead) => (
         <div className="flex flex-col">
@@ -207,12 +178,12 @@ const LeadHub: React.FC = () => {
         )
     },
     { 
-      header: 'Status & Source', 
+      header: 'Fulfillment', 
       accessor: 'status',
       render: (row: Lead) => (
         <div className="flex flex-col">
-          <span className="bg-brand text-white px-1.5 py-0.5 rounded text-[9px] font-bold uppercase w-fit">
-            {typeof row.status === 'object' ? row.status?.name || 'Fresh' : row.status || 'Fresh'}
+          <span className="bg-green-600 text-white px-1.5 py-0.5 rounded text-[9px] font-bold uppercase w-fit">
+            Booked
           </span>
           <span className="text-[9px] text-gray-400 font-bold uppercase mt-1">
             {row.source?.name || 'Manual'}
@@ -221,7 +192,7 @@ const LeadHub: React.FC = () => {
       )
     },
     {
-        header: 'Assigned To',
+        header: 'Relationship Manager',
         accessor: 'assignedTo',
         render: (row: Lead) => (
             <span className="text-[11px] font-medium text-gray-600">
@@ -232,84 +203,63 @@ const LeadHub: React.FC = () => {
     {
       header: 'Action',
       accessor: 'actions',
-      render: (row: Lead) => (
-        <div className="flex items-center justify-end gap-2">
-          <button 
-            type="button"
-            title="Edit lead"
-            onClick={() => {
-              setLeadToEdit(row);
-              setIsModalOpen(true);
-            }}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-brand/15 text-brand hover:bg-brand hover:text-white transition-colors"
-          >
-            <Edit3 size={14} />
-          </button>
-          <button 
-            type="button"
-            title="Delete lead"
-            disabled={deletingLeadId === row.id}
-            onClick={() => handleDeleteLead(row)}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-red-100 text-red-500 hover:bg-red-500 hover:text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {deletingLeadId === row.id ? (
-              <span className="h-3.5 w-3.5 rounded-full border-2 border-current border-t-transparent animate-spin" />
-            ) : (
-              <Trash2 size={14} />
-            )}
-          </button>
-        </div>
+      render: () => (
+        <button className="text-gray-400 hover:text-brand transition-colors">
+          <ChevronRight size={16} />
+        </button>
       )
     }
   ];
 
+  const handleExport = () => {
+    if (leads.length === 0) return;
+    
+    const csvContent = [
+      ['Date', 'Customer ID', 'Name', 'Phone', 'Email', 'Brand', 'Project', 'Manager'],
+      ...leads.map(l => [
+        new Date(l.createdAt).toLocaleDateString(),
+        `CUST-${l.leadId}`,
+        l.name,
+        l.phone,
+        l.email || '-',
+        l.brand?.name || '-',
+        l.project?.name || '-',
+        l.assignedTo?.fullName || 'Unassigned'
+      ])
+    ].map(e => e.join(",")).join("\n");
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `customer_list_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="container-fluid py-4">
       {/* Header Buttons */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4">
-        <h4 className="page-title text-xl font-bold text-gray-700 m-0">Lead Hub</h4>
-        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 w-full lg:w-auto">
-          {isAdmin && (
-            <>
-              <button
-                onClick={handleUpdateProjects}
-                className="btn-custom !bg-brand hover:!bg-[#004d30] !rounded-full !px-3 sm:!px-4 !py-1.5 text-[10px] sm:text-[11px] flex items-center justify-center gap-1.5 sm:gap-2"
-              >
-                <RefreshCw size={14} className="shrink-0" /> <span className="truncate">Update Projects</span>
-              </button>
-              <button
-                onClick={() => setIsUploadModalOpen(true)}
-                className="btn-custom !bg-brand hover:!bg-[#004d30] !rounded-full !px-3 sm:!px-4 !py-1.5 text-[10px] sm:text-[11px] flex items-center justify-center gap-1.5 sm:gap-2"
-              >
-                <FileUp size={14} className="shrink-0" /> <span className="truncate">Custom Upload</span>
-              </button>
-              <button
-                onClick={() => setIsUploadModalOpen(true)}
-                className="btn-custom !bg-brand hover:!bg-[#004d30] !rounded-full !px-3 sm:!px-4 !py-1.5 text-[10px] sm:text-[11px] flex items-center justify-center gap-1.5 sm:gap-2"
-              >
-                <Upload size={14} className="shrink-0" /> <span className="truncate">Upload Lead</span>
-              </button>
-              <button
-                onClick={() => {
-                  setLeadToEdit(undefined);
-                  setIsModalOpen(true);
-                }}
-                className="btn-custom !bg-brand hover:!bg-[#004d30] !rounded-full !px-3 sm:!px-4 !py-1.5 text-[10px] sm:text-[11px] flex items-center justify-center gap-1.5 sm:gap-2 col-span-2 sm:col-auto"
-              >
-                <Plus size={14} className="shrink-0" /> <span className="truncate">Create Lead</span>
-              </button>
-            </>
-          )}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <h4 className="page-title text-xl font-bold text-gray-700 m-0">Customer Management</h4>
+        <div className="flex flex-wrap gap-2">
+          <button 
+            onClick={handleExport}
+            className="btn-custom !bg-green-600 hover:!bg-green-700 !rounded-full !px-4 !py-1.5 text-[11px] flex items-center gap-2"
+          >
+            <FileUp size={14} /> Export Customers
+          </button>
         </div>
       </div>
 
-      {/* Filter Bar (Simplified alert-info style) */}
-      <div className="bg-[#d9edf7] border border-[#bce8f1] text-[#31708f] p-3 md:p-4 rounded mb-6">
-        <div className="flex flex-col md:flex-row items-start md:items-end gap-3 md:gap-4">
-          <div className="flex flex-col gap-1 w-full md:w-auto">
-            <label className="text-[10px] md:text-[11px] font-bold uppercase tracking-wider">Brand</label>
+      {/* Filter Bar */}
+      <div className="bg-white border border-gray-100 p-4 rounded-xl shadow-sm mb-6">
+        <div className="flex flex-wrap items-end gap-4">
+          <div className="flex flex-col gap-1 w-full sm:w-auto">
+            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Brand</label>
             <select 
-              className="form-control !bg-white !w-full md:!w-40 !py-1 !text-[11px]"
+              className="w-full sm:w-40 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-[11px] font-bold outline-none focus:ring-2 focus:ring-brand/10 focus:border-brand transition-all"
               value={tempFilters.brandId}
               onChange={(e) => setTempFilters({ ...tempFilters, brandId: e.target.value })}
             >
@@ -317,10 +267,10 @@ const LeadHub: React.FC = () => {
               {masters?.brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
             </select>
           </div>
-          <div className="flex flex-col gap-1 w-full md:w-auto">
-            <label className="text-[10px] md:text-[11px] font-bold uppercase tracking-wider">Project</label>
+          <div className="flex flex-col gap-1 w-full sm:w-auto">
+            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Project Type</label>
             <select 
-              className="form-control !bg-white !w-full md:!w-48 !py-1 !text-[11px]"
+              className="w-full sm:w-48 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-[11px] font-bold outline-none focus:ring-2 focus:ring-brand/10 focus:border-brand transition-all"
               value={tempFilters.projectId}
               onChange={(e) => setTempFilters({ ...tempFilters, projectId: e.target.value })}
             >
@@ -330,7 +280,7 @@ const LeadHub: React.FC = () => {
           </div>
           <button 
             onClick={handleApplyFilters}
-            className="btn-custom !w-full md:!w-auto !rounded !py-1 !px-4 text-[11px] bg-brand hover:bg-[#004d30] text-white uppercase font-bold tracking-widest mt-2 md:mt-0"
+            className="w-full sm:w-auto px-6 py-2 rounded-lg bg-brand text-white text-[11px] font-bold uppercase tracking-widest hover:bg-[#004d30] transition-all shadow-lg shadow-brand/10"
           >
             Apply Filters
           </button>
@@ -339,31 +289,31 @@ const LeadHub: React.FC = () => {
 
       {/* Bulk Action Bar */}
       {selectedLeads.length > 0 && (
-          <div className="bg-gray-800 text-white p-3 rounded mb-4 flex items-center justify-between">
-              <span className="text-xs font-bold">{selectedLeads.length} Leads Selected</span>
+          <div className="bg-gray-800 text-white p-3 rounded mb-4 flex items-center justify-between animate-in slide-in-from-top-2 duration-200">
+              <span className="text-xs font-bold">{selectedLeads.length} Customers Selected</span>
               <div className="flex gap-3">
                   <button 
                     onClick={() => setIsBulkModalOpen(true)}
-                    className="bg-brand text-white px-3 py-1 rounded text-[10px] font-bold uppercase"
+                    className="bg-brand text-white px-3 py-1 rounded text-[10px] font-bold uppercase hover:bg-[#004d30] transition-colors"
                   >
-                    Bulk Assign
+                    Reassign Manager
                   </button>
-                  <button className="text-gray-400 hover:text-white text-[10px] font-bold uppercase" onClick={() => setSelectedLeads([])}>Cancel</button>
+                  <button className="text-gray-400 hover:text-white text-[10px] font-bold uppercase transition-colors" onClick={() => setSelectedLeads([])}>Cancel</button>
               </div>
           </div>
       )}
 
-      {/* Inventory Table Container */}
-      <div className="card-box !p-0 overflow-hidden">
-          <div className="px-4 py-3 bg-[#f8f9fa] border-b border-gray-100 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
-              <div className="flex items-center gap-2 text-[11px] font-bold text-gray-500 uppercase">
-                  <Users size={14} /> Lead Inventory
+      {/* Table Container */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="px-6 py-4 bg-gray-50/50 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+              <div className="flex items-center gap-2 text-[11px] font-bold text-gray-500 uppercase tracking-widest">
+                  <Users size={14} className="text-brand" /> Active Customer Database
               </div>
               <div className="flex items-center gap-2 w-full sm:w-auto">
                   <input 
                       type="text" 
-                      placeholder="Search..." 
-                      className="form-control !w-full sm:!w-48 !py-1 !px-3 !text-[11px]"
+                      placeholder="Search customers..." 
+                      className="bg-white border border-gray-200 rounded-lg px-4 py-1.5 text-[11px] font-medium w-full sm:w-64 outline-none focus:ring-2 focus:ring-brand/10 focus:border-brand transition-all"
                       value={activeFilters.search}
                       onChange={(e) => setActiveFilters({ ...activeFilters, search: e.target.value })}
                   />
@@ -380,47 +330,29 @@ const LeadHub: React.FC = () => {
           />
       </div>
 
-      <LeadModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onSuccess={() => { fetchLeads(); setIsModalOpen(false); }} 
-        lead={leadToEdit}
-      />
-
-      <UploadLeadModal
-        isOpen={isUploadModalOpen}
-        onClose={() => setIsUploadModalOpen(false)}
-        onSuccess={() => { fetchLeads(); }}
-        masters={masters}
-      />
-
-      {/* Bulk Assign Modal */}
+      {/* Reassign Modal */}
       {isBulkModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-200">
             <div className="bg-[#3b3e47] p-6 flex items-center justify-between text-white">
-              <h3 className="text-lg font-bold text-white font-rubik uppercase tracking-tight">Bulk Assign Leads</h3>
+              <h3 className="text-lg font-bold text-white font-rubik uppercase tracking-tight">Reassign Manager</h3>
               <button onClick={() => setIsBulkModalOpen(false)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
                 <ChevronRight className="rotate-90" size={20} />
               </button>
             </div>
             <div className="p-8 space-y-6">
                <div className="space-y-1.5">
-                  <p className="text-sm text-gray-500 mb-4">You are assigning <strong>{selectedLeads.length}</strong> leads to a new user.</p>
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Select Team Member</label>
+                  <p className="text-sm text-gray-500 mb-4">Reassigning <strong>{selectedLeads.length}</strong> customer accounts to a new relationship manager.</p>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Select Manager</label>
                   <select 
                     className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand/10 focus:border-brand outline-none transition-all font-bold text-[#313a46]"
                     value={targetUserId}
                     onChange={(e) => setTargetUserId(e.target.value)}
                   >
                     <option value="">- Choose Member -</option>
-                  {masters?.users
-                        .filter(u => u.role !== "DM_EXECUTIVE")
-                        .map(u => (
-                          <option key={u.id} value={u.id}>
-                            {u.fullName} ({u.role})
-                          </option>
-                        ))}
+                    {masters?.users.map(u => (
+                      <option key={u.id} value={u.id}>{u.fullName} ({u.role})</option>
+                    ))}
                   </select>
                </div>
                <div className="flex gap-4 pt-4">
@@ -438,7 +370,7 @@ const LeadHub: React.FC = () => {
                     {isSubmittingBulk ? (
                       <div className="w-5 h-5 border-2 border-white/30 border-t-white animate-spin rounded-full" />
                     ) : (
-                      'Confirm Assignment'
+                      'Confirm Update'
                     )}
                   </button>
                </div>
@@ -450,4 +382,4 @@ const LeadHub: React.FC = () => {
   );
 };
 
-export default LeadHub;
+export default Customers;

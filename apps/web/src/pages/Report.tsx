@@ -164,9 +164,9 @@ const Report: React.FC = () => {
 
     const wb = XLSX.utils.book_new();
 
-    // Merged headers with 'WALL TO WALL CRM' on top row, centered
+    // Merged headers with 'CRM COOKSCAPE' on top row, centered
     const headers = [
-      ["WALL TO WALL CRM", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+      ["CRM COOKSCAPE", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
       ["Base Date", "Base Source", "Date", "Assign To", "Client Name", "Ph no-1", "D.No", "Project", "Email Id", "Ph no-2", "Feed Back", "Rating", "Brand", "Tag", "Design Owner", "Instruction Pass", "CP Code", "Status"]
     ];
 
@@ -409,10 +409,10 @@ const Report: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full border-collapse border-spacing-0 text-left text-xs whitespace-nowrap">
                 <thead>
-                  {/* Top Centered WALL TO WALL CRM Header */}
+                  {/* Top Centered CRM COOKSCAPE Header */}
                   <tr className="bg-gray-100 text-gray-800 border-b border-gray-200">
                     <th colSpan={18} className="px-4 py-3 text-center font-black text-sm uppercase tracking-widest">
-                      WALL TO WALL CRM
+                      CRM COOKSCAPE
                     </th>
                   </tr>
                   <tr className="bg-gray-50 text-gray-500 font-black uppercase tracking-wider text-[10px] border-b border-gray-200">

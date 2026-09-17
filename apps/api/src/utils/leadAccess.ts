@@ -28,13 +28,11 @@ export const appendAndClause = (where: any, clause: any) => {
   where.AND = [snapshot, clause];
 };
 
-export const ALL_ASSIGNABLE_ROLES = ['FA', 'LA', 'VENDOR_MANAGEMENT', 'CLIENT_FACILITATOR', 'BUSINESS_HEAD', 'ADMIN'];
-
 export const getLeadVisibilityClause = async (user: RequestUser) => {
   if (user.role === 'ADMIN') return {};
   if (!user.id) return { id: '__no_access__' };
 
-  if (['DM_EXECUTIVE', 'BUSINESS_HEAD', 'FA', 'LA', 'VENDOR_MANAGEMENT', 'CLIENT_FACILITATOR'].includes(user.role || '')) {
+  if (user.role === DM_EXECUTIVE_ROLE || user.role === 'BUSINESS_HEAD' || user.role === 'DESIGNER') {
     return {
       OR: [
         { assignedToId: user.id },
@@ -67,8 +65,8 @@ export const ensureLeadViewAccess = async (leadId: string, user: RequestUser) =>
 };
 
 export const ensureLeadCreateAccess = (user: RequestUser) => {
-  if (!['ADMIN', DM_EXECUTIVE_ROLE, 'BUSINESS_HEAD', 'FA', 'LA', 'VENDOR_MANAGEMENT', 'CLIENT_FACILITATOR'].includes(user.role || '')) {
-    throw { status: 403, message: 'Only authorized team members can add leads.' };
+  if (user.role !== 'ADMIN' && user.role !== DM_EXECUTIVE_ROLE && user.role !== 'BUSINESS_HEAD' && user.role !== 'DESIGNER') {
+    throw { status: 403, message: 'Only admin, DM executives, business heads, and designers can add leads.' };
   }
 };
 
@@ -142,8 +140,8 @@ export const ensureLeadDeleteAccess = async (leadId: string, user: RequestUser) 
 };
 
 export const ensureLeadAssignAccess = async (leadId: string, targetUserId: string | null, user: RequestUser) => {
-  if (!['ADMIN', 'BUSINESS_HEAD', 'FA', 'LA', 'VENDOR_MANAGEMENT', 'CLIENT_FACILITATOR'].includes(user.role || '')) {
-    throw { status: 403, message: 'Only admin, business heads, FA, LA, vendor management, and client facilitators can assign leads.' };
+  if (user.role !== 'ADMIN' && user.role !== 'BUSINESS_HEAD' && user.role !== 'CRE' && user.role !== 'DESIGNER') {
+    throw { status: 403, message: 'Only admin, business heads, CRE, and designer users can assign leads.' };
   }
 
   await ensureLeadViewAccess(leadId, user);
@@ -161,7 +159,7 @@ export const ensureLeadAssignAccess = async (leadId: string, targetUserId: strin
 };
 
 export const getAssignableUsersClause = (user: RequestUser): any => {
-  if (['ADMIN', 'BUSINESS_HEAD', 'FA', 'LA', 'VENDOR_MANAGEMENT', 'CLIENT_FACILITATOR'].includes(user.role || '')) {
+  if (user.role === 'ADMIN' || user.role === 'BUSINESS_HEAD' || user.role === 'CRE' || user.role === 'DESIGNER') {
     return {
       status: true,
       role: { not: DM_EXECUTIVE_ROLE },

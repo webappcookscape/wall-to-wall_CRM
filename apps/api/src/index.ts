@@ -20,7 +20,6 @@ import { authenticate } from './middleware/auth.middleware.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createWhatsAppLead } from './controllers/whatsapp.controller.js';
-import { initAfterHoursCron } from './services/afterHoursReport.service.js';
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(currentDir, '../.env') });
@@ -45,26 +44,20 @@ app.use('/api/', limiter as any);
 // Strict limiter for auth endpoints only — prevent brute force
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100, // 100 login attempts per 15 min
+  max: 30, // 30 login attempts per 15 min
   message: 'Too many login attempts, please try again after 15 minutes',
 });
 app.use('/api/v1/auth/login', authLimiter as any);
 app.use('/api/v1/auth/google-login', authLimiter as any);
 
-const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:3000')
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:5174')
   .split(',')
   .map(origin => origin.trim())
   .filter(Boolean);
 
 app.use(cors({
   origin(origin, callback) {
-    if (!origin) {
-      callback(null, true);
-      return;
-    }
-    // Allow any localhost / 127.0.0.1 port for local development
-    const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
-    if (isLocalhost || allowedOrigins.includes(origin)) {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
       return;
     }
@@ -123,5 +116,4 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
-  initAfterHoursCron();
 });

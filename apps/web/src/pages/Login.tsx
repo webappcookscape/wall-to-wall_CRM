@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
@@ -7,17 +7,11 @@ import { GoogleLogin } from '@react-oauth/google';
 const landingImage = '/assets/logos/wall2wall_crm.png';
 
 const Login: React.FC = () => {
-  const { user, login, isLoading } = useAuth();
+  const { login, isLoading } = useAuth();
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!isLoading && user) {
-      navigate('/', { replace: true });
-    }
-  }, [user, isLoading, navigate]);
 
   const handleTraditionalLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -124,25 +118,21 @@ const Login: React.FC = () => {
               </div>
             </form>
 
-            {import.meta.env.VITE_GOOGLE_CLIENT_ID && (
-              <>
-                <div className="mt-6 flex items-center justify-between">
-                  <span className="border-b w-1/5 lg:w-1/4 border-gray-300"></span>
-                  <span className="text-xs text-center text-gray-500 uppercase font-semibold">Or</span>
-                  <span className="border-b w-1/5 lg:w-1/4 border-gray-300"></span>
-                </div>
+            <div className="mt-6 flex items-center justify-between">
+              <span className="border-b w-1/5 lg:w-1/4 border-gray-300"></span>
+              <span className="text-xs text-center text-gray-500 uppercase font-semibold">Or</span>
+              <span className="border-b w-1/5 lg:w-1/4 border-gray-300"></span>
+            </div>
 
-                <div className="mt-6 flex justify-center min-h-[44px]">
-                  <GoogleLogin
-                    onSuccess={handleGoogleSuccess}
-                    onError={() => setErrorMsg('Google Login Failed')}
-                    shape="rectangular"
-                    theme="outline"
-                    text="continue_with"
-                  />
-                </div>
-              </>
-            )}
+            <div className="mt-6 flex justify-center min-h-[44px]">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => setErrorMsg('Google Login Failed')}
+                shape="rectangular"
+                theme="outline"
+                text="continue_with"
+              />
+            </div>
 
             <div className="mt-8 text-center">
               <p className="text-sm text-gray-500">
@@ -152,7 +142,7 @@ const Login: React.FC = () => {
           </div>
 
           <div className="mt-5 pb-1 text-center">
-            <p className="text-sm text-gray-400">2026 &copy; WALL TO WALL CRM. All rights reserved.</p>
+            <p className="text-sm text-gray-400">2026 &copy; CRM COOKSCAPE. All rights reserved.</p>
           </div>
         </div>
       </div>

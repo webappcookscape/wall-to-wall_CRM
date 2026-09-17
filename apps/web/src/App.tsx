@@ -4,6 +4,7 @@ import Navbar from './components/layout/Navbar';
 import Dashboard from './pages/Dashboard';
 import Leads from './pages/Leads';
 import LeadHub from './pages/LeadHub';
+import Customers from './pages/Customers';
 import Users from './pages/Users';
 import Profile from './pages/Profile';
 import SignaturePhoto from './pages/SignaturePhoto';
@@ -16,22 +17,14 @@ import Report from './pages/Report';
 import Reminders from './pages/Reminders';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
-const RouteLoader = () => (
-  <div className="min-h-screen flex flex-col items-center justify-center bg-[#F4F7FA] gap-3">
-    <div className="w-10 h-10 border-4 border-brand border-t-transparent rounded-full animate-spin"></div>
-    <p className="text-xs font-bold uppercase tracking-wider text-gray-400">Verifying session...</p>
-  </div>
-);
-
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, isLoading } = useAuth();
-  if (isLoading) return <RouteLoader />;
+  const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
   return (
     <div className="min-h-screen bg-[#F4F7FA]">
       <Navbar />
       <div className="wrapper py-4">
-        <main className="w-full px-2 sm:px-4 md:px-6">
+        <main className="max-w-[1400px] mx-auto px-4 sm:px-6 ">
           {children}
         </main>
       </div>
@@ -41,15 +34,14 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
 // Admin-only route — redirects CRE / non-admin employees back to dashboard
 const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, isLoading } = useAuth();
-  if (isLoading) return <RouteLoader />;
+  const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
   if (user.role !== 'ADMIN') return <Navigate to="/" replace />;
   return (
     <div className="min-h-screen bg-[#F4F7FA]">
       <Navbar />
       <div className="wrapper py-4">
-        <main className="w-full px-2 sm:px-4 md:px-6">
+        <main className="max-w-[1400px] mx-auto px-4 sm:px-6">
           {children}
         </main>
       </div>
@@ -59,15 +51,14 @@ const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 // Manager route — allows ADMIN and BUSINESS_HEAD
 const ManagerRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, isLoading } = useAuth();
-  if (isLoading) return <RouteLoader />;
+  const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
   if (user.role !== 'ADMIN' && user.role !== 'BUSINESS_HEAD') return <Navigate to="/" replace />;
   return (
     <div className="min-h-screen bg-[#F4F7FA]">
       <Navbar />
       <div className="wrapper py-4">
-        <main className="w-full px-2 sm:px-4 md:px-6">
+        <main className="max-w-[1400px] mx-auto px-4 sm:px-6">
           {children}
         </main>
       </div>
@@ -84,6 +75,7 @@ const App: React.FC = () => {
           <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/leads" element={<ProtectedRoute><Leads /></ProtectedRoute>} />
           <Route path="/leadhub" element={<ManagerRoute><LeadHub /></ManagerRoute>} />
+          <Route path="/customers" element={<ProtectedRoute><Customers /></ProtectedRoute>} />
           <Route path="/users" element={<AdminRoute><Users /></AdminRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/signature-photos" element={<AdminRoute><SignaturePhoto /></AdminRoute>} />

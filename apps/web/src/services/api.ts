@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { Lead, DashboardStats, User } from '../types/crm';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5000/api/v1' : '/api/v1');
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
 
 // Add a request interceptor
 axios.interceptors.request.use(
@@ -62,23 +62,13 @@ export const leadService = {
     return response.data.data;
   },
 
-  bulkImportLeads: async (payload: {
-    leads: any[];
-    defaultBrandId?: string;
-    defaultProjectId?: string;
-    defaultSourceId?: string;
-  }): Promise<any> => {
-    const response = await axios.post(`${API_BASE_URL}/leads/import`, payload);
-    return response.data;
-  },
-
   getContactableCounts: async (userId?: string): Promise<any> => {
     const response = await axios.get(`${API_BASE_URL}/leads/contactable-counts`, { params: { userId } });
     return response.data.data;
   },
   
-  getStats: async (params?: { userId?: string; timeframe?: string }): Promise<DashboardStats> => {
-    const response = await axios.get(`${API_BASE_URL}/dashboard/stats`, { params });
+  getStats: async (): Promise<DashboardStats> => {
+    const response = await axios.get(`${API_BASE_URL}/dashboard/stats`);
     return response.data.data;
   },
 
@@ -112,6 +102,20 @@ export const leadService = {
     return response.data.data;
   },
 
+  importLeads: async (payload: {
+    leads: any[];
+    defaultStatusId?: string | null;
+    defaultAssignedToId?: string | null;
+    defaultEmployeeEmail?: string | null;
+    defaultBrandId?: string | null;
+    defaultSourceId?: string | null;
+    defaultProjectId?: string | null;
+    skipDuplicates?: boolean;
+  }): Promise<any> => {
+    const response = await axios.post(`${API_BASE_URL}/leads/import`, payload);
+    return response.data;
+  },
+
   assignLead: async (leadId: string, userId: string): Promise<any> => {
     const response = await axios.put(`${API_BASE_URL}/leads/${leadId}/assign`, { user_id: userId });
     return response.data.data;
@@ -119,11 +123,6 @@ export const leadService = {
 
   bulkAssignLeads: async (leadIds: string[], userId: string): Promise<any> => {
     const response = await axios.post(`${API_BASE_URL}/leads/bulk-assign`, { leadIds, userId });
-    return response.data;
-  },
-
-  bulkDeleteLeads: async (leadIds: string[]): Promise<any> => {
-    const response = await axios.post(`${API_BASE_URL}/leads/bulk-delete`, { leadIds });
     return response.data;
   },
 

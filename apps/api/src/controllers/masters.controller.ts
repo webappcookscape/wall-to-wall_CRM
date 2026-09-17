@@ -53,7 +53,7 @@ export const getMasters = asyncHandler(async (req, res) => {
     if (key === 'users') {
       results[key] = await (model as any).findMany({
         where: getAssignableUsersClause(currentUser),
-        select: { id: true, fullName: true, role: true }
+        select: { id: true, fullName: true, role: true, email: true }
       });
     } else if (key === 'bankDetails') {
       results[key] = await (model as any).findMany({ orderBy: { bankName: 'asc' } });

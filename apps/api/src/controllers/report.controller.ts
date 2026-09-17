@@ -139,8 +139,8 @@ export const getLeadsMasterReport = asyncHandler(async (req: Request, res: Respo
   });
 
   const reportData = leads.map(lead => {
-    // Determine Design Owner: if assigned to is FA or LA, output name, else blank
-    const isDesigner = ['FA', 'LA'].includes(lead.assignedTo?.role || '');
+    // Determine Design Owner: if assigned to is DESIGNER, output name, else blank
+    const isDesigner = lead.assignedTo?.role === 'DESIGNER';
     const designOwner = isDesigner ? lead.assignedTo?.fullName : '';
 
     return {

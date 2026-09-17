@@ -139,30 +139,26 @@ export const getLeads = asyncHandler(async (req: Request, res: Response) => {
   }
   
   if (timeframe) {
-    const istOffsetMs = 5.5 * 60 * 60 * 1000;
-    const nowUtc = new Date();
-    const nowIst = new Date(nowUtc.getTime() + istOffsetMs);
-    
-    const istYear = nowIst.getUTCFullYear();
-    const istMonth = nowIst.getUTCMonth();
-    const istDate = nowIst.getUTCDate();
-    
-    const startOfDay = new Date(Date.UTC(istYear, istMonth, istDate, 0, 0, 0) - istOffsetMs);
-    const endOfDay = new Date(Date.UTC(istYear, istMonth, istDate, 23, 59, 59, 999) - istOffsetMs);
-
-    const tomorrowStart = new Date(Date.UTC(istYear, istMonth, istDate + 1, 0, 0, 0) - istOffsetMs);
-    const tomorrowEnd = new Date(Date.UTC(istYear, istMonth, istDate + 1, 23, 59, 59, 999) - istOffsetMs);
-
-    const weekEnd = new Date(Date.UTC(istYear, istMonth, istDate + 7, 23, 59, 59, 999) - istOffsetMs);
-    const monthEnd = new Date(Date.UTC(istYear, istMonth + 1, istDate, 23, 59, 59, 999) - istOffsetMs);
+    const now = new Date();
+    const startOfDay = new Date(now.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(now.setHours(23, 59, 59, 999));
 
     if (timeframe === 'today') {
-      where.contactableDate = { gte: startOfDay, lte: endOfDay };
+      // Today's leads: due today OR overdue (no future ones)
+      where.contactableDate = { lte: endOfDay };
     } else if (timeframe === 'tomorrow') {
+      const tomorrowStart = new Date(startOfDay);
+      tomorrowStart.setDate(tomorrowStart.getDate() + 1);
+      const tomorrowEnd = new Date(endOfDay);
+      tomorrowEnd.setDate(tomorrowEnd.getDate() + 1);
       where.contactableDate = { gte: tomorrowStart, lte: tomorrowEnd };
     } else if (timeframe === 'week') {
+      const weekEnd = new Date(startOfDay);
+      weekEnd.setDate(weekEnd.getDate() + 7);
       where.contactableDate = { gte: startOfDay, lte: weekEnd };
     } else if (timeframe === 'month') {
+      const monthEnd = new Date(startOfDay);
+      monthEnd.setMonth(monthEnd.getMonth() + 1);
       where.contactableDate = { gte: startOfDay, lte: monthEnd };
     } else if (timeframe === 'overdue') {
       where.contactableDate = { lt: startOfDay };
@@ -316,6 +312,33 @@ export const createLead = asyncHandler(async (req: Request, res: Response) => {
       }
     }
   });
+
+  // Support employee email lookup if assignedToId not explicitly provided
+  if (!data.assignedToId && (req.body.employeeEmail || req.body.assignedToEmail)) {
+    const emailToLookup = String(req.body.employeeEmail || req.body.assignedToEmail).trim().toLowerCase();
+    const matchedUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: { equals: emailToLookup, mode: 'insensitive' } },
+          { fullName: { equals: emailToLookup, mode: 'insensitive' } }
+        ]
+      },
+      select: { id: true }
+    });
+    if (matchedUser) {
+      data.assignedToId = matchedUser.id;
+    }
+  }
+
+  if (!data.statusId && req.body.statusName) {
+    const matchedStatus = await prisma.leadStatus.findFirst({
+      where: { name: { equals: String(req.body.statusName).trim(), mode: 'insensitive' } },
+      select: { id: true }
+    });
+    if (matchedStatus) {
+      data.statusId = matchedStatus.id;
+    }
+  }
 
   if (!data.statusId) {
     const freshStatus = await prisma.leadStatus.findUnique({
@@ -543,21 +566,6 @@ export const updateLead = asyncHandler(async (req: Request, res: Response) => {
     }
   }
 
-  if (req.body.instructionToPass !== undefined && req.body.instructionToPass !== existingLead?.instructionToPass) {
-    const rawNewInstruction = typeof req.body.instructionToPass === 'string' ? req.body.instructionToPass.trim() : '';
-    const rawOldInstruction = existingLead?.instructionToPass ? existingLead.instructionToPass.trim() : '';
-
-    if (rawNewInstruction) {
-      if (rawOldInstruction && !rawNewInstruction.includes(rawOldInstruction)) {
-        data.instructionToPass = `${rawOldInstruction} / ${rawNewInstruction}`;
-      } else {
-        data.instructionToPass = rawNewInstruction;
-      }
-    } else {
-      data.instructionToPass = rawOldInstruction || null;
-    }
-  }
-
   const updated = await prisma.lead.update({
     where: { id: String(id) },
     data: {
@@ -768,75 +776,6 @@ export const bulkAssignLeads = asyncHandler(async (req: Request, res: Response) 
   apiResponse.success(res, null, `Successfully assigned ${leadIds.length} leads`);
 });
 
-export const bulkDeleteLeads = asyncHandler(async (req: Request, res: Response) => {
-  const currentUser = getRequestUser(req);
-  const { leadIds } = req.body;
-
-  if (!leadIds || !Array.isArray(leadIds) || leadIds.length === 0) {
-    return apiResponse.error(res, 'Lead IDs are required', 400);
-  }
-
-  const normalizedLeadIds = leadIds.map(id => String(id));
-  await Promise.all(normalizedLeadIds.map(leadId =>
-    ensureLeadDeleteAccess(leadId, currentUser)
-  ));
-
-  try {
-    const deletedCount = await prisma.$transaction(async (tx) => {
-      // 1. Delete related appointments
-      await tx.appointment.deleteMany({
-        where: { leadId: { in: normalizedLeadIds } },
-      });
-
-      // 2. Delete related showroom visits
-      await tx.showroomVisit.deleteMany({
-        where: { leadId: { in: normalizedLeadIds } },
-      });
-
-      // 3. Delete related lead activities
-      await tx.leadActivity.deleteMany({
-        where: { leadId: { in: normalizedLeadIds } },
-      });
-
-      // 4. Delete related tasks
-      await tx.task.deleteMany({
-        where: { leadId: { in: normalizedLeadIds } },
-      });
-
-      // 5. Clean up many-to-many tag relations
-      try {
-        await tx.$executeRawUnsafe(
-          `DELETE FROM "_LeadToLeadTag" WHERE "A" = ANY($1::text[])`,
-          normalizedLeadIds
-        );
-      } catch (err) {
-        // Fallback: update tags to empty if join table raw query not supported
-        for (const leadId of normalizedLeadIds) {
-          try {
-            await tx.lead.update({
-              where: { id: leadId },
-              data: { tags: { set: [] } },
-            });
-          } catch (e) {
-            // ignore if not found
-          }
-        }
-      }
-
-      // 6. Finally, delete the leads themselves
-      const resDelete = await tx.lead.deleteMany({
-        where: { id: { in: normalizedLeadIds } },
-      });
-
-      return resDelete.count;
-    });
-
-    apiResponse.success(res, { count: deletedCount }, `Successfully deleted ${deletedCount} lead(s) completely`);
-  } catch (error: any) {
-    throw error;
-  }
-});
-
 export const deleteLead = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const user = getRequestUser(req);
@@ -844,7 +783,7 @@ export const deleteLead = asyncHandler(async (req: Request, res: Response) => {
   await ensureLeadDeleteAccess(leadId, user);
 
   try {
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       // 1. Delete related appointments
       await tx.appointment.deleteMany({
         where: { leadId: leadId },
@@ -888,134 +827,306 @@ export const deleteLead = asyncHandler(async (req: Request, res: Response) => {
   }
 });
 
-export const bulkImportLeads = asyncHandler(async (req: Request, res: Response) => {
+export const importLeads = asyncHandler(async (req: Request, res: Response) => {
   const currentUser = getRequestUser(req);
   ensureLeadCreateAccess(currentUser);
 
-  const { leads, defaultBrandId, defaultProjectId, defaultSourceId } = req.body;
+  const {
+    leads,
+    defaultStatusId,
+    defaultAssignedToId,
+    defaultEmployeeEmail,
+    defaultBrandId,
+    defaultSourceId,
+    defaultProjectId,
+    skipDuplicates = true,
+  } = req.body;
 
-  if (!Array.isArray(leads) || leads.length === 0) {
-    return apiResponse.error(res, 'No leads provided in payload', 400);
+  if (!leads || !Array.isArray(leads) || leads.length === 0) {
+    return apiResponse.error(res, 'No lead records provided for import', 400);
   }
 
-  // Pre-fetch master tables for quick mapping by name or ID
-  const [brands, projects, sources, freshStatus] = await Promise.all([
+  // Pre-fetch master data
+  const [allStatuses, allUsers, allBrands, allSources, allProjects] = await Promise.all([
+    prisma.leadStatus.findMany(),
+    prisma.user.findMany({ select: { id: true, email: true, fullName: true, role: true } }),
     prisma.brand.findMany(),
-    prisma.project.findMany(),
     prisma.source.findMany(),
-    prisma.leadStatus.findUnique({ where: { name: 'Fresh' } })
+    prisma.project.findMany(),
   ]);
 
-  const brandMap = new Map(brands.map(b => [b.name.toLowerCase(), b.id]));
-  const projectMap = new Map(projects.map(p => [p.name.toLowerCase(), p.id]));
-  const sourceMap = new Map(sources.map(s => [s.name.toLowerCase(), s.id]));
-
-  let importedCount = 0;
-  let skippedCount = 0;
-  const errors: string[] = [];
-
-  let validCreatedById = currentUser.id;
-  if (validCreatedById) {
-    const userExists = await prisma.user.findUnique({ where: { id: validCreatedById }, select: { id: true } });
-    if (!userExists) validCreatedById = undefined;
+  // Resolve default assigned user
+  let fallbackAssignedUserId: string | null = defaultAssignedToId || null;
+  if (!fallbackAssignedUserId && defaultEmployeeEmail) {
+    const cleanEmail = String(defaultEmployeeEmail).trim().toLowerCase();
+    const found = allUsers.find(
+      u => (u.email && u.email.toLowerCase() === cleanEmail) || (u.fullName && u.fullName.toLowerCase() === cleanEmail)
+    );
+    if (found) fallbackAssignedUserId = found.id;
   }
-  if (!validCreatedById) {
-    const defaultUser = await prisma.user.findFirst({ where: { role: 'ADMIN' }, select: { id: true } });
-    validCreatedById = defaultUser?.id || (await prisma.user.findFirst({ select: { id: true } }))?.id || '';
+
+  // Resolve default status
+  let fallbackStatusId: string | null = defaultStatusId || null;
+  if (!fallbackStatusId) {
+    const followUp = allStatuses.find(s => s.name.toLowerCase() === 'follow-up');
+    const fresh = allStatuses.find(s => s.name.toLowerCase() === 'fresh');
+    fallbackStatusId = followUp?.id || fresh?.id || null;
   }
+
+  // Fallbacks for Brand and Source
+  const fallbackBrandId = defaultBrandId || allBrands[0]?.id || null;
+  const fallbackSourceId = defaultSourceId || allSources.find(s => /upload|import|direct/i.test(s.name))?.id || allSources[0]?.id || null;
+
+  const results = {
+    total: leads.length,
+    imported: 0,
+    updated: 0,
+    skipped: 0,
+    errors: [] as { row: number; leadName?: string; error: string }[],
+  };
 
   for (let i = 0; i < leads.length; i++) {
-    const raw = leads[i];
-    const name = String(raw.name || raw.Name || raw.CustomerName || raw['Customer Name'] || raw.clientName || '').trim();
-    const rawPhone = String(raw.phone || raw.Phone || raw.phNo1 || raw.Mobile || raw.Contact || '').trim();
-    const normalizedPhone = rawPhone.replace(/\D/g, '');
-
-    if (!name || !normalizedPhone) {
-      errors.push(`Row ${i + 1}: Name and valid phone number are required.`);
-      skippedCount++;
-      continue;
-    }
-
-    const email = (raw.email || raw.Email) ? String(raw.email || raw.Email).trim() : null;
-    
-    // Resolve brand
-    let brandId = defaultBrandId || null;
-    const rawBrand = String(raw.brand || raw.Brand || '').trim().toLowerCase();
-    if (rawBrand && brandMap.has(rawBrand)) {
-      brandId = brandMap.get(rawBrand);
-    } else if (raw.brandId && brands.some(b => b.id === raw.brandId)) {
-      brandId = raw.brandId;
-    }
-
-    // Resolve project
-    let projectId = defaultProjectId || null;
-    const rawProject = String(raw.project || raw.Project || raw.projectName || '').trim().toLowerCase();
-    if (rawProject && projectMap.has(rawProject)) {
-      projectId = projectMap.get(rawProject);
-    } else if (raw.projectId && projects.some(p => p.id === raw.projectId)) {
-      projectId = raw.projectId;
-    }
-
-    // Resolve source
-    let sourceId = defaultSourceId || null;
-    const rawSource = String(raw.source || raw.Source || raw.sourceName || '').trim().toLowerCase();
-    if (rawSource && sourceMap.has(rawSource)) {
-      sourceId = sourceMap.get(rawSource);
-    } else if (raw.sourceId && sources.some(s => s.id === raw.sourceId)) {
-      sourceId = raw.sourceId;
-    }
-
-    const comments = raw.notes || raw.Notes || raw.comments || raw.Comments || raw.feedback || raw.feedBack || null;
-    const rating = Number(raw.rating || raw.Rating || 0) || 0;
+    const rawLead = leads[i];
+    const rowNum = rawLead.sNo || i + 1;
 
     try {
+      const name = String(rawLead.name || rawLead.clientName || '').trim();
+      const phoneRaw = String(rawLead.phone || rawLead.number || '').trim();
+
+      if (!name || !phoneRaw) {
+        results.skipped++;
+        continue;
+      }
+
+      const normalizedPhone = normalizePhone(phoneRaw);
+      if (!normalizedPhone || normalizedPhone.length < 10) {
+        results.errors.push({
+          row: rowNum,
+          leadName: name,
+          error: `Invalid phone number "${phoneRaw}" (minimum 10 digits required)`
+        });
+        results.skipped++;
+        continue;
+      }
+
+      // Check existing lead
+      const existingLead = await prisma.lead.findFirst({
+        where: { phone: { contains: normalizedPhone } },
+        include: { status: true, assignedTo: true }
+      });
+
+      if (existingLead) {
+        if (skipDuplicates) {
+          const updateData: any = {};
+          const noteParts: string[] = [];
+
+          if (rawLead.comments || rawLead.status || rawLead.requirement) {
+            const extra = [rawLead.requirement, rawLead.status, rawLead.comments].filter(Boolean).join(' | ');
+            if (extra && (!existingLead.comments || !existingLead.comments.includes(extra))) {
+              updateData.comments = existingLead.comments ? `${existingLead.comments} / ${extra}` : extra;
+              noteParts.push(extra);
+            }
+          }
+
+          if (rawLead.nextFollowUp || rawLead.nextDate) {
+            const parsedDate = new Date(rawLead.nextFollowUp || rawLead.nextDate);
+            if (!isNaN(parsedDate.getTime())) {
+              updateData.nextFollowUp = parsedDate;
+              updateData.contactableDate = parsedDate;
+            }
+          }
+
+          if (existingLead.status?.name?.toLowerCase() === 'fresh' && fallbackStatusId) {
+            updateData.statusId = fallbackStatusId;
+          }
+
+          let assigneeId: string | null = null;
+          if (rawLead.employeeEmail || rawLead.assignedTo) {
+            const query = String(rawLead.employeeEmail || rawLead.assignedTo).trim().toLowerCase();
+            const foundUser = allUsers.find(
+              u => (u.email && u.email.toLowerCase() === query) || (u.fullName && u.fullName.toLowerCase() === query)
+            );
+            if (foundUser) assigneeId = foundUser.id;
+          } else if (fallbackAssignedUserId) {
+            assigneeId = fallbackAssignedUserId;
+          }
+
+          if (assigneeId && !existingLead.assignedToId) {
+            updateData.assignedToId = assigneeId;
+          }
+
+          if (Object.keys(updateData).length > 0) {
+            await prisma.lead.update({
+              where: { id: existingLead.id },
+              data: updateData,
+            });
+
+            if (noteParts.length > 0) {
+              await prisma.leadActivity.create({
+                data: {
+                  leadId: existingLead.id,
+                  type: 'NOTE',
+                  content: `Updated via import: ${noteParts.join(' | ')}`,
+                  userId: currentUser.id || null,
+                }
+              });
+            }
+
+            results.updated++;
+          } else {
+            results.skipped++;
+          }
+          continue;
+        } else {
+          results.skipped++;
+          continue;
+        }
+      }
+
+      // Assignee resolution
+      let assignedToId: string | null = fallbackAssignedUserId;
+      if (rawLead.employeeEmail || rawLead.assignedTo) {
+        const query = String(rawLead.employeeEmail || rawLead.assignedTo).trim().toLowerCase();
+        const foundUser = allUsers.find(
+          u => (u.email && u.email.toLowerCase() === query) || (u.fullName && u.fullName.toLowerCase() === query)
+        );
+        if (foundUser) {
+          assignedToId = foundUser.id;
+        }
+      } else if (rawLead.assignedToId) {
+        assignedToId = rawLead.assignedToId;
+      }
+
+      // Status resolution
+      let statusId: string | null = fallbackStatusId;
+      const rawStatus = String(rawLead.status || rawLead.statusName || '').trim();
+      if (rawStatus) {
+        const directStatusMatch = allStatuses.find(s => s.name.toLowerCase() === rawStatus.toLowerCase());
+        if (directStatusMatch) {
+          statusId = directStatusMatch.id;
+        } else {
+          const followUp = allStatuses.find(s => s.name.toLowerCase() === 'follow-up');
+          if (followUp) {
+            statusId = followUp.id;
+          }
+        }
+      }
+
+      // Brand resolution
+      let brandId = fallbackBrandId;
+      if (rawLead.brandName || rawLead.brand) {
+        const bName = String(rawLead.brandName || rawLead.brand).trim().toLowerCase();
+        const foundBrand = allBrands.find(b => b.name.toLowerCase() === bName);
+        if (foundBrand) brandId = foundBrand.id;
+      } else if (rawLead.brandId) {
+        brandId = rawLead.brandId;
+      }
+
+      // Source resolution
+      let sourceId = fallbackSourceId;
+      if (rawLead.sourceName || rawLead.source) {
+        const sName = String(rawLead.sourceName || rawLead.source).trim().toLowerCase();
+        const foundSource = allSources.find(s => s.name.toLowerCase() === sName);
+        if (foundSource) sourceId = foundSource.id;
+      } else if (rawLead.sourceId) {
+        sourceId = rawLead.sourceId;
+      }
+
+      // Project resolution
+      let projectId = defaultProjectId || null;
+      if (rawLead.projectName || rawLead.project) {
+        const pName = String(rawLead.projectName || rawLead.project).trim().toLowerCase();
+        const foundProject = allProjects.find(p => p.name.toLowerCase() === pName);
+        if (foundProject) projectId = foundProject.id;
+      } else if (rawLead.projectId) {
+        projectId = rawLead.projectId;
+      }
+
+      // Next date resolution
+      let nextFollowUpDate: Date | null = null;
+      if (rawLead.nextFollowUp || rawLead.nextDate) {
+        const d = new Date(rawLead.nextFollowUp || rawLead.nextDate);
+        if (!isNaN(d.getTime())) nextFollowUpDate = d;
+      }
+
+      // Build comments
+      const commentSections: string[] = [];
+      if (rawLead.requirement) commentSections.push(`Requirement: ${rawLead.requirement}`);
+      if (rawLead.siteLocation) commentSections.push(`Location: ${rawLead.siteLocation}`);
+      if (rawStatus && !allStatuses.some(s => s.name.toLowerCase() === rawStatus.toLowerCase())) {
+        commentSections.push(`Status Notes: ${rawStatus}`);
+      }
+      if (rawLead.comments && !commentSections.includes(rawLead.comments)) {
+        commentSections.push(rawLead.comments);
+      }
+      const combinedComments = commentSections.join(' | ') || null;
+
       const createdLead = await prisma.lead.create({
         data: {
           name,
           phone: normalizedPhone,
-          email,
+          email: rawLead.email ? String(rawLead.email).trim() : null,
           brandId,
-          projectId,
           sourceId,
-          statusId: freshStatus?.id || null,
-          createdById: validCreatedById,
-          rating: rating >= 0 && rating <= 10 ? rating : 0,
-          comments: comments ? String(comments) : null
+          projectId,
+          statusId,
+          assignedToId,
+          createdById: currentUser.id || 'system',
+          nextFollowUp: nextFollowUpDate,
+          contactableDate: nextFollowUpDate,
+          comments: combinedComments,
+          instructionToPass: rawLead.instructionToPass || null,
+          dataCollected: new Date(),
+        },
+        include: {
+          status: true,
+          assignedTo: { select: { fullName: true, role: true } },
+          createdBy: { select: { fullName: true } }
         }
       });
 
-      // Log creation activity
+      // Audit Activity logs
       await prisma.leadActivity.create({
         data: {
           leadId: createdLead.id,
           type: 'SYSTEM',
-          content: `Lead imported via Bulk Upload by ${currentUser.role || 'User'}`,
-          userId: validCreatedById || null
+          content: `Lead imported by ${createdLead.createdBy?.fullName || 'System'}${createdLead.status ? ` with status "${createdLead.status.name}"` : ''}`,
+          userId: currentUser.id || null,
         }
       });
 
-      if (comments) {
+      if (createdLead.assignedTo) {
         await prisma.leadActivity.create({
           data: {
             leadId: createdLead.id,
-            type: 'NOTE',
-            content: String(comments),
-            userId: validCreatedById || null
+            type: 'ASSIGNMENT',
+            content: `Assigned to ${createdLead.assignedTo.fullName}${createdLead.assignedTo.role ? ` (${createdLead.assignedTo.role})` : ''} on import`,
+            userId: currentUser.id || null,
           }
         });
       }
 
-      importedCount++;
+      if (combinedComments) {
+        await prisma.leadActivity.create({
+          data: {
+            leadId: createdLead.id,
+            type: 'NOTE',
+            content: combinedComments,
+            userId: currentUser.id || null,
+          }
+        });
+      }
+
+      results.imported++;
     } catch (err: any) {
-      errors.push(`Row ${i + 1} (${name}): ${err.message || 'Failed to insert'}`);
-      skippedCount++;
+      console.error(`Error importing row ${rowNum}:`, err);
+      results.errors.push({
+        row: rowNum,
+        leadName: rawLead.name || rawLead.clientName,
+        error: err.message || 'Unknown error occurred'
+      });
     }
   }
 
-  return apiResponse.success(res, {
-    total: leads.length,
-    importedCount,
-    skippedCount,
-    errors: errors.slice(0, 10)
-  }, `Successfully imported ${importedCount} leads.`);
+  apiResponse.success(res, results, `Import complete: ${results.imported} imported, ${results.updated} updated, ${results.skipped} skipped`);
 });
