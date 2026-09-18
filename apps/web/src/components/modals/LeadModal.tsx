@@ -8,6 +8,7 @@ interface LeadModalProps {
   onClose: () => void;
   onSuccess: () => void;
   lead?: any;
+  masters?: any;
 }
 
 const ratingOptions = [
@@ -22,7 +23,7 @@ const getRatingName = (rating: number) => {
   return ratingOptions.find((option) => option.value === rating)?.ratingName || '';
 };
 
-const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead }) => {
+const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead, masters: initialMasters }) => {
   const { user } = useAuth(); // Use the useAuth hook
   const userRole = user?.role; // Get userRole from the context
   const [formData, setFormData] = useState<any>({
@@ -48,17 +49,26 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead 
     contactableDate: '',
     assignedToId: '',
   });
-  const [masters, setMasters] = useState<any>(null);
+  const [masters, setMasters] = useState<any>(initialMasters || null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  useEffect(() => {
+    if (initialMasters) {
+      setMasters(initialMasters);
+    }
+  }, [initialMasters]);
 
   useEffect(() => {
     const fetchMasters = async () => {
-      const data = await leadService.getMasters();
-      setMasters(data);
+      try {
+        const data = await leadService.getMasters();
+        setMasters(data);
+      } catch (err) {
+        console.error('Failed to fetch masters in LeadModal:', err);
+      }
     };
-    if (isOpen) fetchMasters();
-  }, [isOpen]);
+    if (isOpen && !initialMasters) fetchMasters();
+  }, [isOpen, initialMasters]);
 
   const toLocalISOString = (dateString?: string | null) => {
     if (!dateString) return '';
@@ -307,10 +317,10 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead 
                 >
                   <option value="">Unassigned</option>
                   {masters?.users
-                    ?.filter((u: any) => userRole !== 'DM_EXECUTIVE' || u.id !== user?.id)
+                    ?.filter((u: any) => userRole !== 'DM_EXECUTIVE' || !user?.id || u.id !== user.id)
                     .map((u: any) => (
                       <option key={u.id} value={u.id}>
-                        {u.fullName} {u.email ? `(${u.email})` : ''} — {u.role}
+                        {u.fullName || u.name || u.email || 'User'} {u.email ? `(${u.email})` : ''} {u.role ? `— ${u.role}` : ''}
                       </option>
                     ))}
                 </select>

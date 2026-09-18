@@ -366,7 +366,12 @@ const Leads: React.FC = () => {
          ))}
       </div>
 
-      <LeadModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSuccess={() => { fetchLeads(); fetchCounts(); setIsModalOpen(false); }} />
+      <LeadModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSuccess={() => { fetchLeads(); fetchCounts(); setIsModalOpen(false); }} 
+        masters={masters} 
+      />
       <UploadLeadModal 
         isOpen={isUploadModalOpen} 
         onClose={() => setIsUploadModalOpen(false)} 

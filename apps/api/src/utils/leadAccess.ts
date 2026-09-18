@@ -166,15 +166,18 @@ export const ensureLeadAssignAccess = async (leadId: string, targetUserId: strin
 };
 
 export const getAssignableUsersClause = (user: RequestUser): any => {
-  if (user.role === 'ADMIN' || user.role === 'BUSINESS_HEAD' || user.role === 'CRE' || user.role === 'DESIGNER' || user.role === DM_EXECUTIVE_ROLE) {
+  const role = String(user?.role || '').trim().toUpperCase();
+  const isDmExecutive = role === DM_EXECUTIVE_ROLE;
+
+  if (['ADMIN', 'BUSINESS_HEAD', 'CRE', 'DESIGNER', DM_EXECUTIVE_ROLE].includes(role)) {
     return {
-      status: true,
-      ...(user.role === DM_EXECUTIVE_ROLE && user.id ? { id: { not: user.id } } : {})
+      status: { not: false },
+      ...(isDmExecutive && user?.id ? { id: { not: user.id } } : {})
     };
   }
 
   return {
-    status: true,
-    id: user.id || '__no_assignable_users__',
+    status: { not: false },
+    id: user?.id || '__no_assignable_users__',
   };
 };
