@@ -1,4 +1,10 @@
 import { PrismaClient } from '@prisma/client';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.resolve(currentDir, '../.env') });
 
 const prisma = new PrismaClient();
 

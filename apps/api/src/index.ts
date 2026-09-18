@@ -55,9 +55,11 @@ const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173,http:/
   .map(origin => origin.trim())
   .filter(Boolean);
 
+const isLocalhost = (origin: string) => /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+
 app.use(cors({
   origin(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin || allowedOrigins.includes(origin) || isLocalhost(origin)) {
       callback(null, true);
       return;
     }
