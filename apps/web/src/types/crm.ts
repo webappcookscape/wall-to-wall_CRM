@@ -17,7 +17,23 @@ export interface Source { id: string; name: string; }
 export interface LeadStatus { id: string; name: string; color?: string; }
 export interface Stage { id: string; name: string; }
 
-export type Role = 'ADMIN' | 'CRE' | 'DESIGNER' | 'BUSINESS_HEAD' | 'DM_EXECUTIVE';
+export type Role = 
+  | 'ADMIN' 
+  | 'CRE' 
+  | 'DESIGNER' 
+  | 'BUSINESS_HEAD' 
+  | 'DM_EXECUTIVE' 
+  | 'VENDOR_MANAGEMENT' 
+  | 'CLIENT_FACILITATOR'
+  | 'FEASIBILITY'
+  | 'FEASIBILITY_ENGINEER'
+  | 'PRODUCTION'
+  | 'EXECUTION'
+  | 'LOADING'
+  | 'MARKETING'
+  | 'VENDOR'
+  | 'AE'
+  | 'CARPENTER';
 export interface UserBasic { id: string; fullName: string; role?: Role; email?: string; }
 
 export interface User {
