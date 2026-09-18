@@ -16,7 +16,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSuccess, user 
     username: '',
     email: '',
     phone: '',
-    role: 'CRE',
+    role: 'DM_EXECUTIVE',
     showroomId: '',
     signaturePhotoId: '',
     businessHeadId: '',
@@ -73,7 +73,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSuccess, user 
         username: '',
         email: '',
         phone: '',
-        role: 'CRE',
+        role: 'DM_EXECUTIVE',
         showroomId: '',
         businessHeadId: '',
         status: true,
@@ -209,22 +209,12 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSuccess, user 
                      value={formData.role}
                      onChange={(e) => setFormData({ ...formData, role: e.target.value as Role })}
                    >
-                      <option value="CRE">CRE</option>
                       <option value="ADMIN">Admin</option>
                       <option value="BUSINESS_HEAD">Business Head</option>
                       <option value="DM_EXECUTIVE">DM Executive</option>
-                      <option value="DESIGNER">Designer</option>
-                      <option value="VENDOR_MANAGEMENT">Vendor Management</option>
                       <option value="CLIENT_FACILITATOR">Client Facilitator</option>
                       <option value="FA">FA</option>
-                      <option value="FEASIBILITY_ENGINEER">Feasibility Engineer</option>
-                      <option value="PRODUCTION">Production</option>
-                      <option value="EXECUTION">Execution</option>
-                      <option value="LOADING">Loading</option>
-                      <option value="MARKETING">Marketing</option>
-                      <option value="VENDOR">Vendor</option>
-                      <option value="AE">AE</option>
-                      <option value="CARPENTER">Carpenter</option>
+                      <option value="VENDOR_MANAGEMENT">Vendor Management</option>
                    </select>
                  </div>
 

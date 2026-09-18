@@ -35,7 +35,6 @@ const Leads: React.FC = () => {
   const [statusId, setStatusId] = useState('');
   const [brandId, setBrandId] = useState('');
   const [projectId, setProjectId] = useState('');
-  const [tagId, setTagId] = useState('');
   const [stageId, setStageId] = useState('');
   const [rating, setRating] = useState('');
   const [timeframe, setTimeframe] = useState('');
@@ -54,7 +53,6 @@ const Leads: React.FC = () => {
         statusId: statusId || undefined,
         brandId: brandId || undefined,
         projectId: projectId || undefined,
-        tagId: tagId || undefined,
         stageId: stageId || undefined,
         rating: rating || undefined,
         timeframe: timeframe || undefined,
@@ -127,14 +125,14 @@ const Leads: React.FC = () => {
   // Reset page to 1 when filters change
   useEffect(() => {
     setPage(1);
-  }, [search, statusId, brandId, projectId, tagId, stageId, rating, timeframe, contactDate, selectedUserId]);
+  }, [search, statusId, brandId, projectId, stageId, rating, timeframe, contactDate, selectedUserId]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchLeads();
     }, 500); // 500ms debounce for search input
     return () => clearTimeout(timer);
-  }, [page, search, statusId, brandId, projectId, tagId, stageId, rating, timeframe, contactDate, selectedUserId]);
+  }, [page, search, statusId, brandId, projectId, stageId, rating, timeframe, contactDate, selectedUserId]);
 
   useEffect(() => {
     fetchCounts();
@@ -148,7 +146,7 @@ const Leads: React.FC = () => {
       <div className="card-box !mb-0 !p-3 md:!p-4">
         <div className="flex items-center justify-between mb-4">
            <h4 className="text-sm md:text-base font-bold text-gray-700 uppercase m-0">Leads</h4>
-           {['ADMIN', 'DM_EXECUTIVE', 'BUSINESS_HEAD', 'DESIGNER'].includes(user?.role || '') && (
+           {['ADMIN', 'BUSINESS_HEAD', 'DM_EXECUTIVE', 'CLIENT_FACILITATOR', 'FA'].includes(user?.role || '') && (
              <div className="flex items-center gap-2">
                <button 
                  onClick={() => setIsUploadModalOpen(true)}
@@ -166,7 +164,7 @@ const Leads: React.FC = () => {
            )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 gap-3 pt-3 border-t border-gray-100">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-3 pt-3 border-t border-gray-100">
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-gray-400 uppercase">Brand</label>
             <select value={brandId} onChange={(e) => setBrandId(e.target.value)} className="form-control !py-1 !px-2 !text-[11px]">
@@ -179,13 +177,6 @@ const Leads: React.FC = () => {
             <select value={projectId} onChange={(e) => setProjectId(e.target.value)} className="form-control !py-1 !px-2 !text-[11px]">
               <option value="">-Select-</option>
               {masters?.projects.map((p: MasterItem) => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </select>
-          </div>
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase">Tag</label>
-            <select value={tagId} onChange={(e) => setTagId(e.target.value)} className="form-control !py-1 !px-2 !text-[11px]">
-              <option value="">-Select-</option>
-              {masters?.leadTags.map((t: MasterItem) => <option key={t.id} value={t.id}>{t.name}</option>)}
             </select>
           </div>
           <div className="space-y-1">

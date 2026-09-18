@@ -42,7 +42,6 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
     metaCampaignId: '',
     metaAdAccountId: '',
     nextFollowUp: '',
-    tagIds: [],
     comments: '',
     instructionToPass: '',
     dataCollected: new Date().toISOString().split('T')[0],
@@ -105,7 +104,6 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
         metaCampaignId: lead.metaCampaignId || '',
         metaAdAccountId: lead.metaAdAccountId || '',
         nextFollowUp: toLocalISOString(lead.nextFollowUp),
-        tagIds: lead.tags?.map((t: any) => t.id) || [],
         comments: lead.comments || '',
         instructionToPass: lead.instructionToPass || '',
         dataCollected: lead.dataCollected ? new Date(lead.dataCollected).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
@@ -129,7 +127,6 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
             metaCampaignId: '',
             metaAdAccountId: '',
             nextFollowUp: '',
-            tagIds: [],
             comments: '',
             instructionToPass: '',
             dataCollected: new Date().toISOString().split('T')[0],
@@ -150,9 +147,11 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
         contactableDate: formData.nextFollowUp ? new Date(formData.nextFollowUp).toISOString() : null,
       };
       if (lead?.id) {
+        if (userRole === 'DM_EXECUTIVE') {
+          delete payload.assignedToId;
+        }
         await (leadService as any).updateLead(lead.id, payload);
       } else {
-        // console.log(payload)
         await leadService.createLead(payload);
       }
       onSuccess();
@@ -307,7 +306,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
               />
             </div>
 
-            {(userRole === 'ADMIN' || userRole === 'BUSINESS_HEAD' || userRole === 'CRE' || userRole === 'DESIGNER' || userRole === 'DM_EXECUTIVE') && (
+            {(userRole === 'ADMIN' || userRole === 'BUSINESS_HEAD' || (!lead?.id && userRole === 'DM_EXECUTIVE')) && (
               <div className="space-y-1">
                 <label className="text-[10px] font-bold text-gray-400 uppercase">Assigned To</label>
                 <select 
@@ -407,33 +406,6 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
               onChange={(e) => setFormData({...formData, instructionToPass: e.target.value})}
               placeholder="Add instructions for the assigned team member..."
             />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold text-gray-400 uppercase">Tags</label>
-            <div className="flex flex-wrap gap-2">
-                {masters?.leadTags?.map((tag: any) => (
-                    <button
-                        key={tag.id}
-                        type="button"
-                        onClick={() => {
-                            const exist = formData.tagIds.includes(tag.id);
-                            if (exist) {
-                                setFormData({...formData, tagIds: formData.tagIds.filter((id: string) => id !== tag.id)});
-                            } else {
-                                setFormData({...formData, tagIds: [...formData.tagIds, tag.id]});
-                            }
-                        }}
-                        className={`px-2 py-1 rounded text-[10px] font-bold uppercase transition-all border ${
-                            formData.tagIds.includes(tag.id) 
-                            ? 'bg-brand text-white border-brand' 
-                            : 'bg-white text-gray-400 border-gray-200'
-                        }`}
-                    >
-                        {tag.name}
-                    </button>
-                ))}
-            </div>
           </div>
 
           <div className="space-y-1">

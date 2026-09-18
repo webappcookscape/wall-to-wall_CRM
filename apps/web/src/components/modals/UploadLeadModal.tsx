@@ -28,14 +28,22 @@ interface ParsedLeadRow {
   name: string;
   phone: string;
   email?: string;
+  brand?: string;
+  source?: string;
+  project?: string;
+  status?: string;
+  stage?: string;
+  rating?: string | number;
+  dateCollected?: string;
+  dateCollectedFormatted?: string;
   nextDate?: string;
   nextDateFormatted?: string;
   nextFollowUp?: string;
-  status?: string;
   requirement?: string;
   siteLocation?: string;
   employeeEmail?: string;
-  project?: string;
+  comments?: string;
+  instructionToPass?: string;
   isValid: boolean;
   invalidReason?: string;
 }
@@ -110,7 +118,23 @@ const parseFlexibleDate = (raw: any): { isoString: string; displayString: string
   if (match2) {
     const day = parseInt(match2[1]!, 10);
     const month = parseInt(match2[2]!, 10) - 1;
-    const year = match2[3]!.length === 2 ? 2000 + parseInt(match2[3]!, 10) : parseInt(match2[3]!, 10);
+    const year = match2[3]!.length === 2 ? 2000 + parseInt(match2[3], 10) : parseInt(match2[3], 10);
+    const d = new Date(year, month, day, 10, 0, 0);
+    if (!isNaN(d.getTime())) {
+      return {
+        isoString: d.toISOString(),
+        displayString: d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+      };
+    }
+  }
+
+  // Match 'YYYY-MM-DD'
+  const ymdRegex = /^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/;
+  const match3 = str.match(ymdRegex);
+  if (match3) {
+    const year = parseInt(match3[1]!, 10);
+    const month = parseInt(match3[2]!, 10) - 1;
+    const day = parseInt(match3[3]!, 10);
     const d = new Date(year, month, day, 10, 0, 0);
     if (!isNaN(d.getTime())) {
       return {
@@ -166,7 +190,6 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
   useEffect(() => {
     if (masters) {
       if (!defaultStatusId && masters.statuses?.length > 0) {
-        // Recommend 'Follow-up' status so followed leads don't land in Fresh!
         const followUp = masters.statuses.find(s => s.name.toLowerCase() === 'follow-up');
         if (followUp) setDefaultStatusId(followUp.id);
         else setDefaultStatusId(masters.statuses[0]!.id);
@@ -226,13 +249,12 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
       }
 
       // Step 1: Find the header row index
-      // The header row contains words like 'client name', 'name', 'number', 'phone', 'next date', 'status'
       let headerRowIdx = -1;
       for (let r = 0; r < Math.min(rawMatrix.length, 10); r++) {
         const row = rawMatrix[r] || [];
         const rowStr = row.map(c => String(c).toLowerCase().trim()).join(' ');
         if (
-          (rowStr.includes('client name') || rowStr.includes('name')) &&
+          (rowStr.includes('client name') || rowStr.includes('name') || rowStr.includes('client')) &&
           (rowStr.includes('number') || rowStr.includes('phone') || rowStr.includes('mobile'))
         ) {
           headerRowIdx = r;
@@ -240,7 +262,6 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
         }
       }
 
-      // Fallback: use row 0 if no header pattern matched
       if (headerRowIdx === -1) {
         headerRowIdx = 0;
       }
@@ -252,45 +273,57 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
       headerRow.forEach((h, idx) => {
         if (!h) return;
         if (/^(s\.?\s*no|sl\.?\s*no|sno|id)$/i.test(h)) colMap['sNo'] = idx;
-        else if (/(client\s*name|customer\s*name|^name$|^client$)/i.test(h)) colMap['name'] = idx;
-        else if (/(^number$|^phone$|^mobile$|contact|ph\s*no|phone\s*no)/i.test(h)) colMap['phone'] = idx;
-        else if (/(next\s*date|follow\s*up\s*date|contactable\s*date|next\s*follow\s*up)/i.test(h)) colMap['nextDate'] = idx;
-        else if (/status/i.test(h)) colMap['status'] = idx;
-        else if (/(requirement|scope|work|service)/i.test(h)) colMap['requirement'] = idx;
-        else if (/(site\s*location|location|address|place)/i.test(h)) colMap['siteLocation'] = idx;
-        else if (/(employee\s*email|staff\s*email|assignee\s*email|assigned\s*to|executive)/i.test(h)) colMap['employeeEmail'] = idx;
+        else if (/(client\s*name|customer\s*name|^name$|^client$|full\s*name)/i.test(h)) colMap['name'] = idx;
+        else if (/(^number$|^phone$|^mobile$|contact|ph\s*no|phone\s*no|mobile\s*number)/i.test(h)) colMap['phone'] = idx;
+        else if (/(email|mail|e-mail)/i.test(h)) colMap['email'] = idx;
+        else if (/brand/i.test(h)) colMap['brand'] = idx;
+        else if (/source/i.test(h)) colMap['source'] = idx;
+        else if (/(current\s*stage|^stage$)/i.test(h)) colMap['stage'] = idx;
+        else if (/(rating|priority|lead\s*rating|quality)/i.test(h)) colMap['rating'] = idx;
+        else if (/(date\s*collected|lead\s*date|collected\s*date|created\s*date)/i.test(h)) colMap['dateCollected'] = idx;
+        else if (/(next\s*date|follow\s*up\s*date|contactable\s*date|next\s*follow\s*up|reminder\s*date|remind)/i.test(h)) colMap['nextDate'] = idx;
+        else if (/(employee\s*email|staff\s*email|assignee|assigned\s*to|executive|sales\s*rep)/i.test(h)) colMap['employeeEmail'] = idx;
         else if (/project/i.test(h)) colMap['project'] = idx;
-        else if (/email/i.test(h) && !colMap['email']) colMap['email'] = idx;
+        else if (/(requirement|scope|work|service)/i.test(h)) colMap['requirement'] = idx;
+        else if (/(site\s*location|location|address|place|city)/i.test(h)) colMap['siteLocation'] = idx;
+        else if (/(instruction\s*to\s*pass|instruction|special\s*note|guidance)/i.test(h)) colMap['instructionToPass'] = idx;
+        else if (/(discussion\s*comments|comment|notes|remarks|discussion)/i.test(h)) colMap['comments'] = idx;
+        else if (/status/i.test(h)) colMap['status'] = idx;
       });
 
       // Step 2: Parse data rows starting after headerRowIdx
       const parsed: ParsedLeadRow[] = [];
       for (let r = headerRowIdx + 1; r < rawMatrix.length; r++) {
         const row = rawMatrix[r] || [];
-        // Skip purely empty rows
         if (row.every(cell => String(cell).trim() === '')) continue;
 
-        // Skip banner / section header rows (e.g. "Aug month positive" spanning across cells with no phone)
         const nameVal = colMap['name'] !== undefined ? String(row[colMap['name']] || '').trim() : '';
         const phoneVal = colMap['phone'] !== undefined ? String(row[colMap['phone']] || '').trim() : '';
 
-        // If phone and name are both empty, or if this row has only 1 filled cell (banner row), skip it!
         const filledCells = row.filter(cell => String(cell).trim() !== '');
         if (filledCells.length <= 1 && (!phoneVal || !nameVal)) {
-          continue; // Skips title banner rows like 'Aug month positive'
+          continue;
         }
 
         const normalizedPhone = normalizePhoneString(phoneVal);
         const sNoVal = colMap['sNo'] !== undefined ? row[colMap['sNo']] : r;
         const nextDateVal = colMap['nextDate'] !== undefined ? row[colMap['nextDate']] : '';
+        const dateCollectedVal = colMap['dateCollected'] !== undefined ? row[colMap['dateCollected']] : '';
         const statusVal = colMap['status'] !== undefined ? String(row[colMap['status']] || '').trim() : '';
+        const stageVal = colMap['stage'] !== undefined ? String(row[colMap['stage']] || '').trim() : '';
+        const ratingVal = colMap['rating'] !== undefined ? row[colMap['rating']] : '';
+        const brandVal = colMap['brand'] !== undefined ? String(row[colMap['brand']] || '').trim() : '';
+        const sourceVal = colMap['source'] !== undefined ? String(row[colMap['source']] || '').trim() : '';
         const requirementVal = colMap['requirement'] !== undefined ? String(row[colMap['requirement']] || '').trim() : '';
         const siteLocationVal = colMap['siteLocation'] !== undefined ? String(row[colMap['siteLocation']] || '').trim() : '';
         const employeeEmailVal = colMap['employeeEmail'] !== undefined ? String(row[colMap['employeeEmail']] || '').trim() : '';
         const projectVal = colMap['project'] !== undefined ? String(row[colMap['project']] || '').trim() : '';
         const emailVal = colMap['email'] !== undefined ? String(row[colMap['email']] || '').trim() : '';
+        const commentsVal = colMap['comments'] !== undefined ? String(row[colMap['comments']] || '').trim() : '';
+        const instructionVal = colMap['instructionToPass'] !== undefined ? String(row[colMap['instructionToPass']] || '').trim() : '';
 
-        const parsedDate = parseFlexibleDate(nextDateVal);
+        const parsedNextDate = parseFlexibleDate(nextDateVal);
+        const parsedCollectedDate = parseFlexibleDate(dateCollectedVal);
 
         let isValid = true;
         let invalidReason = '';
@@ -308,14 +341,22 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
           name: nameVal,
           phone: normalizedPhone,
           email: emailVal,
-          nextDate: nextDateVal ? String(nextDateVal) : undefined,
-          nextDateFormatted: parsedDate?.displayString,
-          nextFollowUp: parsedDate?.isoString,
+          brand: brandVal,
+          source: sourceVal,
+          project: projectVal,
           status: statusVal,
+          stage: stageVal,
+          rating: ratingVal,
+          dateCollected: parsedCollectedDate?.isoString || (dateCollectedVal ? String(dateCollectedVal) : undefined),
+          dateCollectedFormatted: parsedCollectedDate?.displayString,
+          nextDate: nextDateVal ? String(nextDateVal) : undefined,
+          nextDateFormatted: parsedNextDate?.displayString,
+          nextFollowUp: parsedNextDate?.isoString,
           requirement: requirementVal,
           siteLocation: siteLocationVal,
           employeeEmail: employeeEmailVal,
-          project: projectVal,
+          comments: commentsVal,
+          instructionToPass: instructionVal,
           isValid,
           invalidReason
         });
@@ -332,15 +373,99 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
 
   const handleDownloadSample = () => {
     const wb = XLSX.utils.book_new();
+
+    // Sheet 1: Maintained Leads Template with sample data
     const wsData = [
-      ['S.no', 'Next date', 'Client name', 'Number', 'Site location', 'Requirement', 'status', 'Employee Email'],
-      ['1', '17 Sep', 'Thulasi Subramanian', '9566013424', 'Velachery', 'Wall Cladding', 'shared brochure /visited /waiting for selection / need to share estimation', 'arun.cre@wall2wall.com'],
-      ['2', '18 Sep', 'Rajesh Kannan', '9840112233', 'Anna Nagar', 'Modular Kitchen', 'First consultation done, budget 5L', 'cre@wall2wall.com'],
-      ['3', '20 Sep', 'Sneha Reddy', '9962045678', 'OMR Chennai', 'Full Interior', 'Follow-up call scheduled', '']
+      [
+        'S.no',
+        'Date Collected',
+        'Client Name',
+        'Mobile',
+        'Email',
+        'Brand',
+        'Project',
+        'Source',
+        'Status',
+        'Current Stage',
+        'Rating',
+        'Next Follow-up Date',
+        'Assigned Employee',
+        'Site Location',
+        'Discussion Comments',
+        'Instruction to Pass'
+      ],
+      [
+        1,
+        '15-Aug-2026',
+        'Thulasi Subramanian',
+        '9566013424',
+        'thulasi.sub@gmail.com',
+        'Cookscape',
+        'Wall Cladding',
+        'Meta Ads',
+        'Follow-up',
+        'First Discussion',
+        '4 - Qualified',
+        '19 Sep 2026 11:00 AM',
+        'arun.cre@wall2wall.com',
+        'Velachery, Chennai',
+        'Shared brochure; visited showroom; waiting for material selection and 3D preview',
+        'Call before 12 PM with updated quartz counter cost estimation'
+      ],
+      [
+        2,
+        '28-Aug-2026',
+        'Rajesh Kannan',
+        '9840112233',
+        'rajesh.k@yahoo.com',
+        'Wall to Wall',
+        'Modular Kitchen',
+        'Walk-in',
+        'Opportunities',
+        'Site Measurement',
+        '3 - Moderate',
+        '20 Sep 2026 03:30 PM',
+        'cre@wall2wall.com',
+        'Anna Nagar, Chennai',
+        'First consultation done, budget 5.5 Lakhs; acrylic finish requested',
+        'Site measurement visit scheduled for Sunday; bring laminate sample folder'
+      ],
+      [
+        3,
+        '05-Sep-2026',
+        'Sneha Reddy',
+        '9962045678',
+        'sneha.reddy@outlook.com',
+        'Cookscape',
+        'Full Interior',
+        'Google Ads',
+        'Yet To Follow-up',
+        'Lead',
+        '2 - Low Quality',
+        '22 Sep 2026 10:00 AM',
+        '',
+        'OMR, Chennai',
+        'Enquired online for 2BHK complete woodwork package',
+        'Initial discovery call needed to understand handover timeline and budget'
+      ]
     ];
     const ws = XLSX.utils.aoa_to_sheet(wsData);
-    XLSX.utils.book_append_sheet(wb, ws, 'Leads Template');
-    XLSX.writeFile(wb, 'Cookscape_Leads_Upload_Template.xlsx');
+    XLSX.utils.book_append_sheet(wb, ws, 'Maintained Leads');
+
+    // Sheet 2: Master Reference Values
+    const masterReference = [
+      ['FIELD NAME', 'VALID CRM VALUES (Copy & paste as needed)'],
+      ['Brand', masters?.brands?.map(b => b.name).join(', ') || 'Cookscape, Wall to Wall'],
+      ['Status', masters?.statuses?.map(s => s.name).join(', ') || 'Fresh, Follow-up, Yet To Follow-up, Opportunities, Order Booked, Disqualified'],
+      ['Current Stage', masters?.stages?.map(s => s.name).join(', ') || 'Lead, First Discussion, Site Visit, Design Presentation, Estimation Shared, Negotiation, Closed/Won'],
+      ['Source', masters?.sources?.map(s => s.name).join(', ') || 'Meta Ads, Google Ads, Walk-in, Reference, Website'],
+      ['Rating', '1 - Disqualified, 2 - Low Quality, 3 - Moderate, 4 - Qualified, 5 - Order Booked'],
+      ['Registered Employees', masters?.users?.map(u => `${u.fullName} (${u.email})`).join(', ') || '']
+    ];
+    const wsRef = XLSX.utils.aoa_to_sheet(masterReference);
+    XLSX.utils.book_append_sheet(wb, wsRef, 'CRM Master Reference');
+
+    XLSX.writeFile(wb, 'Cookscape_Maintained_Leads_Template.xlsx');
   };
 
   const handleImportSubmit = async () => {
@@ -358,17 +483,24 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
           name: r.name,
           phone: r.phone,
           email: r.email || null,
+          brand: r.brand || null,
+          brandId: defaultBrandId || null,
+          source: r.source || null,
+          sourceId: defaultSourceId || null,
+          project: r.project || null,
+          projectId: defaultProjectId || null,
+          status: r.status || null,
+          stage: r.stage || null,
+          rating: r.rating || null,
+          dateCollected: r.dateCollected || null,
           nextFollowUp: r.nextFollowUp || null,
           nextDate: r.nextDate || null,
-          status: r.status || null,
           requirement: r.requirement || null,
           siteLocation: r.siteLocation || null,
           employeeEmail: r.employeeEmail || customEmployeeEmail || null,
           assignedToId: defaultAssignedToId || null,
-          projectName: r.project || null,
-          brandId: defaultBrandId || null,
-          sourceId: defaultSourceId || null,
-          projectId: defaultProjectId || null,
+          comments: r.comments || null,
+          instructionToPass: r.instructionToPass || null,
         })),
         defaultStatusId: defaultStatusId || null,
         defaultAssignedToId: defaultAssignedToId || null,
@@ -713,37 +845,66 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
                     <table className="w-full text-left text-[11px]">
                       <thead className="bg-gray-100/80 text-gray-600 font-bold uppercase sticky top-0 border-b border-gray-200">
                         <tr>
-                          <th className="px-3 py-2 w-12">#</th>
-                          <th className="px-3 py-2">Client Name</th>
-                          <th className="px-3 py-2">Phone</th>
-                          <th className="px-3 py-2">Next Date</th>
-                          <th className="px-3 py-2">Requirement</th>
-                          <th className="px-3 py-2">Status / Notes</th>
-                          <th className="px-3 py-2">Status</th>
+                          <th className="px-3 py-2 w-10">#</th>
+                          <th className="px-3 py-2">Client Details</th>
+                          <th className="px-3 py-2">Status & Stage</th>
+                          <th className="px-3 py-2">Rating</th>
+                          <th className="px-3 py-2">Next Follow-up</th>
+                          <th className="px-3 py-2">Assigned To</th>
+                          <th className="px-3 py-2">Notes & Remarks</th>
+                          <th className="px-3 py-2">Ready?</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100">
-                        {parsedRows.slice(0, 10).map((row, idx) => (
+                        {parsedRows.slice(0, 15).map((row, idx) => (
                           <tr key={idx} className={row.isValid ? 'hover:bg-gray-50' : 'bg-red-50/50'}>
-                            <td className="px-3 py-2 text-gray-400">{row.sNo || idx + 1}</td>
-                            <td className="px-3 py-2 font-bold text-gray-800">{row.name || <span className="text-red-400 italic">Empty</span>}</td>
-                            <td className="px-3 py-2 font-medium text-brand">{row.phone || <span className="text-red-400 italic">Invalid</span>}</td>
+                            <td className="px-3 py-2 text-gray-400 font-mono">{row.sNo || idx + 1}</td>
+                            <td className="px-3 py-2">
+                              <div className="font-bold text-gray-800">{row.name || <span className="text-red-400 italic">Empty Name</span>}</div>
+                              <div className="text-[10px] text-brand font-mono font-medium">{row.phone || <span className="text-red-400 italic">No Phone</span>}</div>
+                              {row.email && <div className="text-[10px] text-gray-400 truncate max-w-[140px]">{row.email}</div>}
+                            </td>
+                            <td className="px-3 py-2">
+                              <div className="flex flex-col gap-1">
+                                {row.status ? (
+                                  <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-blue-50 text-blue-700 w-fit">
+                                    {row.status}
+                                  </span>
+                                ) : (
+                                  <span className="text-gray-400 text-[10px] italic">Default Status</span>
+                                )}
+                                {row.stage && (
+                                  <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-purple-50 text-purple-700 w-fit">
+                                    {row.stage}
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-3 py-2">
+                              {row.rating ? (
+                                <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                  {String(row.rating)}
+                                </span>
+                              ) : (
+                                <span className="text-gray-300 italic">—</span>
+                              )}
+                            </td>
                             <td className="px-3 py-2">
                               {row.nextDateFormatted ? (
                                 <span className="inline-flex items-center gap-1 text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-medium text-[10px]">
                                   <Calendar size={11} /> {row.nextDateFormatted}
                                 </span>
                               ) : row.nextDate ? (
-                                <span className="text-gray-500">{row.nextDate}</span>
+                                <span className="text-gray-600 text-[10px]">{row.nextDate}</span>
                               ) : (
                                 <span className="text-gray-300 italic">—</span>
                               )}
                             </td>
-                            <td className="px-3 py-2 text-gray-600 max-w-[120px] truncate" title={row.requirement}>
-                              {row.requirement || '—'}
+                            <td className="px-3 py-2 text-gray-600 text-[10px] max-w-[120px] truncate" title={row.employeeEmail}>
+                              {row.employeeEmail || <span className="text-gray-400 italic">Default</span>}
                             </td>
-                            <td className="px-3 py-2 text-gray-500 max-w-[200px] truncate" title={row.status}>
-                              {row.status || '—'}
+                            <td className="px-3 py-2 text-gray-500 max-w-[180px] truncate" title={`${row.requirement || ''} ${row.comments || ''} ${row.instructionToPass || ''}`}>
+                              {row.requirement || row.comments || row.instructionToPass || '—'}
                             </td>
                             <td className="px-3 py-2">
                               {row.isValid ? (

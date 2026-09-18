@@ -20,6 +20,7 @@ import { useAuth } from '../contexts/AuthContext';
 const LeadHub: React.FC = () => {
   const { user } = useAuth();
   const isAdmin = user?.role === 'ADMIN';
+  const canAddLead = ['ADMIN', 'BUSINESS_HEAD', 'DM_EXECUTIVE', 'CLIENT_FACILITATOR', 'FA'].includes(user?.role || '');
   const [leads, setLeads] = useState<Lead[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -245,19 +246,21 @@ const LeadHub: React.FC = () => {
           >
             <Edit3 size={14} />
           </button>
-          <button 
-            type="button"
-            title="Delete lead"
-            disabled={deletingLeadId === row.id}
-            onClick={() => handleDeleteLead(row)}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-red-100 text-red-500 hover:bg-red-500 hover:text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {deletingLeadId === row.id ? (
-              <span className="h-3.5 w-3.5 rounded-full border-2 border-current border-t-transparent animate-spin" />
-            ) : (
-              <Trash2 size={14} />
-            )}
-          </button>
+          {isAdmin && (
+            <button 
+              type="button"
+              title="Delete lead"
+              disabled={deletingLeadId === row.id}
+              onClick={() => handleDeleteLead(row)}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-red-100 text-red-500 hover:bg-red-500 hover:text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {deletingLeadId === row.id ? (
+                <span className="h-3.5 w-3.5 rounded-full border-2 border-current border-t-transparent animate-spin" />
+              ) : (
+                <Trash2 size={14} />
+              )}
+            </button>
+          )}
         </div>
       )
     }
@@ -270,13 +273,15 @@ const LeadHub: React.FC = () => {
         <h4 className="page-title text-xl font-bold text-gray-700 m-0">Lead Hub</h4>
         <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 w-full lg:w-auto">
           {isAdmin && (
+            <button
+              onClick={handleUpdateProjects}
+              className="btn-custom !bg-brand hover:!bg-[#004d30] !rounded-full !px-3 sm:!px-4 !py-1.5 text-[10px] sm:text-[11px] flex items-center justify-center gap-1.5 sm:gap-2"
+            >
+              <RefreshCw size={14} className="shrink-0" /> <span className="truncate">Update Projects</span>
+            </button>
+          )}
+          {canAddLead && (
             <>
-              <button
-                onClick={handleUpdateProjects}
-                className="btn-custom !bg-brand hover:!bg-[#004d30] !rounded-full !px-3 sm:!px-4 !py-1.5 text-[10px] sm:text-[11px] flex items-center justify-center gap-1.5 sm:gap-2"
-              >
-                <RefreshCw size={14} className="shrink-0" /> <span className="truncate">Update Projects</span>
-              </button>
               <button
                 onClick={() => setIsUploadModalOpen(true)}
                 className="btn-custom !bg-brand hover:!bg-[#004d30] !rounded-full !px-3 sm:!px-4 !py-1.5 text-[10px] sm:text-[11px] flex items-center justify-center gap-1.5 sm:gap-2"

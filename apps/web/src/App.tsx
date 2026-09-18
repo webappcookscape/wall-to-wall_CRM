@@ -90,7 +90,6 @@ const App: React.FC = () => {
           <Route path="/master/split-up" element={<AdminRoute><MasterDataView title="Split Up" type="splitUp" apiKey="splitUps" /></AdminRoute>} />
           <Route path="/master/activity" element={<AdminRoute><MasterDataView title="Activity Types" type="activityType" apiKey="activityTypes" /></AdminRoute>} />
           <Route path="/master/salutation" element={<AdminRoute><MasterDataView title="Salutation" type="salutation" apiKey="salutations" /></AdminRoute>} />
-          <Route path="/master/lead-tag" element={<AdminRoute><MasterDataView title="Lead Tags" type="leadTag" apiKey="leadTags" /></AdminRoute>} />
           <Route path="/master/showroom" element={<AdminRoute><MasterDataView title="Showroom" type="showroom" apiKey="showrooms" /></AdminRoute>} />
           <Route path="/master/scope-of-work" element={<AdminRoute><MasterDataView title="Scope of Work" type="scopeOfWork" apiKey="scopeOfWorks" /></AdminRoute>} />
           <Route path="/master/vendor-source" element={<AdminRoute><MasterDataView title="Vendor Source" type="vendorSource" apiKey="vendorSources" /></AdminRoute>} />

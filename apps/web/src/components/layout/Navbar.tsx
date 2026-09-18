@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   Home, 
@@ -10,7 +10,9 @@ import {
   ChevronDown,
   Menu,
   X,
-  ArrowRightLeft
+  Clock,
+  Phone,
+  CheckCircle2
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { leadService } from '../../services/api';
@@ -35,6 +37,27 @@ const Navbar: React.FC = () => {
   const [lastSeenCount, setLastSeenCount] = useState<number>(() => {
     return parseInt(localStorage.getItem('lastSeenLeadsCount') || '0', 10);
   });
+  const [lastSeenRemindersCount, setLastSeenRemindersCount] = useState<number>(() => {
+    return parseInt(localStorage.getItem('lastSeenRemindersCount') || '0', 10);
+  });
+  const [isReminderOpen, setIsReminderOpen] = useState(false);
+  const [reminderLeads, setReminderLeads] = useState<any[]>([]);
+  const [isLoadingReminders, setIsLoadingReminders] = useState(false);
+  const reminderDropdownRef = useRef<HTMLDivElement>(null);
+
+  const remindersTotal = stats?.remindersDue || 0;
+  const unreadReminders = Math.max(0, remindersTotal - lastSeenRemindersCount);
+
+  // Close reminder dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (reminderDropdownRef.current && !reminderDropdownRef.current.contains(e.target as Node)) {
+        setIsReminderOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     if (location.pathname === '/leadhub' || location.pathname === '/leads') {
@@ -43,7 +66,13 @@ const Navbar: React.FC = () => {
         setLastSeenCount(stats.totalLeads);
       }
     }
-  }, [location.pathname, stats?.totalLeads]);
+    if (location.pathname === '/reminders') {
+      if (stats?.remindersDue !== undefined) {
+        localStorage.setItem('lastSeenRemindersCount', String(stats.remindersDue));
+        setLastSeenRemindersCount(stats.remindersDue);
+      }
+    }
+  }, [location.pathname, stats?.totalLeads, stats?.remindersDue]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -61,6 +90,41 @@ const Navbar: React.FC = () => {
     const interval = setInterval(fetchStats, 30000);
     return () => clearInterval(interval);
   }, [user]);
+
+  const handleToggleReminders = async () => {
+    const nextState = !isReminderOpen;
+    setIsReminderOpen(nextState);
+
+    // Make the badge number disappear when opening reminders!
+    if (stats?.remindersDue !== undefined) {
+      localStorage.setItem('lastSeenRemindersCount', String(stats.remindersDue));
+      setLastSeenRemindersCount(stats.remindersDue);
+    }
+
+    if (nextState) {
+      setIsLoadingReminders(true);
+      try {
+        const res = await leadService.getLeads({
+          page: 1,
+          limit: 10,
+          timeframe: 'today',
+        });
+        setReminderLeads(res.data || []);
+      } catch (err) {
+        console.error("Failed to load reminders for bell popover", err);
+      } finally {
+        setIsLoadingReminders(false);
+      }
+    }
+  };
+
+  const handleMarkAllRemindersRead = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (stats?.remindersDue !== undefined) {
+      localStorage.setItem('lastSeenRemindersCount', String(stats.remindersDue));
+      setLastSeenRemindersCount(stats.remindersDue);
+    }
+  };
 
   const toggleExpand = (title: string) => {
     setExpandedItems(prev => 
@@ -88,7 +152,6 @@ const Navbar: React.FC = () => {
             { title: 'Lead Statuses', path: '/master/lead-status' },
             { title: 'Stages', path: '/master/stages' },
             { title: 'Sources', path: '/master/source' },
-            { title: 'Lead Tags', path: '/master/lead-tag' },
             { title: 'Bank Details', path: '/master/bank-details' },
             { title: 'Split Ups', path: '/master/split-up' },
             { title: 'Activity Types', path: '/master/activity' },
@@ -98,8 +161,6 @@ const Navbar: React.FC = () => {
             { title: 'Payment Modes', path: '/master/payment-mode' },
             { title: 'Production Holds', path: '/master/production-hold' },
             { title: 'Work Notifications', path: '/master/work-notification' },
-            { title: 'Projects', path: '/master/project' },
-            { title: 'Brands', path: '/master/brand' },
           ]
         },
         { title: 'SMS Templates', path: '/master/sms-template' },
@@ -108,7 +169,7 @@ const Navbar: React.FC = () => {
     }] : []),
     { title: 'Lead Hub', path: '/leadhub', icon: <Users size={18} />, badge: (stats?.totalLeads && stats.totalLeads > lastSeenCount) ? stats.totalLeads - lastSeenCount : undefined },
     { title: 'Leads', path: '/leads', icon: <User size={18} />, badge: (stats?.totalLeads && stats.totalLeads > lastSeenCount) ? stats.totalLeads - lastSeenCount : undefined },
-    { title: 'Reminders', path: '/reminders', icon: <Bell size={18} />, badge: stats?.remindersDue || undefined },
+    { title: 'Reminders', path: '/reminders', icon: <Bell size={18} />, badge: unreadReminders > 0 ? unreadReminders : undefined },
     { title: 'Report', path: '/report', icon: <Flag size={18} /> },
   ];
 
@@ -128,12 +189,125 @@ const Navbar: React.FC = () => {
 
           {/* Topbar Right */}
           <div className="flex items-center gap-6">
-            <Link to="/reminders" className="relative cursor-pointer">
-              <Bell size={22} className="text-gray-400" />
-              <span className="absolute -top-1 -right-1 bg-danger text-white text-[10px] font-bold px-1.5 rounded-full border-2 border-white">
-                {stats?.remindersDue || 0}
-              </span>
-            </Link>
+            {/* Reminders Bell with Notification Popover */}
+            <div className="relative" ref={reminderDropdownRef}>
+              <button 
+                type="button"
+                onClick={handleToggleReminders} 
+                className="relative cursor-pointer p-1.5 rounded-full hover:bg-gray-100 transition-colors focus:outline-none flex items-center justify-center"
+                title="Lead Reminders & Follow-ups"
+              >
+                <Bell size={22} className={unreadReminders > 0 ? "text-[#006039]" : "text-gray-400"} />
+                {unreadReminders > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-danger text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full border-2 border-white shadow-sm animate-pulse">
+                    {unreadReminders}
+                  </span>
+                )}
+              </button>
+
+              {/* Reminders Dropdown Popover */}
+              {isReminderOpen && (
+                <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+                  {/* Popover Header */}
+                  <div className="px-4 py-3 bg-[#006039] text-white flex items-center justify-between shadow-sm">
+                    <div className="flex items-center gap-2">
+                      <Bell size={16} className="text-white" />
+                      <span className="text-xs font-bold uppercase tracking-wider">Follow-up Reminders</span>
+                      <span className="text-[10px] font-extrabold bg-white/20 px-2 py-0.5 rounded-full text-white">
+                        {remindersTotal} due
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleMarkAllRemindersRead}
+                      className="text-[10px] font-bold bg-white/10 hover:bg-white/20 text-white px-2 py-1 rounded transition-colors"
+                      title="Clear badge count"
+                    >
+                      Mark read
+                    </button>
+                  </div>
+
+                  {/* Popover List */}
+                  <div className="max-h-[380px] overflow-y-auto divide-y divide-gray-100">
+                    {isLoadingReminders ? (
+                      <div className="py-10 text-center text-gray-400 space-y-2">
+                        <div className="w-5 h-5 border-2 border-[#006039] border-t-transparent animate-spin rounded-full mx-auto" />
+                        <p className="text-[11px] font-medium">Checking due reminders...</p>
+                      </div>
+                    ) : reminderLeads.length === 0 ? (
+                      <div className="py-8 px-4 text-center">
+                        <CheckCircle2 size={32} className="text-emerald-500 mx-auto mb-2 opacity-80" />
+                        <p className="text-xs font-bold text-gray-700">No overdue or pending reminders!</p>
+                        <p className="text-[10px] text-gray-400 mt-1">All scheduled lead follow-ups are up to date.</p>
+                      </div>
+                    ) : (
+                      reminderLeads.map((lead: any) => {
+                        const isOverdue = lead.contactableDate && new Date(lead.contactableDate).getTime() < new Date().setHours(0, 0, 0, 0);
+                        return (
+                          <div 
+                            key={lead.id} 
+                            className="p-3 hover:bg-gray-50 transition-colors flex flex-col gap-1.5"
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <Link 
+                                  to="/reminders" 
+                                  onClick={() => setIsReminderOpen(false)} 
+                                  className="text-xs font-bold text-gray-800 hover:text-[#006039] line-clamp-1"
+                                >
+                                  {lead.name}
+                                </Link>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  <a 
+                                    href={`tel:${lead.phone}`} 
+                                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#006039] hover:underline"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <Phone size={10} /> {lead.phone}
+                                  </a>
+                                  {lead.assignedTo?.fullName && (
+                                    <span className="text-[9px] font-medium text-gray-400">
+                                      • {lead.assignedTo.fullName}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase flex-shrink-0 ${
+                                isOverdue ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-800'
+                              }`}>
+                                {isOverdue ? 'Overdue' : 'Due Today'}
+                              </span>
+                            </div>
+
+                            {lead.contactableDate && (
+                              <div className="flex items-center gap-1 text-[10px] text-gray-400">
+                                <Clock size={10} className="text-amber-600" />
+                                <span>{new Date(lead.contactableDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {new Date(lead.contactableDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</span>
+                              </div>
+                            )}
+
+                            {(lead.instructionToPass || lead.requirement) && (
+                              <p className="text-[10px] text-gray-500 line-clamp-1 italic bg-gray-50/80 px-2 py-0.5 rounded border border-gray-100/60 m-0">
+                                {lead.instructionToPass || lead.requirement}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+
+                  {/* Popover Footer */}
+                  <Link
+                    to="/reminders"
+                    onClick={() => setIsReminderOpen(false)}
+                    className="block text-center py-2.5 bg-gray-50 hover:bg-gray-100 text-[11px] font-bold text-[#006039] uppercase tracking-wider border-t border-gray-100 transition-colors"
+                  >
+                    View All Leads Reminders Timeline →
+                  </Link>
+                </div>
+              )}
+            </div>
 
             <div className="flex items-center gap-3 pl-6 border-l border-gray-100 group relative cursor-pointer py-2">
               <img 
@@ -234,7 +408,7 @@ const Navbar: React.FC = () => {
           </ul>
           
           {/* Switch to Project Button */}
-          <div className="ml-auto">
+          {/* <div className="ml-auto">
             <a 
               href="https://projects.orbixdesigns.com/" 
               className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#FF512F] to-[#DD2476] text-white rounded-full font-bold text-sm transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(255,81,47,0.4)] active:scale-95"
@@ -242,7 +416,7 @@ const Navbar: React.FC = () => {
               <ArrowRightLeft size={16} />
               <span>Switch to Project</span>
             </a>
-          </div>
+          </div> */}
         </div>
       </nav>
 
@@ -356,7 +530,7 @@ const Navbar: React.FC = () => {
                 );
               })}
               
-              <div className="px-4 mt-6">
+              {/* <div className="px-4 mt-6">
                 <a 
                   href="https://projects.orbixdesigns.com/" 
                   className="flex items-center justify-center gap-3 w-full py-4 bg-gradient-to-r from-[#FF512F] to-[#DD2476] text-white rounded-xl font-bold text-sm shadow-xl"
@@ -364,7 +538,7 @@ const Navbar: React.FC = () => {
                   <ArrowRightLeft size={20} />
                   <span>SWITCH TO PROJECT</span>
                 </a>
-              </div>
+              </div> */}
             </div>
             <div className="p-4 border-t border-white/10 bg-black/20">
                <button 

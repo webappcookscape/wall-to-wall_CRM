@@ -118,7 +118,9 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, l
         if ((type === 'FOLLOWUP' && formData.reminderSet && formData.nextFollowUp) || (type === 'REMINDER' && formData.nextFollowUp)) {
           const localMidnight = new Date(formData.nextFollowUp + 'T00:00:00');
           updatePayload.contactableDate = isNaN(localMidnight.getTime()) ? formData.nextFollowUp : localMidnight.toISOString();
-          updatePayload.assignedToId = formData.reminderAssignTo || undefined;
+          if (currentUser?.role !== 'DM_EXECUTIVE') {
+            updatePayload.assignedToId = formData.reminderAssignTo || undefined;
+          }
         }
 
         await leadService.updateLead(lead.id, updatePayload);
@@ -297,26 +299,27 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, l
 
                     {formData.reminderSet && (
                       <>
-                        <div className="grid grid-cols-2 gap-4">
-                           <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                              Assign Reminder To
-                            </label>
-                            <select 
-                              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand/10 focus:border-brand outline-none transition-all font-bold text-[#313a46]"
-                              value={formData.reminderAssignTo}
-                              onChange={(e) => setFormData({...formData, reminderAssignTo: e.target.value})}
-                            >
-                              <option value="">-Select-</option>
-                              {masters?.users
-                                ?.filter((u: any) => currentUser?.role !== 'DM_EXECUTIVE' || u.id !== currentUser?.id)
-                                ?.map((u: any) => (
-                                  <option key={u.id} value={u.id}>
-                                    {u.fullName || u.name || u.email || 'User'} {u.role ? `(${u.role})` : ''}
-                                  </option>
-                              ))}
-                            </select>
-                          </div>
+                        <div className={`grid ${currentUser?.role !== 'DM_EXECUTIVE' ? 'grid-cols-2' : 'grid-cols-1'} gap-4`}>
+                          {currentUser?.role !== 'DM_EXECUTIVE' && (
+                            <div className="space-y-1.5">
+                              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                Assign Reminder To
+                              </label>
+                              <select 
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand/10 focus:border-brand outline-none transition-all font-bold text-[#313a46]"
+                                value={formData.reminderAssignTo}
+                                onChange={(e) => setFormData({...formData, reminderAssignTo: e.target.value})}
+                              >
+                                <option value="">-Select-</option>
+                                {masters?.users
+                                  ?.map((u: any) => (
+                                    <option key={u.id} value={u.id}>
+                                      {u.fullName || u.name || u.email || 'User'} {u.role ? `(${u.role})` : ''}
+                                    </option>
+                                ))}
+                              </select>
+                            </div>
+                          )}
                           <div className="space-y-1.5">
                             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
                               Next Contactable Date <span className="text-brand font-bold">*</span>

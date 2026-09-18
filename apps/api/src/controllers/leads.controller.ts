@@ -94,11 +94,13 @@ export const getLeads = asyncHandler(async (req: Request, res: Response) => {
     assignedToIds, // Array
     tagId,
     rating,
-    timeframe, // 'today', 'tomorrow', 'week', 'month'
+    timeframe, // 'today', 'tomorrow', 'week', 'month', 'all'
     fromDate,
     toDate,
     contactDate,
-    search 
+    search,
+    sortBy,
+    sortOrder = 'desc',
   } = req.body;
   const skip = (Number(page) - 1) * Number(limit);
   
@@ -163,6 +165,8 @@ export const getLeads = asyncHandler(async (req: Request, res: Response) => {
       where.contactableDate = { gte: startOfDay, lte: monthEnd };
     } else if (timeframe === 'overdue') {
       where.contactableDate = { lt: startOfDay };
+    } else if (timeframe === 'all' || timeframe === 'timeline') {
+      where.contactableDate = { not: null };
     }
   }
   
@@ -192,6 +196,13 @@ export const getLeads = asyncHandler(async (req: Request, res: Response) => {
 
   await applyLeadVisibility(where, currentUser);
 
+  let leadOrderBy: any = { createdAt: 'desc' };
+  if (sortBy) {
+    leadOrderBy = { [sortBy]: sortOrder };
+  } else if (timeframe) {
+    leadOrderBy = { contactableDate: 'asc' };
+  }
+
   const [data, total] = await Promise.all([
     prisma.lead.findMany({
       where,
@@ -207,7 +218,7 @@ export const getLeads = asyncHandler(async (req: Request, res: Response) => {
         assignedTo: { select: { id: true, fullName: true, role: true } },
         createdBy: { select: { id: true, fullName: true, role: true } },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: leadOrderBy,
     }),
     prisma.lead.count({ where }),
   ]);
@@ -852,12 +863,13 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
   }
 
   // Pre-fetch master data
-  const [allStatuses, allUsers, allBrands, allSources, allProjects] = await Promise.all([
+  const [allStatuses, allUsers, allBrands, allSources, allProjects, allStages] = await Promise.all([
     prisma.leadStatus.findMany(),
     prisma.user.findMany({ select: { id: true, email: true, fullName: true, role: true } }),
     prisma.brand.findMany(),
     prisma.source.findMany(),
     prisma.project.findMany(),
+    prisma.stage.findMany(),
   ]);
 
   // Resolve default assigned user
@@ -894,6 +906,22 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
     errors: [] as { row: number; leadName?: string; error: string }[],
   };
 
+  const parseLeadRating = (val: any): { rating: number; name: string } | null => {
+    if (val === undefined || val === null || val === '') return null;
+    const str = String(val).trim().toLowerCase();
+    if (str === '1' || str.includes('disqualified')) return { rating: 1, name: 'DISQUALIFIED' };
+    if (str === '2' || str.includes('low')) return { rating: 2, name: 'LOW_QUALITY' };
+    if (str === '3' || str.includes('moderate') || str.includes('warm')) return { rating: 3, name: 'MODERATE' };
+    if (str === '4' || str.includes('qualified') || str.includes('hot')) return { rating: 4, name: 'QUALIFIED' };
+    if (str === '5' || str.includes('order') || str.includes('booked')) return { rating: 5, name: 'ORDER_BOOKED' };
+    const num = Number(val);
+    if (!isNaN(num) && num >= 1 && num <= 5) {
+      const names = ['', 'DISQUALIFIED', 'LOW_QUALITY', 'MODERATE', 'QUALIFIED', 'ORDER_BOOKED'];
+      return { rating: num, name: names[num] || '' };
+    }
+    return null;
+  };
+
   for (let i = 0; i < leads.length; i++) {
     const rawLead = leads[i];
     const rowNum = rawLead.sNo || i + 1;
@@ -917,6 +945,24 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
         results.skipped++;
         continue;
       }
+
+      // Rating & Stage resolution
+      const resolvedRating = parseLeadRating(rawLead.rating || rawLead.ratingName);
+      let currentStageId: string | null = null;
+      const rawStage = String(rawLead.stage || rawLead.currentStage || rawLead.stageName || '').trim();
+      if (rawStage) {
+        const foundStage = allStages.find(s => s.name.toLowerCase() === rawStage.toLowerCase());
+        if (foundStage) currentStageId = foundStage.id;
+      }
+
+      // Date collected resolution
+      let dataCollectedDate: Date = new Date();
+      if (rawLead.dataCollected || rawLead.dateCollected || rawLead.leadDate) {
+        const d = new Date(rawLead.dataCollected || rawLead.dateCollected || rawLead.leadDate);
+        if (!isNaN(d.getTime())) dataCollectedDate = d;
+      }
+
+      const instructionText = rawLead.instructionToPass || rawLead.instructions || null;
 
       // Check existing lead
       const existingLead = await prisma.lead.findFirst({
@@ -943,6 +989,19 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
               updateData.nextFollowUp = parsedDate;
               updateData.contactableDate = parsedDate;
             }
+          }
+
+          if (resolvedRating && existingLead.rating !== resolvedRating.rating) {
+            updateData.rating = resolvedRating.rating;
+            updateData.ratingName = resolvedRating.name;
+          }
+
+          if (currentStageId && existingLead.currentStageId !== currentStageId) {
+            updateData.currentStageId = currentStageId;
+          }
+
+          if (instructionText && !existingLead.instructionToPass) {
+            updateData.instructionToPass = instructionText;
           }
 
           if (existingLead.status?.name?.toLowerCase() === 'fresh' && fallbackStatusId) {
@@ -1079,13 +1138,16 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
           sourceId,
           projectId,
           statusId,
+          currentStageId,
+          rating: resolvedRating?.rating || 0,
+          ratingName: resolvedRating?.name || null,
           assignedToId,
           createdById: currentUser.id || 'system',
           nextFollowUp: nextFollowUpDate,
           contactableDate: nextFollowUpDate,
           comments: combinedComments,
-          instructionToPass: rawLead.instructionToPass || null,
-          dataCollected: new Date(),
+          instructionToPass: instructionText,
+          dataCollected: dataCollectedDate,
         },
         include: {
           status: true,

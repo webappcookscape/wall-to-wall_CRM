@@ -77,7 +77,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const toggleRole = () => {
     setUser(prev => prev ? {
       ...prev,
-      role: prev.role === 'ADMIN' ? 'CRE' : 'ADMIN'
+      role: prev.role === 'ADMIN' ? 'DM_EXECUTIVE' : 'ADMIN'
     } : null);
   };
 

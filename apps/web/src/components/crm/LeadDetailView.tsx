@@ -48,13 +48,11 @@ const LeadDetailView: FC<LeadDetailViewProps> = ({ lead, onRefresh }) => {
   let canEditLead = false;
   if (currentUser?.role === 'ADMIN') {
     canEditLead = true;
-  } else if (currentUser?.role === 'BUSINESS_HEAD' && lead) {
-    canEditLead = isOwnerOrAssignee;
-  } else if (isDmEmployee && lead) {
+  } else if (lead && ['BUSINESS_HEAD', 'DM_EXECUTIVE', 'CLIENT_FACILITATOR', 'FA'].includes(currentUser?.role || '')) {
     canEditLead = isOwnerOrAssignee;
   }
 
-  const canAssignLead = ['ADMIN', 'BUSINESS_HEAD', 'CRE', 'DESIGNER', 'DM_EXECUTIVE'].includes(currentUser?.role || '');
+  const canAssignLead = ['ADMIN', 'BUSINESS_HEAD'].includes(currentUser?.role || '');
   const [modalType, setModalType] = useState<'FOLLOWUP' | 'REMINDER' | 'STATUS' | 'NOTE' | 'SWITCH_USER' | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 

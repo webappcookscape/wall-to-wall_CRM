@@ -19,32 +19,11 @@ export interface Stage { id: string; name: string; }
 
 export type Role = 
   | 'ADMIN' 
-  | 'CRE' 
-  | 'DESIGNER' 
   | 'BUSINESS_HEAD' 
   | 'DM_EXECUTIVE' 
-  | 'VENDOR_MANAGEMENT' 
   | 'CLIENT_FACILITATOR'
   | 'FA'
-  | 'FE'
-  | 'FEASIBILITY'
-  | 'FEASIBILITY_ENGINEER'
-  | 'PRODUCTION'
-  | 'EXECUTION'
-  | 'LOADING'
-  | 'MARKETING'
-  | 'VENDOR'
-  | 'AE'
-  | 'CARPENTER'
-  | 'SHOWROOM_MANAGER'
-  | 'OPERATIONS'
-  | 'OPERATION'
-  | 'ACCOUNTS'
-  | 'FINANCE'
-  | 'HR'
-  | 'PM'
-  | 'SALES'
-  | 'TELECALLER';
+  | 'VENDOR_MANAGEMENT';
 export interface UserBasic { id: string; fullName: string; role?: Role; email?: string; }
 
 export interface User {
