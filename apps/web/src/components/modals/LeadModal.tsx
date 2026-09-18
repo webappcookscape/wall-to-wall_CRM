@@ -307,7 +307,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead 
                 >
                   <option value="">Unassigned</option>
                   {masters?.users
-                    ?.filter((u: any) => u.role !== 'DM_EXECUTIVE' && (userRole !== 'DM_EXECUTIVE' || u.id !== user?.id))
+                    ?.filter((u: any) => userRole !== 'DM_EXECUTIVE' || u.id !== user?.id)
                     .map((u: any) => (
                       <option key={u.id} value={u.id}>
                         {u.fullName} {u.email ? `(${u.email})` : ''} — {u.role}

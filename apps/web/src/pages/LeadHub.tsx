@@ -415,7 +415,7 @@ const LeadHub: React.FC = () => {
                   >
                     <option value="">- Choose Member -</option>
                   {masters?.users
-                        .filter(u => u.role !== "DM_EXECUTIVE")
+                        ?.filter(u => !user || user.role !== 'DM_EXECUTIVE' || u.id !== user.id)
                         .map(u => (
                           <option key={u.id} value={u.id}>
                             {u.fullName} ({u.role})

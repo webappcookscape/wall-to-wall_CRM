@@ -160,8 +160,8 @@ export const ensureLeadAssignAccess = async (leadId: string, targetUserId: strin
     select: { id: true, role: true, businessHeadId: true, fullName: true },
   });
 
-  if (!targetUser || targetUser.role === DM_EXECUTIVE_ROLE) {
-    throw { status: 400, message: 'Invalid assignment target. Leads cannot be assigned to DM Executives.' };
+  if (!targetUser) {
+    throw { status: 400, message: 'Invalid assignment target. User not found.' };
   }
 };
 
@@ -169,7 +169,6 @@ export const getAssignableUsersClause = (user: RequestUser): any => {
   if (user.role === 'ADMIN' || user.role === 'BUSINESS_HEAD' || user.role === 'CRE' || user.role === 'DESIGNER' || user.role === DM_EXECUTIVE_ROLE) {
     return {
       status: true,
-      role: { not: DM_EXECUTIVE_ROLE },
       ...(user.role === DM_EXECUTIVE_ROLE && user.id ? { id: { not: user.id } } : {})
     };
   }

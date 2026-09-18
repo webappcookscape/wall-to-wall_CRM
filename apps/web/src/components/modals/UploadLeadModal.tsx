@@ -13,6 +13,7 @@ import {
   HelpCircle
 } from 'lucide-react';
 import { leadService } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
 import type { MasterData } from '../../types/crm';
 
 interface UploadLeadModalProps {
@@ -137,6 +138,7 @@ const normalizePhoneString = (val: any): string => {
 };
 
 const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSuccess, masters }) => {
+  const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [parsedRows, setParsedRows] = useState<ParsedLeadRow[]>([]);
@@ -583,7 +585,9 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
                       }}
                     >
                       <option value="">- Leave Unassigned / Match from Sheet -</option>
-                      {masters?.users?.map((u: any) => (
+                      {masters?.users
+                        ?.filter((u: any) => user?.role !== 'DM_EXECUTIVE' || u.id !== user?.id)
+                        ?.map((u: any) => (
                         <option key={u.id} value={u.id}>
                           {u.fullName} {u.email ? `(${u.email})` : ''} — {u.role}
                         </option>

@@ -8,6 +8,7 @@ import {
   User
 } from 'lucide-react';
 import { leadService } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
 import type { Lead } from '../../types/crm';
 
 interface ActionModalProps {
@@ -19,6 +20,7 @@ interface ActionModalProps {
 }
 
 const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, lead, type }) => {
+  const { user: currentUser } = useAuth();
   const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
   const tomorrowStr = tomorrow.toISOString().split('T')[0];
   const today = new Date().toISOString().split('T')[0];
@@ -197,8 +199,10 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, l
                   onChange={(e) => setFormData({...formData, targetUserId: e.target.value})}
                 >
                   <option value="">Select User</option>
-                  {masters?.users?.map((u: any) => (
-                    <option key={u.id} value={u.id}>{u.fullName} ({u.role})</option>
+                  {masters?.users
+                    ?.filter((u: any) => currentUser?.role !== 'DM_EXECUTIVE' || u.id !== currentUser?.id)
+                    ?.map((u: any) => (
+                      <option key={u.id} value={u.id}>{u.fullName} ({u.role})</option>
                   ))}
                 </select>
               </div>
@@ -302,8 +306,10 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, l
                               onChange={(e) => setFormData({...formData, reminderAssignTo: e.target.value})}
                             >
                               <option value="">-Select-</option>
-                              {masters?.users?.filter((u: any) => u.role !== 'DM_EXECUTIVE').map((u: any) => (
-                                <option key={u.id} value={u.id}>{u.fullName} ({u.role})</option>
+                              {masters?.users
+                                ?.filter((u: any) => currentUser?.role !== 'DM_EXECUTIVE' || u.id !== currentUser?.id)
+                                ?.map((u: any) => (
+                                  <option key={u.id} value={u.id}>{u.fullName} ({u.role})</option>
                               ))}
                             </select>
                           </div>

@@ -6,6 +6,7 @@ import { asyncHandler, apiResponse } from '../utils/apiUtils.js';
 import {
   applyLeadVisibility,
   appendAndClause,
+  DM_EXECUTIVE_ROLE,
   ensureLeadAssignAccess,
   ensureLeadCreateAccess,
   ensureLeadDeleteAccess,
@@ -328,6 +329,10 @@ export const createLead = asyncHandler(async (req: Request, res: Response) => {
     if (matchedUser) {
       data.assignedToId = matchedUser.id;
     }
+  }
+
+  if (currentUser.role === DM_EXECUTIVE_ROLE && currentUser.id && data.assignedToId === currentUser.id) {
+    return apiResponse.error(res, 'DM executives cannot assign leads to themselves. Please assign to another user.', 400);
   }
 
   if (!data.statusId && req.body.statusName) {
@@ -863,6 +868,10 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
       u => (u.email && u.email.toLowerCase() === cleanEmail) || (u.fullName && u.fullName.toLowerCase() === cleanEmail)
     );
     if (found) fallbackAssignedUserId = found.id;
+  }
+
+  if (currentUser.role === DM_EXECUTIVE_ROLE && currentUser.id && fallbackAssignedUserId === currentUser.id) {
+    return apiResponse.error(res, 'DM executives cannot assign leads to themselves. Please assign to another user.', 400);
   }
 
   // Resolve default status
