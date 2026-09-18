@@ -25,6 +25,8 @@ export type Role =
   | 'DM_EXECUTIVE' 
   | 'VENDOR_MANAGEMENT' 
   | 'CLIENT_FACILITATOR'
+  | 'FA'
+  | 'FE'
   | 'FEASIBILITY'
   | 'FEASIBILITY_ENGINEER'
   | 'PRODUCTION'
@@ -33,7 +35,16 @@ export type Role =
   | 'MARKETING'
   | 'VENDOR'
   | 'AE'
-  | 'CARPENTER';
+  | 'CARPENTER'
+  | 'SHOWROOM_MANAGER'
+  | 'OPERATIONS'
+  | 'OPERATION'
+  | 'ACCOUNTS'
+  | 'FINANCE'
+  | 'HR'
+  | 'PM'
+  | 'SALES'
+  | 'TELECALLER';
 export interface UserBasic { id: string; fullName: string; role?: Role; email?: string; }
 
 export interface User {

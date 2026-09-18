@@ -105,6 +105,7 @@ const Users = () => {
       case 'DM_EXECUTIVE': return 'bg-sky-50 text-sky-600 border-sky-100';
       case 'VENDOR_MANAGEMENT': return 'bg-amber-50 text-amber-600 border-amber-100';
       case 'CLIENT_FACILITATOR': return 'bg-teal-50 text-teal-600 border-teal-100';
+      case 'FA': return 'bg-orange-50 text-orange-600 border-orange-100';
       default: return 'bg-gray-50 text-gray-600 border-gray-100';
     }
   };
@@ -160,6 +161,7 @@ const Users = () => {
                   <option value="DESIGNER">Designer</option>
                   <option value="VENDOR_MANAGEMENT">Vendor Management</option>
                   <option value="CLIENT_FACILITATOR">Client Facilitator</option>
+                  <option value="FA">FA</option>
                 </select>
               </div>
            </div>

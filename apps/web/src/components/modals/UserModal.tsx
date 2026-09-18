@@ -216,6 +216,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSuccess, user 
                       <option value="DESIGNER">Designer</option>
                       <option value="VENDOR_MANAGEMENT">Vendor Management</option>
                       <option value="CLIENT_FACILITATOR">Client Facilitator</option>
+                      <option value="FA">FA</option>
                       <option value="FEASIBILITY_ENGINEER">Feasibility Engineer</option>
                       <option value="PRODUCTION">Production</option>
                       <option value="EXECUTION">Execution</option>
