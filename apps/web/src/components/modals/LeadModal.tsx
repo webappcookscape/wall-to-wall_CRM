@@ -306,11 +306,13 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead 
                   onChange={(e) => setFormData({...formData, assignedToId: e.target.value})}
                 >
                   <option value="">Unassigned</option>
-                  {masters?.users?.map((u: any) => (
-                    <option key={u.id} value={u.id}>
-                      {u.fullName} {u.email ? `(${u.email})` : ''} — {u.role}
-                    </option>
-                  ))}
+                  {masters?.users
+                    ?.filter((u: any) => u.role !== 'DM_EXECUTIVE' && (userRole !== 'DM_EXECUTIVE' || u.id !== user?.id))
+                    .map((u: any) => (
+                      <option key={u.id} value={u.id}>
+                        {u.fullName} {u.email ? `(${u.email})` : ''} — {u.role}
+                      </option>
+                    ))}
                 </select>
               </div>
             )}

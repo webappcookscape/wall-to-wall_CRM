@@ -151,13 +151,17 @@ export const ensureLeadAssignAccess = async (leadId: string, targetUserId: strin
 
   if (!targetUserId) return;
 
+  if (user.role === DM_EXECUTIVE_ROLE && user.id && targetUserId === user.id) {
+    throw { status: 400, message: 'DM executives cannot assign leads to themselves. Please assign to another user.' };
+  }
+
   const targetUser = await prisma.user.findUnique({
     where: { id: targetUserId },
     select: { id: true, role: true, businessHeadId: true, fullName: true },
   });
 
   if (!targetUser || targetUser.role === DM_EXECUTIVE_ROLE) {
-    throw { status: 400, message: 'Invalid assignment target.' };
+    throw { status: 400, message: 'Invalid assignment target. Leads cannot be assigned to DM Executives.' };
   }
 };
 
@@ -166,6 +170,7 @@ export const getAssignableUsersClause = (user: RequestUser): any => {
     return {
       status: true,
       role: { not: DM_EXECUTIVE_ROLE },
+      ...(user.role === DM_EXECUTIVE_ROLE && user.id ? { id: { not: user.id } } : {})
     };
   }
 
