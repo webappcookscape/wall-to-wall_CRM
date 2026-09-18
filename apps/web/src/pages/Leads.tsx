@@ -92,7 +92,7 @@ const Leads: React.FC = () => {
 
   const fetchCounts = async () => {
     try {
-      const userId = selectedUserId || (user?.role === 'ADMIN' || user?.role === 'BUSINESS_HEAD' ? undefined : user?.id);
+      const userId = selectedUserId || (user?.role === 'ADMIN' || user?.role === 'BUSINESS_HEAD' || user?.role === 'DM_EXECUTIVE' ? undefined : user?.id);
       const res = await leadService.getContactableCounts(userId);
       setCounts(res);
     } catch (error) {
@@ -140,7 +140,7 @@ const Leads: React.FC = () => {
     fetchCounts();
   }, [selectedUserId]);
 
-  const canFilterUsers = user?.role === 'ADMIN' || user?.role === 'BUSINESS_HEAD';
+  const canFilterUsers = user?.role === 'ADMIN' || user?.role === 'BUSINESS_HEAD' || user?.role === 'DM_EXECUTIVE';
 
   return (
     <div className="space-y-4 md:space-y-6">

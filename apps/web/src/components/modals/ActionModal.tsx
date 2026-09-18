@@ -202,7 +202,9 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, l
                   {masters?.users
                     ?.filter((u: any) => currentUser?.role !== 'DM_EXECUTIVE' || u.id !== currentUser?.id)
                     ?.map((u: any) => (
-                      <option key={u.id} value={u.id}>{u.fullName} ({u.role})</option>
+                      <option key={u.id} value={u.id}>
+                        {u.fullName || u.name || u.email || 'User'} {u.role ? `(${u.role})` : ''}
+                      </option>
                   ))}
                 </select>
               </div>
@@ -309,7 +311,9 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, l
                               {masters?.users
                                 ?.filter((u: any) => currentUser?.role !== 'DM_EXECUTIVE' || u.id !== currentUser?.id)
                                 ?.map((u: any) => (
-                                  <option key={u.id} value={u.id}>{u.fullName} ({u.role})</option>
+                                  <option key={u.id} value={u.id}>
+                                    {u.fullName || u.name || u.email || 'User'} {u.role ? `(${u.role})` : ''}
+                                  </option>
                               ))}
                             </select>
                           </div>

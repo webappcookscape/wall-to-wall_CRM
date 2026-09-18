@@ -243,7 +243,7 @@ export const getContactableCounts = asyncHandler(async (req: Request, res: Respo
     monthEnd.setMonth(monthEnd.getMonth() + 1);
 
     const filter: any = {};
-    if (userId && (currentUser.role === 'ADMIN' || currentUser.role === 'BUSINESS_HEAD')) {
+    if (userId && (currentUser.role === 'ADMIN' || currentUser.role === 'BUSINESS_HEAD' || currentUser.role === DM_EXECUTIVE_ROLE)) {
       filter.assignedToId = String(userId);
     }
     await applyLeadVisibility(filter, currentUser);
