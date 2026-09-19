@@ -12,6 +12,7 @@ import LeadModal from '../modals/LeadModal';
 import { useAuth } from '../../contexts/AuthContext';
 import ActivityTimeline from './ActivityTimeline';
 import { leadService } from '../../services/api';
+import { RATING_OPTIONS, getRatingOption, getRatingLabel, getRatingName } from '../../utils/rating';
 
 interface LeadDetailViewProps {
   lead: Lead | null;
@@ -55,6 +56,27 @@ const LeadDetailView: FC<LeadDetailViewProps> = ({ lead, onRefresh }) => {
   const canAssignLead = ['ADMIN', 'BUSINESS_HEAD'].includes(currentUser?.role || '');
   const [modalType, setModalType] = useState<'FOLLOWUP' | 'REMINDER' | 'STATUS' | 'NOTE' | 'SWITCH_USER' | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isUpdatingRating, setIsUpdatingRating] = useState(false);
+
+  const ratingOpt = getRatingOption(lead?.rating, lead?.ratingName);
+
+  const handleRatingChange = async (newRating: number) => {
+    if (!lead || !canEditLead || isUpdatingRating) return;
+    setIsUpdatingRating(true);
+    try {
+      const newRatingName = getRatingName(newRating);
+      await leadService.updateLead(lead.id, {
+        rating: newRating,
+        ratingName: newRatingName,
+      });
+      if (onRefresh) onRefresh();
+    } catch (err) {
+      console.error("Failed to update lead rating", err);
+      alert('Failed to update rating. See console for details.');
+    } finally {
+      setIsUpdatingRating(false);
+    }
+  };
 
   const handleDelete = async () => {
     if (!lead) return;
@@ -91,14 +113,40 @@ const LeadDetailView: FC<LeadDetailViewProps> = ({ lead, onRefresh }) => {
               </div>
            </div>
            
-           <div className="flex flex-col items-end gap-1.5">
-              <div className="flex text-amber-400 gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={16} fill={i < (lead.rating || 0) ? "currentColor" : "none"} />
-                ))}
-              </div>
-              <span className="text-xs font-black text-gray-500 uppercase tracking-wider">Rating ({lead.rating || 0}/5)</span>
-           </div>
+            <div className="flex flex-col items-end gap-1.5">
+               <div className="flex text-amber-400 gap-1 items-center">
+                 {[1, 2, 3, 4, 5].map((starVal) => {
+                   const isFilled = starVal <= (lead.rating || 0);
+                   return (
+                     <button
+                       key={starVal}
+                       type="button"
+                       disabled={!canEditLead || isUpdatingRating}
+                       onClick={() => handleRatingChange(starVal === lead.rating ? 0 : starVal)}
+                       title={canEditLead ? `Click to set rating: ${getRatingLabel(starVal)}` : getRatingLabel(lead.rating, lead.ratingName)}
+                       className={`${canEditLead ? 'cursor-pointer hover:scale-125 transition-transform' : 'cursor-default'} p-0.5 focus:outline-none`}
+                     >
+                       <Star 
+                         size={18} 
+                         fill={isFilled ? "currentColor" : "none"} 
+                         className={isFilled ? "text-amber-500" : "text-gray-300 hover:text-amber-300"} 
+                       />
+                     </button>
+                   );
+                 })}
+               </div>
+               <div className="flex items-center gap-1.5">
+                 {ratingOpt ? (
+                   <span className={`text-xs font-black px-2.5 py-0.5 rounded border uppercase tracking-wider ${ratingOpt.badgeBg} ${ratingOpt.textColor}`}>
+                     {ratingOpt.label}
+                   </span>
+                 ) : (
+                   <span className="text-xs font-black text-gray-400 uppercase tracking-wider bg-gray-50 px-2 py-0.5 rounded border border-gray-200">
+                     {lead.rating ? `Rating (${lead.rating}/5)` : 'Not Rated'}
+                   </span>
+                 )}
+               </div>
+            </div>
         </div>
 
         {/* Info Grid */}
@@ -118,6 +166,28 @@ const LeadDetailView: FC<LeadDetailViewProps> = ({ lead, onRefresh }) => {
            <div className="space-y-1">
               <label className="text-xs font-black text-gray-400 uppercase tracking-wider">Status</label>
               <p className="text-sm md:text-base font-black text-brand uppercase m-0">{statusName}</p>
+           </div>
+           <div className="space-y-1">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-wider">Lead Rating</label>
+              {canEditLead ? (
+                <select 
+                  className={`form-control !py-1 !px-2.5 text-xs md:text-sm font-bold border rounded-lg outline-none transition-all cursor-pointer ${ratingOpt?.badgeBg || 'bg-gray-50 border-gray-200'} ${ratingOpt?.textColor || 'text-gray-800'}`}
+                  value={lead.rating || 0}
+                  disabled={isUpdatingRating}
+                  onChange={(e) => handleRatingChange(Number(e.target.value))}
+                >
+                  <option value={0}>Select Rating</option>
+                  {RATING_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              ) : (
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className={`px-2.5 py-1 rounded-lg text-xs md:text-sm font-black border ${ratingOpt?.badgeBg || 'bg-gray-50 border-gray-200'} ${ratingOpt?.textColor || 'text-gray-800'}`}>
+                    ★ {ratingOpt?.label || (lead.rating ? `${lead.rating} - ${lead.ratingName || 'Rated'}` : 'Not Rated')}
+                  </span>
+                </div>
+              )}
            </div>
            <div className="space-y-1">
               <label className="text-xs font-black text-gray-400 uppercase tracking-wider">Date Collected</label>

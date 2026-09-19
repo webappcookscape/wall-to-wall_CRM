@@ -75,6 +75,7 @@ export interface Lead {
   email: string | null;
   phone: string;
   rating: number;
+  ratingName?: string | null;
   nextFollowUp: string | null;
   assignedToId?: string | null;
   createdById?: string | null;

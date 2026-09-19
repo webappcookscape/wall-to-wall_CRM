@@ -40,6 +40,7 @@ import type { DashboardStats, Lead, MasterData } from '../types/crm';
 import LeadModal from '../components/modals/LeadModal';
 import UploadLeadModal from '../components/modals/UploadLeadModal';
 import { useAuth } from '../contexts/AuthContext';
+import { getRatingOption } from '../utils/rating';
 
 const extractSiteLocation = (lead: any): string => {
   if (lead.siteLocation && String(lead.siteLocation).trim() !== '') {
@@ -598,21 +599,33 @@ const Dashboard: React.FC = () => {
 
                       {/* 10. Rating */}
                       <td className="py-4 px-4 whitespace-nowrap">
-                        <div className="flex items-center gap-1.5">
-                          <div className="flex text-amber-500">
-                            {[...Array(5)].map((_, i) => (
-                              <Star 
-                                key={i} 
-                                size={14} 
-                                fill={i < (lead.rating || 0) ? 'currentColor' : 'none'} 
-                                className={i < (lead.rating || 0) ? 'text-amber-500' : 'text-gray-300'}
-                              />
-                            ))}
-                          </div>
-                          <span className="text-xs md:text-sm font-bold text-gray-600">
-                            {lead.rating ? `${lead.rating}/5` : '0/5'}
-                          </span>
-                        </div>
+                        {(() => {
+                          const rOpt = getRatingOption(lead.rating, lead.ratingName);
+                          return (
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center gap-1.5">
+                                <div className="flex text-amber-500">
+                                  {[...Array(5)].map((_, i) => (
+                                    <Star 
+                                      key={i} 
+                                      size={14} 
+                                      fill={i < (lead.rating || 0) ? 'currentColor' : 'none'} 
+                                      className={i < (lead.rating || 0) ? 'text-amber-500' : 'text-gray-300'}
+                                    />
+                                  ))}
+                                </div>
+                                <span className="text-xs md:text-sm font-bold text-gray-600">
+                                  {lead.rating ? `${lead.rating}/5` : '0/5'}
+                                </span>
+                              </div>
+                              {rOpt && (
+                                <span className={`text-[10px] font-black px-1.5 py-0.5 rounded border uppercase tracking-wider w-fit ${rOpt.badgeBg} ${rOpt.textColor}`}>
+                                  {rOpt.label}
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </td>
 
                       {/* 11. Next Follow-up Date (Fixed to display properly) */}

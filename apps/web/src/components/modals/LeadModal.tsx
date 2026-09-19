@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { leadService } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext'; // Import useAuth
+import { RATING_OPTIONS as ratingOptions, getRatingName } from '../../utils/rating';
 
 interface LeadModalProps {
   isOpen: boolean;
@@ -10,18 +11,6 @@ interface LeadModalProps {
   lead?: any;
   masters?: any;
 }
-
-const ratingOptions = [
-  { value: 1, label: '1 - Disqualified', ratingName: 'DISQUALIFIED' },
-  { value: 2, label: '2 - Low Quality', ratingName: 'LOW_QUALITY' },
-  { value: 3, label: '3 - Moderate', ratingName: 'MODERATE' },
-  { value: 4, label: '4 - Qualified', ratingName: 'QUALIFIED' },
-  { value: 5, label: '5 - Order Booked', ratingName: 'ORDER_BOOKED' },
-];
-
-const getRatingName = (rating: number) => {
-  return ratingOptions.find((option) => option.value === rating)?.ratingName || '';
-};
 
 const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead, masters: initialMasters }) => {
   const { user } = useAuth(); // Use the useAuth hook

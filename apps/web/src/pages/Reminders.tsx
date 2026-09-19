@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import ActionModal from '../components/modals/ActionModal';
 import { useAuth } from '../contexts/AuthContext';
+import { getRatingLabel } from '../utils/rating';
 
 type TimeframeType = 'overdue' | 'today' | 'tomorrow' | 'week' | 'month' | 'all';
 
@@ -447,7 +448,7 @@ const Reminders: React.FC = () => {
                                     {[
                                         { label: 'Phone', value: selectedLead.phone },
                                         { label: 'Email', value: selectedLead.email || '—' },
-                                        { label: 'Rating', value: selectedLead.ratingName || (selectedLead.rating ? `Rating: ${selectedLead.rating}` : '—') },
+                                        { label: 'Rating', value: getRatingLabel(selectedLead.rating, selectedLead.ratingName) },
                                         { label: 'Stage', value: selectedLead.currentStage?.name || selectedLead.stage?.name || '—' },
                                     ].map((row, i) => (
                                         <div key={i} className="flex justify-between items-center py-1 border-b border-gray-100/80 last:border-0">

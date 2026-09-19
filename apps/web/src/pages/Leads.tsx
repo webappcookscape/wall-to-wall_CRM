@@ -11,6 +11,7 @@ import {
 import LeadModal from '../components/modals/LeadModal';
 import UploadLeadModal from '../components/modals/UploadLeadModal';
 import { useAuth } from '../contexts/AuthContext';
+import { RATING_OPTIONS } from '../utils/rating';
 
 interface MasterItem { id: string; name: string; }
 interface MasterUser { id: string; fullName: string; role?: string; }
@@ -209,8 +210,8 @@ const Leads: React.FC = () => {
           <div className="space-y-1">
             <label className="text-xs font-bold text-gray-700 uppercase">Rating</label>
             <select value={rating} onChange={(e) => setRating(e.target.value)} className="form-control !py-1.5 !px-2.5 !text-sm font-medium">
-              <option value="">-Select-</option>
-              {[1,2,3,4,5].map(r => <option key={r} value={r}>{r} Stars</option>)}
+              <option value="">All Ratings</option>
+              {RATING_OPTIONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
             </select>
           </div>
           <div className="space-y-1">

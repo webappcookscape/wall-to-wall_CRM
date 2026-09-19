@@ -10,6 +10,7 @@ import {
 import { leadService } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Lead } from '../../types/crm';
+import { RATING_OPTIONS, getRatingName } from '../../utils/rating';
 
 interface ActionModalProps {
   isOpen: boolean;
@@ -27,6 +28,8 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, l
 
   const [formData, setFormData] = useState<any>({
     statusId: lead.statusId || '',
+    rating: lead.rating || 0,
+    ratingName: lead.ratingName || '',
     nextFollowUp: tomorrowStr,
     content: '',
     type: 'NOTE',
@@ -109,6 +112,10 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, l
         if (type === 'FOLLOWUP' || type === 'STATUS') {
           updatePayload.statusId = formData.statusId;
           updatePayload.nextFollowUp = formData.nextFollowUp || null;
+          if (formData.rating !== undefined && Number(formData.rating) > 0) {
+            updatePayload.rating = Number(formData.rating);
+            updatePayload.ratingName = formData.ratingName || getRatingName(Number(formData.rating));
+          }
           if (isOrderBooked) {
             updatePayload.orderValue = formData.orderValue !== '' ? Number(formData.orderValue) : null;
           }
@@ -215,7 +222,7 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, l
             <>
               {type === 'FOLLOWUP' && (
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
                         Activity Type <span className="text-brand font-bold">*</span>
@@ -245,6 +252,28 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, l
                         <option value="">-Select-</option>
                         {masters?.statuses?.map((s: any) => (
                           <option key={s.id} value={s.id}>{s.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                        Rating
+                      </label>
+                      <select 
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand/10 focus:border-brand outline-none transition-all font-bold text-[#313a46]"
+                        value={formData.rating || 0}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setFormData({
+                            ...formData,
+                            rating: val,
+                            ratingName: getRatingName(val)
+                          });
+                        }}
+                      >
+                        <option value={0}>Select Rating</option>
+                        {RATING_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
                         ))}
                       </select>
                     </div>
@@ -338,6 +367,51 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, l
                       </>
                     )}
                  </div>
+              )}
+
+              {type === 'STATUS' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                        Target Status <span className="text-brand font-bold">*</span>
+                      </label>
+                      <select 
+                        required
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand/10 focus:border-brand outline-none transition-all font-bold text-[#313a46]"
+                        value={formData.statusId}
+                        onChange={(e) => setFormData({...formData, statusId: e.target.value})}
+                      >
+                        <option value="">-Select Status-</option>
+                        {masters?.statuses?.map((s: any) => (
+                          <option key={s.id} value={s.id}>{s.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                        Rating
+                      </label>
+                      <select 
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand/10 focus:border-brand outline-none transition-all font-bold text-[#313a46]"
+                        value={formData.rating || 0}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setFormData({
+                            ...formData,
+                            rating: val,
+                            ratingName: getRatingName(val)
+                          });
+                        }}
+                      >
+                        <option value={0}>Select Rating</option>
+                        {RATING_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
               )}
 
               {(type === 'STATUS' || type === 'REMINDER') && (
