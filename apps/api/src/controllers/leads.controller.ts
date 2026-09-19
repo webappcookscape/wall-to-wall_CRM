@@ -226,9 +226,9 @@ export const getLeads = asyncHandler(async (req: Request, res: Response) => {
   apiResponse.success(res, {
     data: data.map((l: any) => {
       let siteLocation: string | null = null;
-      if (l.comments) {
+      if (l.comments && typeof l.comments === 'string') {
         const match = l.comments.match(/Location:\s*([^|]+)/i);
-        if (match) siteLocation = match[1].trim();
+        if (match && match[1]) siteLocation = match[1].trim();
       }
       return {
         ...l,
