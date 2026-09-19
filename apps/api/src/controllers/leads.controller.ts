@@ -224,11 +224,19 @@ export const getLeads = asyncHandler(async (req: Request, res: Response) => {
   ]);
 
   apiResponse.success(res, {
-    data: data.map((l: any) => ({
+    data: data.map((l: any) => {
+      let siteLocation: string | null = null;
+      if (l.comments) {
+        const match = l.comments.match(/Location:\s*([^|]+)/i);
+        if (match) siteLocation = match[1].trim();
+      }
+      return {
         ...l,
         brand_name: l.brand?.name || '-',
         status_name: l.status?.name || '-',
-    })),
+        siteLocation: siteLocation || null,
+      };
+    }),
     total,
     page: Number(page),
     limit: Number(limit)
@@ -314,7 +322,15 @@ export const createLead = asyncHandler(async (req: Request, res: Response) => {
       if (['projectId', 'sourceId', 'statusId', 'brandId', 'assignedToId'].includes(field) && req.body[field] === '') {
         data[field] = null;
       } else if (['nextFollowUp', 'dataCollected', 'contactableDate'].includes(field)) {
-        data[field] = req.body[field] ? new Date(String(req.body[field])) : (field === 'dataCollected' ? new Date() : null);
+        if (field === 'dataCollected') {
+          data[field] = req.body[field] ? new Date(String(req.body[field])) : new Date();
+        } else if (field === 'contactableDate') {
+          data[field] = req.body[field] 
+            ? new Date(String(req.body[field])) 
+            : (req.body.nextFollowUp ? new Date(String(req.body.nextFollowUp)) : (data.dataCollected || new Date()));
+        } else {
+          data[field] = req.body[field] ? new Date(String(req.body[field])) : null;
+        }
       } else if (field === 'rating') {
         data[field] = Number(req.body[field]);
       } else if (field === 'phone') {
@@ -385,6 +401,7 @@ export const createLead = asyncHandler(async (req: Request, res: Response) => {
         brand: true,
         project: true,
         source: true,
+        assignedTo: { select: { id: true, fullName: true, role: true } },
         createdBy: { select: { id: true, fullName: true, role: true } }
       }
   });

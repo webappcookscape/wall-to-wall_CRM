@@ -75,6 +75,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSuccess, user 
         phone: '',
         role: 'DM_EXECUTIVE',
         showroomId: '',
+        signaturePhotoId: '',
         businessHeadId: '',
         status: true,
         metaAccess: false,
@@ -128,7 +129,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSuccess, user 
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-8 space-y-8 no-scrollbar">
+        <form id="user-modal-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-8 space-y-8 no-scrollbar">
           {/* Internal Header */}
           <div className="space-y-6">
              <h4 className="text-[10px] font-bold text-brand uppercase tracking-[0.2em] border-b border-brand/10 pb-2">Identity Details</h4>
@@ -212,6 +213,8 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSuccess, user 
                       <option value="ADMIN">Admin</option>
                       <option value="BUSINESS_HEAD">Business Head</option>
                       <option value="DM_EXECUTIVE">DM Executive</option>
+                      <option value="CRE">CRE</option>
+                      <option value="DESIGNER">Designer</option>
                       <option value="CLIENT_FACILITATOR">Client Facilitator</option>
                       <option value="FA">FA</option>
                       <option value="VENDOR_MANAGEMENT">Vendor Management</option>
@@ -335,13 +338,14 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSuccess, user 
            >
              Cancel
            </button>
-           <button 
-             onClick={handleSubmit}
-             disabled={isSubmitting}
-             className="bg-[#3b3e47] text-white px-8 py-2 rounded text-[11px] font-bold uppercase tracking-widest hover:bg-[#2c2f36] transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-           >
-             {isSubmitting ? 'Saving...' : user ? 'Update Profile' : 'Create User'}
-           </button>
+            <button 
+              type="submit"
+              form="user-modal-form"
+              disabled={isSubmitting}
+              className="bg-[#3b3e47] text-white px-8 py-2 rounded text-[11px] font-bold uppercase tracking-widest hover:bg-[#2c2f36] transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            >
+              {isSubmitting ? 'Saving...' : user ? 'Update Profile' : 'Create User'}
+            </button>
         </div>
       </div>
     </div>

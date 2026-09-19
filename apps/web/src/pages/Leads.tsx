@@ -46,8 +46,10 @@ const Leads: React.FC = () => {
   const fetchLeads = async (forceSelectId?: string) => {
     setIsLoading(true);
     try {
+      const currentPage = forceSelectId ? 1 : page;
+      if (forceSelectId) setPage(1);
       const res = await leadService.getLeads({ 
-        page, 
+        page: currentPage, 
         limit: 10,
         search,
         statusId: statusId || undefined,
@@ -63,17 +65,18 @@ const Leads: React.FC = () => {
       setTotal(res.total);
       
       if (res.data.length > 0) {
-        const targetId = forceSelectId || selectedLeadRef.current?.id;
-        const isStillInList = targetId ? res.data.some((l: Lead) => l.id === targetId) : false;
-        
-        if (!isStillInList) {
-          if (window.innerWidth >= 1024) {
-            fetchLeadDetail(res.data[0].id);
-          } else {
-            setSelectedLead(null);
-          }
-        } else if (forceSelectId) {
+        if (forceSelectId) {
           fetchLeadDetail(forceSelectId);
+        } else {
+          const targetId = selectedLeadRef.current?.id;
+          const isStillInList = targetId ? res.data.some((l: Lead) => l.id === targetId) : false;
+          if (!isStillInList) {
+            if (window.innerWidth >= 1024) {
+              fetchLeadDetail(res.data[0].id);
+            } else {
+              setSelectedLead(null);
+            }
+          }
         }
       } else {
         setSelectedLead(null);
@@ -360,7 +363,11 @@ const Leads: React.FC = () => {
       <LeadModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-        onSuccess={() => { fetchLeads(); fetchCounts(); setIsModalOpen(false); }} 
+        onSuccess={(savedLead?: any) => { 
+          fetchCounts(); 
+          fetchLeads(savedLead?.id); 
+          setIsModalOpen(false); 
+        }} 
         masters={masters} 
       />
       <UploadLeadModal 

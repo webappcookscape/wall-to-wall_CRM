@@ -388,7 +388,7 @@ const LeadHub: React.FC = () => {
       <LeadModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-        onSuccess={() => { fetchLeads(); setIsModalOpen(false); }} 
+        onSuccess={() => { setPage(1); fetchLeads(); setIsModalOpen(false); }} 
         lead={leadToEdit}
         masters={masters}
       />

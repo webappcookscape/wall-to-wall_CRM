@@ -6,7 +6,7 @@ import { useAuth } from '../../contexts/AuthContext'; // Import useAuth
 interface LeadModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (lead?: any) => void;
   lead?: any;
   masters?: any;
 }
@@ -47,6 +47,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
     dataCollected: new Date().toISOString().split('T')[0],
     contactableDate: '',
     assignedToId: '',
+    siteLocation: '',
   });
   const [masters, setMasters] = useState<any>(initialMasters || null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -109,6 +110,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
         dataCollected: lead.dataCollected ? new Date(lead.dataCollected).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
         contactableDate: toLocalISOString(lead.contactableDate),
         assignedToId: lead.assignedToId || '',
+        siteLocation: lead.siteLocation || (lead.comments ? lead.comments.match(/Location:\s*([^|]+)/i)?.[1]?.trim() : '') || '',
       });
     } else {
         setFormData({
@@ -132,6 +134,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
             dataCollected: new Date().toISOString().split('T')[0],
             contactableDate: '',
             assignedToId: '',
+            siteLocation: '',
         });
     }
   }, [lead, isOpen]);
@@ -140,21 +143,43 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
     e.preventDefault();
     setIsSubmitting(true);
     try {
+      const followUpIso = formData.nextFollowUp ? new Date(formData.nextFollowUp).toISOString() : null;
+      const collectedIso = formData.dataCollected ? new Date(formData.dataCollected).toISOString() : new Date().toISOString();
+
+      let finalComments = formData.comments?.trim() || '';
+      if (formData.siteLocation?.trim() && !finalComments.includes('Location:')) {
+        finalComments = `Location: ${formData.siteLocation.trim()}${finalComments ? ' | ' + finalComments : ''}`;
+      }
+
       const payload = {
         ...formData,
-        ratingName: formData.ratingName || getRatingName(formData.rating),
-        nextFollowUp: formData.nextFollowUp ? new Date(formData.nextFollowUp).toISOString() : null,
-        contactableDate: formData.nextFollowUp ? new Date(formData.nextFollowUp).toISOString() : null,
+        name: formData.name?.trim(),
+        phone: formData.phone?.trim(),
+        email: formData.email?.trim() || null,
+        projectId: formData.projectId || null,
+        sourceId: formData.sourceId || null,
+        brandId: formData.brandId || null,
+        statusId: formData.statusId || null,
+        assignedToId: formData.assignedToId || null,
+        comments: finalComments || null,
+        instructionToPass: formData.instructionToPass?.trim() || null,
+        rating: Number(formData.rating) || 0,
+        ratingName: formData.ratingName || getRatingName(Number(formData.rating) || 0),
+        nextFollowUp: followUpIso,
+        dataCollected: collectedIso,
+        contactableDate: followUpIso || collectedIso,
       };
+
+      let savedLead: any = null;
       if (lead?.id) {
         if (userRole === 'DM_EXECUTIVE') {
           delete payload.assignedToId;
         }
-        await (leadService as any).updateLead(lead.id, payload);
+        savedLead = await (leadService as any).updateLead(lead.id, payload);
       } else {
-        await leadService.createLead(payload);
+        savedLead = await leadService.createLead(payload);
       }
-      onSuccess();
+      onSuccess(savedLead);
       onClose();
     } catch (error: any) {
       console.error('Error saving lead:', error);
@@ -296,10 +321,21 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
             </div>
 
             <div className="space-y-1">
+              <label className="text-[10px] font-bold text-gray-400 uppercase">Site Location</label>
+              <input 
+                type="text"
+                placeholder="e.g. Velachery, Chennai"
+                className="form-control !py-1.5 !text-[12px]"
+                value={formData.siteLocation}
+                onChange={(e) => setFormData({...formData, siteLocation: e.target.value})}
+              />
+            </div>
+
+            <div className="space-y-1">
               <label className="text-[10px] font-bold text-gray-400 uppercase">Date Collected <span className="text-red-500">*</span></label>
               <input 
                 required
-                type="date"
+                type="date" 
                 className="form-control !py-1.5 !text-[12px]"
                 value={formData.dataCollected}
                 onChange={(e) => setFormData({...formData, dataCollected: e.target.value})}
