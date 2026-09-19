@@ -153,7 +153,7 @@ const LeadHub: React.FC = () => {
           type="checkbox" 
           checked={selectedLeads.length > 0 && selectedLeads.length === leads.length}
           onChange={toggleSelectAll}
-          className="border-gray-300"
+          className="w-4 h-4 rounded border-gray-300 text-brand focus:ring-brand cursor-pointer"
         />
       ),
       accessor: 'id',
@@ -162,7 +162,7 @@ const LeadHub: React.FC = () => {
           type="checkbox" 
           checked={selectedLeads.includes(row.id)}
           onChange={() => toggleSelectOne(row.id)}
-          className="border-gray-300"
+          className="w-4 h-4 rounded border-gray-300 text-brand focus:ring-brand cursor-pointer"
         />
       )
     },
@@ -170,71 +170,99 @@ const LeadHub: React.FC = () => {
       header: 'Date', 
       accessor: 'createdAt',
       render: (row: Lead) => (
-        <div className="flex flex-col">
-            <span className="font-bold text-gray-700 text-xs">
-                {new Date(row.createdAt).toLocaleDateString('en-GB')}
-            </span>
-            <span className="text-[9px] text-gray-400 uppercase">
-                {new Date(row.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </span>
+        <div className="flex flex-col gap-0.5">
+          <span className="font-extrabold text-gray-900 text-sm md:text-base">
+            {new Date(row.createdAt).toLocaleDateString('en-GB')}
+          </span>
+          <span className="text-xs md:text-sm text-gray-500 font-semibold uppercase tracking-wide">
+            {new Date(row.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </span>
         </div>
       )
     },
     { 
-        header: 'Lead ID', 
-        accessor: 'leadId',
-        render: (row: Lead) => <span className="text-xs text-gray-500">#{row.leadId}</span>
+      header: 'Lead ID', 
+      accessor: 'leadId',
+      render: (row: Lead) => (
+        <span className="inline-block px-2.5 py-1 bg-slate-100 border border-slate-300 rounded-md font-black text-gray-800 text-sm md:text-base tracking-tight">
+          #{row.leadId}
+        </span>
+      )
     },
     { 
       header: 'Lead Details', 
       accessor: 'name',
       render: (row: Lead) => (
-        <div className="flex flex-col">
-          <span className="font-bold text-gray-700 hover:text-brand cursor-pointer text-[13px]">
+        <div className="flex flex-col gap-1">
+          <span className="font-black text-gray-900 hover:text-brand cursor-pointer text-base md:text-lg leading-tight transition-colors">
             {row.name}
           </span>
-          <span className="text-[11px] text-brand font-medium">{row.phone}</span>
+          <span className="text-sm md:text-base text-brand font-extrabold tracking-wide">
+            {row.phone}
+          </span>
         </div>
       )
     },
     { 
-        header: 'Context', 
-        accessor: 'brand',
-        render: (row: Lead) => (
-            <div className="flex flex-col">
-                <span className="text-[11px] font-bold text-gray-600 uppercase">{row.brand?.name || '-'}</span>
-                <span className="text-[10px] text-gray-400">{row.project?.name || '-'}</span>
-            </div>
-        )
+      header: 'Context', 
+      accessor: 'brand',
+      render: (row: Lead) => (
+        <div className="flex flex-col gap-1">
+          <span className="text-sm md:text-base font-black text-gray-800 uppercase tracking-tight">
+            {row.brand?.name || '-'}
+          </span>
+          <span className="text-xs md:text-sm text-gray-600 font-bold">
+            {row.project?.name || '-'}
+          </span>
+        </div>
+      )
     },
     { 
       header: 'Status & Source', 
       accessor: 'status',
-      render: (row: Lead) => (
-        <div className="flex flex-col">
-          <span className="bg-brand text-white px-1.5 py-0.5 rounded text-[9px] font-bold uppercase w-fit">
-            {typeof row.status === 'object' ? row.status?.name || 'Fresh' : row.status || 'Fresh'}
-          </span>
-          <span className="text-[9px] text-gray-400 font-bold uppercase mt-1">
-            {row.source?.name || 'Manual'}
-          </span>
-        </div>
-      )
+      render: (row: Lead) => {
+        const rawStatus = typeof row.status === 'object' ? row.status?.name : row.status;
+        const norm = String(rawStatus || '').toLowerCase();
+        let badgeStyle = 'bg-blue-600 text-white';
+        if (norm.includes('fresh')) badgeStyle = 'bg-emerald-600 text-white';
+        else if (norm.includes('yet to follow')) badgeStyle = 'bg-sky-600 text-white';
+        else if (norm.includes('opportunity') || norm.includes('opportunities')) badgeStyle = 'bg-indigo-600 text-white';
+        else if (norm.includes('order book')) badgeStyle = 'bg-teal-600 text-white';
+        else if (norm.includes('disqualified')) badgeStyle = 'bg-rose-600 text-white';
+
+        return (
+          <div className="flex flex-col gap-1.5 items-start">
+            <span className={`px-3 py-1 rounded-md text-xs md:text-sm font-black uppercase tracking-wider shadow-xs ${badgeStyle}`}>
+              {rawStatus || 'Fresh'}
+            </span>
+            <span className="text-xs md:text-sm text-gray-700 font-extrabold uppercase tracking-wide">
+              {row.source?.name || 'Manual'}
+            </span>
+          </div>
+        );
+      }
     },
     {
-        header: 'Assigned To',
-        accessor: 'assignedTo',
-        render: (row: Lead) => (
-            <span className="text-[11px] font-medium text-gray-600">
-                {row.assignedTo?.fullName || <span className="text-gray-300 italic">Unassigned</span>}
-            </span>
+      header: 'Assigned To',
+      accessor: 'assignedTo',
+      render: (row: Lead) => (
+        row.assignedTo?.fullName ? (
+          <span className="text-sm md:text-base font-bold text-gray-900 flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
+            {row.assignedTo.fullName}
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-amber-50 text-amber-800 border border-amber-300 text-xs md:text-sm font-black uppercase tracking-wider">
+            Unassigned
+          </span>
         )
+      )
     },
     {
       header: 'Action',
       accessor: 'actions',
       render: (row: Lead) => (
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex items-center justify-end gap-2.5">
           <button 
             type="button"
             title="Edit lead"
@@ -242,9 +270,9 @@ const LeadHub: React.FC = () => {
               setLeadToEdit(row);
               setIsModalOpen(true);
             }}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-brand/15 text-brand hover:bg-brand hover:text-white transition-colors"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-brand/20 text-brand bg-brand/5 hover:bg-brand hover:text-white transition-all shadow-sm active:scale-95"
           >
-            <Edit3 size={14} />
+            <Edit3 size={17} />
           </button>
           {isAdmin && (
             <button 
@@ -252,12 +280,12 @@ const LeadHub: React.FC = () => {
               title="Delete lead"
               disabled={deletingLeadId === row.id}
               onClick={() => handleDeleteLead(row)}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-red-100 text-red-500 hover:bg-red-500 hover:text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-red-200 text-red-600 bg-red-50 hover:bg-red-600 hover:text-white transition-all shadow-sm active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {deletingLeadId === row.id ? (
-                <span className="h-3.5 w-3.5 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                <span className="h-4 w-4 rounded-full border-2 border-current border-t-transparent animate-spin" />
               ) : (
-                <Trash2 size={14} />
+                <Trash2 size={17} />
               )}
             </button>
           )}
@@ -267,75 +295,75 @@ const LeadHub: React.FC = () => {
   ];
 
   return (
-    <div className="container-fluid py-4">
+    <div className="container-fluid py-5">
       {/* Header Buttons */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4">
-        <h4 className="page-title text-xl font-bold text-gray-700 m-0">Lead Hub</h4>
-        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 w-full lg:w-auto">
+        <h4 className="page-title text-2xl md:text-3xl font-black text-gray-800 m-0">Lead Hub</h4>
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2.5 w-full lg:w-auto">
           {isAdmin && (
             <button
               onClick={handleUpdateProjects}
-              className="btn-custom !bg-brand hover:!bg-[#004d30] !rounded-full !px-3 sm:!px-4 !py-1.5 text-[10px] sm:text-[11px] flex items-center justify-center gap-1.5 sm:gap-2"
+              className="btn-custom !bg-brand hover:!bg-[#004d30] !rounded-xl !px-4 sm:!px-5 !py-2.5 text-xs sm:text-sm font-black flex items-center justify-center gap-2 shadow-sm active:scale-95"
             >
-              <RefreshCw size={14} className="shrink-0" /> <span className="truncate">Update Projects</span>
+              <RefreshCw size={16} className="shrink-0" /> <span className="truncate">Update Projects</span>
             </button>
           )}
           {canAddLead && (
             <>
               <button
                 onClick={() => setIsUploadModalOpen(true)}
-                className="btn-custom !bg-brand hover:!bg-[#004d30] !rounded-full !px-3 sm:!px-4 !py-1.5 text-[10px] sm:text-[11px] flex items-center justify-center gap-1.5 sm:gap-2"
+                className="btn-custom !bg-brand hover:!bg-[#004d30] !rounded-xl !px-4 sm:!px-5 !py-2.5 text-xs sm:text-sm font-black flex items-center justify-center gap-2 shadow-sm active:scale-95"
               >
-                <FileUp size={14} className="shrink-0" /> <span className="truncate">Custom Upload</span>
+                <FileUp size={16} className="shrink-0" /> <span className="truncate">Custom Upload</span>
               </button>
               <button
                 onClick={() => setIsUploadModalOpen(true)}
-                className="btn-custom !bg-brand hover:!bg-[#004d30] !rounded-full !px-3 sm:!px-4 !py-1.5 text-[10px] sm:text-[11px] flex items-center justify-center gap-1.5 sm:gap-2"
+                className="btn-custom !bg-brand hover:!bg-[#004d30] !rounded-xl !px-4 sm:!px-5 !py-2.5 text-xs sm:text-sm font-black flex items-center justify-center gap-2 shadow-sm active:scale-95"
               >
-                <Upload size={14} className="shrink-0" /> <span className="truncate">Upload Lead</span>
+                <Upload size={16} className="shrink-0" /> <span className="truncate">Upload Lead</span>
               </button>
               <button
                 onClick={() => {
                   setLeadToEdit(undefined);
                   setIsModalOpen(true);
                 }}
-                className="btn-custom !bg-brand hover:!bg-[#004d30] !rounded-full !px-3 sm:!px-4 !py-1.5 text-[10px] sm:text-[11px] flex items-center justify-center gap-1.5 sm:gap-2 col-span-2 sm:col-auto"
+                className="btn-custom !bg-brand hover:!bg-[#004d30] !rounded-xl !px-4 sm:!px-5 !py-2.5 text-xs sm:text-sm font-black flex items-center justify-center gap-2 col-span-2 sm:col-auto shadow-md shadow-brand/20 active:scale-95"
               >
-                <Plus size={14} className="shrink-0" /> <span className="truncate">Create Lead</span>
+                <Plus size={18} className="shrink-0" /> <span className="truncate">Create Lead</span>
               </button>
             </>
           )}
         </div>
       </div>
 
-      {/* Filter Bar (Simplified alert-info style) */}
-      <div className="bg-[#d9edf7] border border-[#bce8f1] text-[#31708f] p-3 md:p-4 rounded mb-6">
-        <div className="flex flex-col md:flex-row items-start md:items-end gap-3 md:gap-4">
-          <div className="flex flex-col gap-1 w-full md:w-auto">
-            <label className="text-[10px] md:text-[11px] font-bold uppercase tracking-wider">Brand</label>
+      {/* Filter Bar */}
+      <div className="bg-[#d9edf7] border border-[#bce8f1] text-[#31708f] p-4 md:p-5 rounded-xl mb-6 shadow-sm">
+        <div className="flex flex-col md:flex-row items-start md:items-end gap-4">
+          <div className="flex flex-col gap-1.5 w-full md:w-auto">
+            <label className="text-xs md:text-sm font-black uppercase tracking-wider text-sky-950">Brand</label>
             <select 
-              className="form-control !bg-white !w-full md:!w-40 !py-1 !text-[11px]"
+              className="form-control !bg-white !w-full md:!w-48 !py-2 !px-3.5 !text-sm md:!text-base font-bold border-sky-300 rounded-lg shadow-sm"
               value={tempFilters.brandId}
               onChange={(e) => setTempFilters({ ...tempFilters, brandId: e.target.value })}
             >
-              <option value="">-Select-</option>
+              <option value="">- All Brands -</option>
               {masters?.brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
             </select>
           </div>
-          <div className="flex flex-col gap-1 w-full md:w-auto">
-            <label className="text-[10px] md:text-[11px] font-bold uppercase tracking-wider">Project</label>
+          <div className="flex flex-col gap-1.5 w-full md:w-auto">
+            <label className="text-xs md:text-sm font-black uppercase tracking-wider text-sky-950">Project</label>
             <select 
-              className="form-control !bg-white !w-full md:!w-48 !py-1 !text-[11px]"
+              className="form-control !bg-white !w-full md:!w-56 !py-2 !px-3.5 !text-sm md:!text-base font-bold border-sky-300 rounded-lg shadow-sm"
               value={tempFilters.projectId}
               onChange={(e) => setTempFilters({ ...tempFilters, projectId: e.target.value })}
             >
-              <option value="">-Select-</option>
+              <option value="">- All Projects -</option>
               {masters?.projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </div>
           <button 
             onClick={handleApplyFilters}
-            className="btn-custom !w-full md:!w-auto !rounded !py-1 !px-4 text-[11px] bg-brand hover:bg-[#004d30] text-white uppercase font-bold tracking-widest mt-2 md:mt-0"
+            className="btn-custom !w-full md:!w-auto !rounded-lg !py-2.5 !px-6 text-xs md:text-sm bg-brand hover:bg-[#004d30] text-white uppercase font-black tracking-widest mt-2 md:mt-0 shadow-md shadow-brand/20 active:scale-95"
           >
             Apply Filters
           </button>
@@ -344,31 +372,31 @@ const LeadHub: React.FC = () => {
 
       {/* Bulk Action Bar */}
       {selectedLeads.length > 0 && (
-          <div className="bg-gray-800 text-white p-3 rounded mb-4 flex items-center justify-between">
-              <span className="text-xs font-bold">{selectedLeads.length} Leads Selected</span>
+          <div className="bg-gray-800 text-white p-4 rounded-xl mb-4 flex items-center justify-between shadow-lg">
+              <span className="text-sm md:text-base font-extrabold">{selectedLeads.length} Leads Selected</span>
               <div className="flex gap-3">
                   <button 
                     onClick={() => setIsBulkModalOpen(true)}
-                    className="bg-brand text-white px-3 py-1 rounded text-[10px] font-bold uppercase"
+                    className="bg-brand hover:bg-[#004d30] text-white px-4 py-2 rounded-lg text-xs md:text-sm font-black uppercase tracking-wider shadow-sm"
                   >
                     Bulk Assign
                   </button>
-                  <button className="text-gray-400 hover:text-white text-[10px] font-bold uppercase" onClick={() => setSelectedLeads([])}>Cancel</button>
+                  <button className="text-gray-300 hover:text-white text-xs md:text-sm font-extrabold uppercase tracking-wider px-2" onClick={() => setSelectedLeads([])}>Cancel</button>
               </div>
           </div>
       )}
 
       {/* Inventory Table Container */}
-      <div className="card-box !p-0 overflow-hidden">
-          <div className="px-4 py-3 bg-[#f8f9fa] border-b border-gray-100 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
-              <div className="flex items-center gap-2 text-[11px] font-bold text-gray-500 uppercase">
-                  <Users size={14} /> Lead Inventory
+      <div className="card-box !p-0 overflow-hidden rounded-xl">
+          <div className="px-5 py-4 bg-[#f8f9fa] border-b border-gray-100 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+              <div className="flex items-center gap-2.5 text-base md:text-lg font-black text-gray-800 uppercase tracking-tight">
+                  <Users size={18} className="text-brand" /> Lead Inventory
               </div>
               <div className="flex items-center gap-2 w-full sm:w-auto">
                   <input 
                       type="text" 
-                      placeholder="Search..." 
-                      className="form-control !w-full sm:!w-48 !py-1 !px-3 !text-[11px]"
+                      placeholder="Search leads..." 
+                      className="form-control !w-full sm:!w-64 !py-2 !px-3.5 !text-sm md:!text-base font-bold border-gray-300 rounded-lg shadow-sm"
                       value={activeFilters.search}
                       onChange={(e) => setActiveFilters({ ...activeFilters, search: e.target.value })}
                   />

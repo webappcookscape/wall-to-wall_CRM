@@ -169,21 +169,21 @@ const Leads: React.FC = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-3 pt-3 border-t border-gray-100">
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase">Brand</label>
-            <select value={brandId} onChange={(e) => setBrandId(e.target.value)} className="form-control !py-1 !px-2 !text-[11px]">
+            <label className="text-xs font-bold text-gray-700 uppercase">Brand</label>
+            <select value={brandId} onChange={(e) => setBrandId(e.target.value)} className="form-control !py-1.5 !px-2.5 !text-sm font-medium">
               <option value="">-Select-</option>
               {masters?.brands.map((b: MasterItem) => <option key={b.id} value={b.id}>{b.name}</option>)}
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase">Project</label>
-            <select value={projectId} onChange={(e) => setProjectId(e.target.value)} className="form-control !py-1 !px-2 !text-[11px]">
+            <label className="text-xs font-bold text-gray-700 uppercase">Project</label>
+            <select value={projectId} onChange={(e) => setProjectId(e.target.value)} className="form-control !py-1.5 !px-2.5 !text-sm font-medium">
               <option value="">-Select-</option>
               {masters?.projects.map((p: MasterItem) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase">Users</label>
+            <label className="text-xs font-bold text-gray-700 uppercase">Users</label>
             <select
               disabled={!canFilterUsers}
               value={selectedUserId}
@@ -191,7 +191,7 @@ const Leads: React.FC = () => {
                 setSelectedUserId(e.target.value);
                 setPage(1);
               }}
-              className="form-control !py-1 !px-2 !text-[11px]"
+              className="form-control !py-1.5 !px-2.5 !text-sm font-medium"
             >
               <option value="">{canFilterUsers ? 'All Allowed Users' : user?.fullName}</option>
               {canFilterUsers && masters?.users.map((u: MasterUser) => (
@@ -200,21 +200,21 @@ const Leads: React.FC = () => {
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase">Stage</label>
-            <select value={stageId} onChange={(e) => setStageId(e.target.value)} className="form-control !py-1 !px-2 !text-[11px]">
+            <label className="text-xs font-bold text-gray-700 uppercase">Stage</label>
+            <select value={stageId} onChange={(e) => setStageId(e.target.value)} className="form-control !py-1.5 !px-2.5 !text-sm font-medium">
               <option value="">-Select-</option>
               {masters?.stages.map((s: MasterItem) => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase">Rating</label>
-            <select value={rating} onChange={(e) => setRating(e.target.value)} className="form-control !py-1 !px-2 !text-[11px]">
+            <label className="text-xs font-bold text-gray-700 uppercase">Rating</label>
+            <select value={rating} onChange={(e) => setRating(e.target.value)} className="form-control !py-1.5 !px-2.5 !text-sm font-medium">
               <option value="">-Select-</option>
               {[1,2,3,4,5].map(r => <option key={r} value={r}>{r} Stars</option>)}
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase">Timeline</label>
+            <label className="text-xs font-bold text-gray-700 uppercase">Timeline</label>
             <select
               value={timeframe}
               onChange={(e) => {
@@ -222,7 +222,7 @@ const Leads: React.FC = () => {
                 if (e.target.value) setContactDate('');
                 setPage(1);
               }}
-              className="form-control !py-1 !px-2 !text-[11px]"
+              className="form-control !py-1.5 !px-2.5 !text-sm font-medium"
             >
               <option value="">All</option>
               <option value="overdue">Overdue Only</option>
@@ -233,14 +233,14 @@ const Leads: React.FC = () => {
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase">Status</label>
-            <select value={statusId} onChange={(e) => setStatusId(e.target.value)} className="form-control !py-1 !px-2 !text-[11px]">
+            <label className="text-xs font-bold text-gray-700 uppercase">Status</label>
+            <select value={statusId} onChange={(e) => setStatusId(e.target.value)} className="form-control !py-1.5 !px-2.5 !text-sm font-medium">
               <option value="">-Select-</option>
               {masters?.statuses.map((s: MasterItem) => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase">Date Wise</label>
+            <label className="text-xs font-bold text-gray-700 uppercase">Date Wise</label>
             <input
               type="date"
               value={contactDate}
@@ -249,7 +249,7 @@ const Leads: React.FC = () => {
                 if (e.target.value) setTimeframe('');
                 setPage(1);
               }}
-              className="form-control !py-1 !px-2 !text-[11px]"
+              className="form-control !py-1.5 !px-2.5 !text-sm font-medium"
             />
           </div>
         </div>
@@ -259,13 +259,13 @@ const Leads: React.FC = () => {
       <div className="lg:hidden flex bg-white border border-gray-100 p-1 rounded-lg">
         <button 
           onClick={() => setActiveView('LIST')}
-          className={`flex-1 py-2 text-[11px] font-bold uppercase tracking-wider rounded-md transition-all ${activeView === 'LIST' ? 'bg-brand text-white' : 'text-gray-400'}`}
+          className={`flex-1 py-2.5 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${activeView === 'LIST' ? 'bg-brand text-white' : 'text-gray-400'}`}
         >
           Lead Inventory
         </button>
         <button 
           onClick={() => setActiveView('DETAIL')}
-          className={`flex-1 py-2 text-[11px] font-bold uppercase tracking-wider rounded-md transition-all ${activeView === 'DETAIL' ? 'bg-brand text-white' : 'text-gray-400'}`}
+          className={`flex-1 py-2.5 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${activeView === 'DETAIL' ? 'bg-brand text-white' : 'text-gray-400'}`}
         >
           Lead Detail
         </button>
@@ -274,16 +274,16 @@ const Leads: React.FC = () => {
       <div className="grid grid-cols-12 gap-4 md:gap-6 min-h-[600px]">
         {/* Left Column: List */}
         <div className={`col-span-12 lg:col-span-4 flex flex-col bg-white border border-gray-100 shadow-sm h-[calc(100vh-320px)] ${activeView === 'DETAIL' ? 'hidden lg:flex' : 'flex'}`}>
-          <div className="p-3 border-b border-gray-50 bg-[#f8f9fa] flex items-center justify-between">
-             <div className="flex items-center gap-2 text-[10px] md:text-[11px] font-bold text-gray-500">
-                Show <select className="border border-gray-200 rounded px-1"><option>10</option></select> entries
+          <div className="p-3 border-b border-gray-100 bg-[#f8f9fa] flex items-center justify-between">
+             <div className="flex items-center gap-2 text-xs font-bold text-gray-600">
+                Show <select className="border border-gray-300 rounded px-1.5 py-0.5 text-xs font-bold"><option>10</option></select> entries
              </div>
              <div className="relative">
-                <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" size={12} />
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
                 <input 
                   type="text" 
                   placeholder="Search..." 
-                  className="bg-white border border-gray-200 rounded pl-6 pr-2 py-1 text-[10px] md:text-[11px] outline-none w-24 md:w-32"
+                  className="bg-white border border-gray-300 rounded-lg pl-7 pr-2.5 py-1.5 text-xs md:text-sm font-medium outline-none w-28 md:w-36"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -297,27 +297,27 @@ const Leads: React.FC = () => {
               <div 
                 key={lead.id}
                 onClick={() => fetchLeadDetail(lead.id)}
-                className={`p-3 cursor-pointer transition-colors border-l-4 ${selectedLead?.id === lead.id ? 'bg-gray-50 border-l-brand' : 'hover:bg-gray-50 border-l-transparent'}`}
+                className={`p-3.5 cursor-pointer transition-colors border-l-4 ${selectedLead?.id === lead.id ? 'bg-gray-50 border-l-brand' : 'hover:bg-gray-50 border-l-transparent'}`}
               >
                 <div className="flex justify-between items-start">
-                   <h6 className="text-[12px] md:text-[13px] font-bold text-gray-700 m-0">{lead.name}</h6>
-                   <span className="bg-brand text-white px-1.5 py-0.5 rounded text-[8px] md:text-[9px] font-bold uppercase">
+                   <h6 className="text-sm md:text-base font-black text-gray-800 m-0">{lead.name}</h6>
+                   <span className="bg-brand text-white px-2 py-0.5 rounded text-[10px] md:text-xs font-extrabold uppercase">
                      {typeof lead.status === 'object' ? lead.status?.name : lead.status}
                    </span>
                 </div>
-                <div className="text-[10px] md:text-[11px] text-brand font-medium mt-1">{lead.phone}</div>
+                <div className="text-xs md:text-sm text-brand font-bold mt-1">{lead.phone}</div>
                 <div className="flex justify-between items-center mt-2">
-                   <span className="text-[9px] md:text-[10px] text-gray-400">{lead.project?.name || 'No Project'}</span>
-                   <span className="text-[8px] md:text-[9px] text-gray-300 italic">{new Date(lead.createdAt).toLocaleDateString()}</span>
+                   <span className="text-xs font-semibold text-gray-600">{lead.project?.name || 'No Project'}</span>
+                   <span className="text-xs text-gray-400 font-medium">{new Date(lead.createdAt).toLocaleDateString()}</span>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="p-2 bg-[#f8f9fa] border-t border-gray-100 flex items-center justify-between">
-            <button disabled={page === 1} onClick={() => setPage(p => p - 1)} className="p-1 text-gray-600 disabled:opacity-30"><ChevronRight size={16} className="rotate-180" /></button>
-            <span className="text-[9px] md:text-[10px] font-bold text-gray-500 uppercase">Page {page} of {Math.ceil(total / 10) || 1}</span>
-            <button disabled={page >= Math.ceil(total / 10)} onClick={() => setPage(p => p + 1)} className="p-1 text-gray-600 disabled:opacity-30"><ChevronRight size={16} /></button>
+          <div className="p-3 bg-[#f8f9fa] border-t border-gray-100 flex items-center justify-between">
+            <button disabled={page === 1} onClick={() => setPage(p => p - 1)} className="p-1.5 text-gray-700 hover:text-brand disabled:opacity-30"><ChevronRight size={18} className="rotate-180" /></button>
+            <span className="text-xs font-bold text-gray-600 uppercase">Page {page} of {Math.ceil(total / 10) || 1}</span>
+            <button disabled={page >= Math.ceil(total / 10)} onClick={() => setPage(p => p + 1)} className="p-1.5 text-gray-700 hover:text-brand disabled:opacity-30"><ChevronRight size={18} /></button>
           </div>
         </div>
 
@@ -352,10 +352,10 @@ const Leads: React.FC = () => {
            { label: 'This Week', count: counts.week, color: 'bg-info' },
            { label: 'This Month', count: counts.month, color: 'bg-warning' },
          ].map((item, i) => (
-           <div key={i} className="bg-white p-4 border border-gray-100 shadow-sm rounded">
-              <div className={`w-2 h-2 rounded-full ${item.color} mb-2`} />
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider m-0">{item.label}</p>
-              <h3 className="text-2xl font-bold text-gray-700 mt-1">{item.count}</h3>
+           <div key={i} className="bg-white p-4 border border-gray-100 shadow-sm rounded-xl">
+              <div className={`w-2.5 h-2.5 rounded-full ${item.color} mb-2`} />
+              <p className="text-xs font-extrabold text-gray-500 uppercase tracking-wider m-0">{item.label}</p>
+              <h3 className="text-2xl md:text-3xl font-black text-gray-800 mt-1">{item.count}</h3>
            </div>
          ))}
       </div>

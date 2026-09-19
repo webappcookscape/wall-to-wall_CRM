@@ -28,9 +28,9 @@ interface ActionButtonProps {
 const ActionButton = ({ icon: Icon, label, color = 'bg-brand', onClick }: ActionButtonProps) => (
   <button 
     onClick={onClick}
-    className={`${color} text-white px-3 py-1.5 rounded text-[10px] font-bold uppercase flex items-center justify-center gap-2 hover:opacity-90 transition-all`}
+    className={`${color} text-white px-4 py-2.5 rounded-xl text-xs md:text-sm font-black uppercase tracking-wider flex items-center justify-center gap-2 hover:opacity-90 transition-all shadow-sm active:scale-95`}
   >
-     <Icon size={12} /> {label}
+     <Icon size={16} /> {label}
   </button>
 );
 
@@ -81,68 +81,68 @@ const LeadDetailView: FC<LeadDetailViewProps> = ({ lead, onRefresh }) => {
   return (
     <div className="h-full bg-white border border-gray-100 shadow-sm overflow-y-auto">
       {/* Header Info */}
-      <div className="p-4 md:p-5 border-b border-gray-100">
+      <div className="p-5 md:p-6 border-b border-gray-100">
         <div className="flex justify-between items-start mb-5">
-           <div className="space-y-1">
-              <h2 className="text-xl font-bold text-gray-700 m-0">{lead.name}</h2>
-              <div className="text-[12px] font-bold text-gray-600">
-                 <span>{lead.phone}</span>
-                 <span className="text-gray-400 font-medium ml-3">{lead.email}</span>
+           <div className="space-y-1.5">
+              <h2 className="text-2xl md:text-3xl font-black text-gray-800 m-0">{lead.name}</h2>
+              <div className="text-sm md:text-base font-bold text-gray-700 flex items-center gap-3">
+                 <span className="text-brand font-extrabold">{lead.phone}</span>
+                 {lead.email && <span className="text-gray-500 font-medium">{lead.email}</span>}
               </div>
            </div>
            
-           <div className="flex flex-col items-end gap-1">
-              <div className="flex text-warning gap-0.5">
+           <div className="flex flex-col items-end gap-1.5">
+              <div className="flex text-amber-400 gap-1">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={10} fill={i < (lead.rating || 0) ? "currentColor" : "none"} />
+                  <Star key={i} size={16} fill={i < (lead.rating || 0) ? "currentColor" : "none"} />
                 ))}
               </div>
-              <span className="text-[9px] font-bold text-gray-400 uppercase">Rating ({lead.rating}/5)</span>
+              <span className="text-xs font-black text-gray-500 uppercase tracking-wider">Rating ({lead.rating || 0}/5)</span>
            </div>
         </div>
 
         {/* Info Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-4">
-           <div className="space-y-0.5">
-              <label className="text-[9px] font-bold text-gray-400 uppercase">Lead Type</label>
-              <p className="text-[11px] font-bold text-gray-700">{lead.leadType || 'Direct Lead'}</p>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-5">
+           <div className="space-y-1">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-wider">Lead Type</label>
+              <p className="text-sm md:text-base font-bold text-gray-800 m-0">{lead.leadType || 'Direct Lead'}</p>
            </div>
-           <div className="space-y-0.5">
-              <label className="text-[9px] font-bold text-gray-400 uppercase">Created By</label>
-              <p className="text-[11px] font-bold text-gray-700">{lead.createdBy?.fullName || '-'}</p>
+           <div className="space-y-1">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-wider">Created By</label>
+              <p className="text-sm md:text-base font-bold text-gray-800 m-0">{lead.createdBy?.fullName || '-'}</p>
            </div>
-           <div className="space-y-0.5">
-              <label className="text-[9px] font-bold text-gray-400 uppercase">Assigned To</label>
-              <p className="text-[11px] font-bold text-gray-700">{lead.assignedTo?.fullName || '-'}</p>
+           <div className="space-y-1">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-wider">Assigned To</label>
+              <p className="text-sm md:text-base font-bold text-gray-800 m-0">{lead.assignedTo?.fullName || '-'}</p>
            </div>
-           <div className="space-y-0.5">
-              <label className="text-[9px] font-bold text-gray-400 uppercase">Status</label>
-              <p className="text-[11px] font-bold text-brand uppercase">{statusName}</p>
+           <div className="space-y-1">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-wider">Status</label>
+              <p className="text-sm md:text-base font-black text-brand uppercase m-0">{statusName}</p>
            </div>
-           <div className="space-y-0.5">
-              <label className="text-[9px] font-bold text-gray-400 uppercase">Date Collected</label>
-              <p className="text-[11px] font-bold text-gray-700">{lead.dataCollected ? new Date(lead.dataCollected).toLocaleDateString() : '-'}</p>
+           <div className="space-y-1">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-wider">Date Collected</label>
+              <p className="text-sm md:text-base font-bold text-gray-800 m-0">{lead.dataCollected ? new Date(lead.dataCollected).toLocaleDateString('en-GB') : '-'}</p>
            </div>
-           <div className="space-y-0.5">
-              <label className="text-[9px] font-bold text-gray-400 uppercase">Contactable Date & Time</label>
-              <p className="text-[11px] font-bold text-gray-700">
-                {lead.contactableDate ? new Date(lead.contactableDate).toLocaleString('en-US', { 
+           <div className="space-y-1">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-wider">Contactable Date & Time</label>
+              <p className="text-sm md:text-base font-bold text-gray-800 m-0">
+                {lead.contactableDate ? new Date(lead.contactableDate).toLocaleString('en-GB', { 
+                  day: '2-digit',
                   month: 'short', 
-                  day: 'numeric', 
                   year: 'numeric',
-                  hour: 'numeric',
-                  minute: 'numeric',
+                  hour: '2-digit', 
+                  minute: '2-digit',
                   hour12: true 
                 }) : '-'}
               </p>
            </div>
-            <div className="space-y-0.5 col-span-2 md:col-span-3 mt-2">
-              <label className="text-[9px] font-bold text-gray-400 uppercase">Instructions</label>
-              <p className="text-[11px] font-bold text-gray-700 bg-gray-50 p-2 rounded border border-gray-100 italic">{lead.instructionToPass || 'No instructions provided'}</p>
+            <div className="space-y-1.5 col-span-2 md:col-span-3 mt-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-wider">Instructions</label>
+              <p className="text-sm md:text-base font-semibold text-gray-800 bg-gray-50 p-3 rounded-lg border border-gray-200 m-0 italic">{lead.instructionToPass || 'No instructions provided'}</p>
             </div>
             {lead.brand?.logo && (
-              <div className="col-span-2 md:col-span-3 mt-2 pt-2 border-t border-gray-50">
-                 <label className="text-[9px] font-bold text-gray-400 uppercase mb-2 block">Associated Brand</label>
+              <div className="col-span-2 md:col-span-3 mt-2 pt-2 border-t border-gray-100">
+                 <label className="text-xs font-black text-gray-400 uppercase tracking-wider mb-2 block">Associated Brand</label>
                  <img src={lead.brand.logo} alt={lead.brand.name} className="h-12 object-contain" />
               </div>
             )}
