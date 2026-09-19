@@ -520,7 +520,7 @@ const Dashboard: React.FC = () => {
 
                       {/* 2. Date Collected */}
                       <td className="py-4 px-4 text-sm md:text-base font-bold text-gray-700 whitespace-nowrap">
-                        {formatDate(lead.dataCollected)}
+                        {formatDate(lead.dataCollected || lead.createdAt)}
                       </td>
 
                       {/* 3. Client Name */}

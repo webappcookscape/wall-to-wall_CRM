@@ -169,16 +169,25 @@ const LeadHub: React.FC = () => {
     { 
       header: 'Date', 
       accessor: 'createdAt',
-      render: (row: Lead) => (
-        <div className="flex flex-col gap-0.5">
-          <span className="font-extrabold text-gray-900 text-sm md:text-base">
-            {new Date(row.createdAt).toLocaleDateString('en-GB')}
-          </span>
-          <span className="text-xs md:text-sm text-gray-500 font-semibold uppercase tracking-wide">
-            {new Date(row.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          </span>
-        </div>
-      )
+      render: (row: Lead) => {
+        const dateVal = row.dataCollected || row.createdAt;
+        const nextDateVal = row.nextFollowUp || row.contactableDate;
+        return (
+          <div className="flex flex-col gap-1">
+            <span className="font-extrabold text-gray-900 text-sm md:text-base">
+              {new Date(dateVal).toLocaleDateString('en-GB')}
+            </span>
+            <span className="text-xs md:text-sm text-gray-500 font-semibold uppercase tracking-wide">
+              {new Date(dateVal).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </span>
+            {nextDateVal && (
+              <span className="inline-flex items-center gap-1 text-[11px] md:text-xs font-extrabold text-emerald-800 bg-emerald-50 border border-emerald-300 px-2 py-0.5 rounded-md w-fit mt-0.5">
+                Next: {new Date(nextDateVal).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
+              </span>
+            )}
+          </div>
+        );
+      }
     },
     { 
       header: 'Lead ID', 

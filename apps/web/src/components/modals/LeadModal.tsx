@@ -104,11 +104,13 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
         metaAdId: lead.metaAdId || '',
         metaCampaignId: lead.metaCampaignId || '',
         metaAdAccountId: lead.metaAdAccountId || '',
-        nextFollowUp: toLocalISOString(lead.nextFollowUp),
+        nextFollowUp: toLocalISOString(lead.nextFollowUp || lead.contactableDate),
         comments: lead.comments || '',
         instructionToPass: lead.instructionToPass || '',
-        dataCollected: lead.dataCollected ? new Date(lead.dataCollected).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-        contactableDate: toLocalISOString(lead.contactableDate),
+        dataCollected: lead.dataCollected 
+          ? new Date(lead.dataCollected).toISOString().split('T')[0] 
+          : (lead.createdAt ? new Date(lead.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]),
+        contactableDate: toLocalISOString(lead.contactableDate || lead.nextFollowUp),
         assignedToId: lead.assignedToId || '',
         siteLocation: lead.siteLocation || (lead.comments ? lead.comments.match(/Location:\s*([^|]+)/i)?.[1]?.trim() : '') || '',
       });
