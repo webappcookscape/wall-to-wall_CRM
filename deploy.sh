@@ -36,12 +36,15 @@ cd "$PROJECT_ROOT"
 
 # 4. Restart services using PM2
 echo "🔄 Step 4: Restarting PM2 processes..."
-# Restart cookscape-api (ID 7) on the VPS
-if pm2 list | grep -q "cookscape-api"; then
+if pm2 list | grep -q "wall2wall-crm-api"; then
+    echo "Restarting wall2wall-crm-api PM2 process..."
+    pm2 restart wall2wall-crm-api
+elif pm2 list | grep -q "cookscape-api"; then
     echo "Restarting cookscape-api PM2 process..."
     pm2 restart cookscape-api
 else
-    echo "⚠️  PM2 process 'cookscape-api' not found. Please restart ID 7 manually."
+    echo "⚠️  Specific process name not matched. Restarting PM2..."
+    pm2 restart all || true
 fi
 
 echo "====================================================="
