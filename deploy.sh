@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# Cookscape CRM Automated VPS Deployment Script
+# Wall-to-Wall CRM Automated VPS Deployment Script
 # Rebuilds both Frontend & Backend without touching the existing Database.
 
 # Exit immediately if a command exits with a non-zero status
 set -e
 
 echo "====================================================="
-echo "🚀 Starting Cookscape CRM Automated Deployment..."
+echo "🚀 Starting Wall-to-Wall CRM Automated Deployment..."
 echo "====================================================="
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -36,16 +36,8 @@ cd "$PROJECT_ROOT"
 
 # 4. Restart services using PM2
 echo "🔄 Step 4: Restarting PM2 processes..."
-if pm2 list | grep -q "wall2wall-crm-api"; then
-    echo "Restarting wall2wall-crm-api PM2 process..."
-    pm2 restart wall2wall-crm-api
-elif pm2 list | grep -q "cookscape-api"; then
-    echo "Restarting cookscape-api PM2 process..."
-    pm2 restart cookscape-api
-else
-    echo "⚠️  Specific process name not matched. Restarting PM2..."
-    pm2 restart all || true
-fi
+echo "Restarting wall2wall-crm-api PM2 process..."
+pm2 restart wall2wall-crm-api
 
 echo "====================================================="
 echo "✅ Deployment completed successfully!"
