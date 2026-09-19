@@ -11,6 +11,7 @@
     "dev": "turbo run dev",
     "dev:all": "concurrently \"npm run dev --workspace=apps/web\" \"npm run dev --workspace=apps/api\"",
     "build": "turbo run build",
+    "create-admin": "npm run create-admin --workspace=apps/api --",
     "lint": "turbo run lint",
     "test": "turbo run test"
   },
