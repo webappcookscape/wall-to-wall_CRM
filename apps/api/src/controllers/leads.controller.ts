@@ -25,7 +25,7 @@ const normalizePhone = (phone: string): string => {
 const getMetaEventNameForStatus = (statusName?: string | null): string | null => {
   if (!statusName) return null;
 
-  const normalizedStatus = statusName.trim().toLowerCase();
+  const normalizedStatus = String(statusName).trim().toLowerCase();
 
   if (normalizedStatus === 'disqualified') return 'DisqualifiedLead';
   if (normalizedStatus === 'yet to follow-up') return 'LeadAwaitingFollowUp';
@@ -575,27 +575,38 @@ export const updateLead = asyncHandler(async (req: Request, res: Response) => {
     }
   });
 
-  if (req.body.comments !== undefined && req.body.comments !== existingLead?.comments) {
-    if (existingLead?.comments && !req.body.comments.includes(existingLead.comments)) {
-      data.comments = `${existingLead.comments} / ${req.body.comments}`;
-    } else {
-      data.comments = req.body.comments;
-    }
-    
-    // Log new comment as a NOTE activity
-    const newPart = existingLead?.comments && data.comments.startsWith(existingLead.comments) 
-        ? data.comments.replace(existingLead.comments, '').replace(/^ \/ /, '')
-        : data.comments;
+  if (req.body.comments !== undefined) {
+    const rawNewComments = req.body.comments !== null && req.body.comments !== undefined 
+      ? String(req.body.comments).trim() 
+      : null;
+    const existingComments = existingLead?.comments 
+      ? String(existingLead.comments).trim() 
+      : null;
 
-    if (newPart.trim()) {
-        await prisma.leadActivity.create({
-            data: {
-                leadId: String(id),
-                type: 'NOTE',
-                content: `Added comment: ${newPart}`,
-                userId: currentUser.id || req.body.userId || null
-            }
-        });
+    if (rawNewComments !== existingComments) {
+      if (existingComments && rawNewComments && !rawNewComments.includes(existingComments)) {
+        data.comments = `${existingComments} / ${rawNewComments}`;
+      } else {
+        data.comments = rawNewComments;
+      }
+      
+      // Log new comment as a NOTE activity if a non-empty comment exists
+      if (data.comments) {
+        const newPart = existingComments && data.comments.startsWith(existingComments) 
+            ? data.comments.replace(existingComments, '').replace(/^ \/ /, '').trim()
+            : data.comments.trim();
+
+        if (newPart) {
+            await prisma.leadActivity.create({
+                data: {
+                    leadId: String(id),
+                    type: 'NOTE',
+                    content: `Added comment: ${newPart}`,
+                    userId: currentUser.id || req.body.userId || null
+                }
+            });
+        }
+      }
     }
   }
 
