@@ -40,7 +40,8 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, l
     selfAssign: false,
     reminderAssignTo: lead.assignedToId || '',
     targetUserId: '', // For Switch User
-    orderValue: lead.orderValue || ''
+    orderValue: lead.orderValue || '',
+    instructionToPass: lead.instructionToPass || ''
   });
   const [masters, setMasters] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -73,7 +74,8 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, l
       reminderSet: true,
       reminderAssignTo: lead.assignedToId || '',
       targetUserId: '',
-      orderValue: lead.orderValue || ''
+      orderValue: lead.orderValue || '',
+      instructionToPass: lead.instructionToPass || ''
     });
   }, [type, lead, isOpen]);
 
@@ -95,6 +97,9 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, l
         activityContent = `[${activityLabel}] ${formData.content}`;
         if (formData.smsContent) {
           activityContent += `\n\nSMS Sent: ${formData.smsContent}`;
+        }
+        if (formData.instructionToPass && formData.instructionToPass.trim()) {
+          activityContent += `\n\nInstructions: ${formData.instructionToPass.trim()}`;
         }
         if (formData.reminderSet) {
           activityContent += `\n\nNext Reminder: ${formData.nextFollowUp}`;
@@ -129,6 +134,11 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, l
           if (currentUser?.role !== 'DM_EXECUTIVE') {
             updatePayload.assignedToId = formData.reminderAssignTo || undefined;
           }
+        }
+
+        // Update lead instructions if provided or modified
+        if (formData.instructionToPass !== undefined) {
+          updatePayload.instructionToPass = formData.instructionToPass ? formData.instructionToPass.trim() : null;
         }
 
         // Append follow-up remarks to the lead comments history
@@ -465,6 +475,26 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, l
                     className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand/10 focus:border-brand outline-none transition-all font-bold text-[#313a46] resize-none"
                     value={formData.content}
                     onChange={(e) => setFormData({...formData, content: e.target.value})}
+                  />
+                </div>
+
+                <div className="space-y-1.5 pt-1">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                      Instructions to Pass / Special Guidance
+                    </label>
+                    {lead.instructionToPass && (
+                      <span className="text-[10px] text-gray-400 font-medium italic truncate max-w-[200px]" title={lead.instructionToPass}>
+                        Current: {lead.instructionToPass}
+                      </span>
+                    )}
+                  </div>
+                  <textarea 
+                    rows={2}
+                    placeholder="Add or update instructions for the team (e.g. Bring fabric catalogs, call after 5 PM, client requires showroom consultation)..."
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand/10 focus:border-brand outline-none transition-all font-bold text-[#313a46] resize-none"
+                    value={formData.instructionToPass || ''}
+                    onChange={(e) => setFormData({...formData, instructionToPass: e.target.value})}
                   />
                 </div>
               </div>

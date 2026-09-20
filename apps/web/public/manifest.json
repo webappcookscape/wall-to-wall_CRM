@@ -9,15 +9,27 @@
       "purpose": "any maskable"
     },
     {
-      "src": "/assets/logos/Wall-to-wall_logo.jpeg",
-      "type": "image/jpeg",
+      "src": "/favicon.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "type": "image/png",
       "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
       "purpose": "any"
     }
   ],
   "start_url": "/",
-  "background_color": "#006644",
-  "theme_color": "#006644",
+  "background_color": "#1e293b",
+  "theme_color": "#1e293b",
   "display": "standalone",
   "orientation": "portrait"
 }

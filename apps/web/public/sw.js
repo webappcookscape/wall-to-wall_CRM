@@ -1,8 +1,9 @@
-const CACHE_NAME = 'cookscape-crm-v1';
+const CACHE_NAME = 'wall-to-wall-crm-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/favicon.svg',
+  '/favicon.png',
   '/manifest.json'
 ];
 
