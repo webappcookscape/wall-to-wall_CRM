@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { leadService } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext'; // Import useAuth
 import { RATING_OPTIONS as ratingOptions, getRatingName } from '../../utils/rating';
+import QuickFollowUpChips from '../common/QuickFollowUpChips';
 
 interface LeadModalProps {
   isOpen: boolean;
@@ -438,14 +439,22 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
             />
           </div>
 
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase">Comments (Appends to existing)</label>
-            <textarea 
-              rows={3}
-              className="form-control !py-1.5 !text-[12px] resize-none"
+          <div className="space-y-2">
+            <QuickFollowUpChips 
               value={formData.comments}
-              onChange={(e) => setFormData({...formData, comments: e.target.value})}
+              onChange={(newComments) => setFormData({ ...formData, comments: newComments })}
+              label="Quick Follow-up Presets (Click to add / combine):"
             />
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-gray-400 uppercase">Comments (Appends to existing)</label>
+              <textarea 
+                rows={3}
+                placeholder="Add comments or select presets above (e.g. Shared brochure / Waiting for resp)..."
+                className="form-control !py-1.5 !text-[12px] resize-none"
+                value={formData.comments}
+                onChange={(e) => setFormData({...formData, comments: e.target.value})}
+              />
+            </div>
           </div>
 
           <div className="flex gap-3 pt-2 justify-end">

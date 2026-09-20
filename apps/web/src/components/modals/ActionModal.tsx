@@ -11,6 +11,7 @@ import { leadService } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Lead } from '../../types/crm';
 import { RATING_OPTIONS, getRatingName } from '../../utils/rating';
+import QuickFollowUpChips from '../common/QuickFollowUpChips';
 
 interface ActionModalProps {
   isOpen: boolean;
@@ -105,7 +106,7 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, l
         content: activityContent
       });
 
-      if (type === 'FOLLOWUP' || type === 'STATUS' || type === 'REMINDER') {
+      if (type === 'FOLLOWUP' || type === 'STATUS' || type === 'REMINDER' || type === 'NOTE') {
         // Build the update payload carefully
         const updatePayload: any = {};
 
@@ -128,6 +129,12 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, l
           if (currentUser?.role !== 'DM_EXECUTIVE') {
             updatePayload.assignedToId = formData.reminderAssignTo || undefined;
           }
+        }
+
+        // Append follow-up remarks to the lead comments history
+        if (formData.content && formData.content.trim()) {
+          updatePayload.comments = formData.content.trim();
+          updatePayload.skipActivityLog = true;
         }
 
         await leadService.updateLead(lead.id, updatePayload);
@@ -428,18 +435,38 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onClose, onSuccess, l
                 </div>
               )}
 
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                  Action specific Notes / Comment
-                </label>
-                <textarea 
-                  required
-                  rows={3}
-                  placeholder="Record summary of this interaction..."
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand/10 focus:border-brand outline-none transition-all font-bold text-[#313a46] resize-none"
+              <div className="space-y-3 pt-2">
+                <QuickFollowUpChips 
                   value={formData.content}
-                  onChange={(e) => setFormData({...formData, content: e.target.value})}
+                  onChange={(newContent) => setFormData({ ...formData, content: newContent })}
+                  label="Quick Follow-up Presets (Click to add / combine):"
                 />
+
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                      {type === 'FOLLOWUP' ? 'Follow-up Remarks / Message' : 'Action Notes / Comment'} <span className="text-brand font-bold">*</span>
+                    </label>
+                    {type === 'FOLLOWUP' && formData.content && (
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, smsContent: formData.content })}
+                        className="text-[10px] text-brand hover:underline font-bold"
+                        title="Copy this remark into SMS Content"
+                      >
+                        Copy to SMS
+                      </button>
+                    )}
+                  </div>
+                  <textarea 
+                    required
+                    rows={3}
+                    placeholder="Record summary of this interaction (e.g. Shared brochure / Waiting for selection)..."
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand/10 focus:border-brand outline-none transition-all font-bold text-[#313a46] resize-none"
+                    value={formData.content}
+                    onChange={(e) => setFormData({...formData, content: e.target.value})}
+                  />
+                </div>
               </div>
             </>
           )}

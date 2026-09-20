@@ -77,9 +77,9 @@ const LeadDetailView: FC<LeadDetailViewProps> = ({ lead, onRefresh }) => {
     .replace(/^(\s*\|\s*|\s*\/\s*)+|(\s*\|\s*|\s*\/\s*)+$/g, '')
     .trim();
 
-  // Split multi-part comments by pipe for clean readability
+  // Split multi-part comments by slash, pipe, or newlines for clean readability
   const commentSegments = cleanComments
-    ? cleanComments.split(/\s*\|\s*/).map(s => s.trim()).filter(Boolean)
+    ? cleanComments.split(/\s*[/|]\s*|\n+/).map(s => s.trim()).filter(Boolean)
     : [];
 
   const handleRatingChange = async (newRating: number) => {

@@ -647,7 +647,7 @@ export const updateLead = asyncHandler(async (req: Request, res: Response) => {
             ? data.comments.replace(existingComments, '').replace(/^ \/ /, '').trim()
             : data.comments.trim();
 
-        if (newPart) {
+        if (newPart && !req.body.skipActivityLog) {
             await prisma.leadActivity.create({
                 data: {
                     leadId: String(id),
