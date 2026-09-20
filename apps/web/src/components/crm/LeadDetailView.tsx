@@ -4,7 +4,8 @@ import {
   User,
   Activity,
   Edit2,
-  Trash2
+  Trash2,
+  MessageSquare
 } from 'lucide-react';
 import type { Lead } from '../../types/crm';
 import ActionModal from '../modals/ActionModal';
@@ -206,6 +207,16 @@ const LeadDetailView: FC<LeadDetailViewProps> = ({ lead, onRefresh }) => {
                 }) : '-'}
               </p>
            </div>
+            {lead.comments && (
+              <div className="space-y-1.5 col-span-2 md:col-span-3 mt-2">
+                <label className="text-xs font-black text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <MessageSquare size={13} className="text-brand" /> Comments & Message
+                </label>
+                <div className="text-sm md:text-base font-semibold text-gray-800 bg-emerald-50/50 p-3.5 rounded-xl border border-emerald-200/70 m-0 whitespace-pre-wrap leading-relaxed shadow-xs">
+                  {lead.comments}
+                </div>
+              </div>
+            )}
             <div className="space-y-1.5 col-span-2 md:col-span-3 mt-2">
               <label className="text-xs font-black text-gray-400 uppercase tracking-wider">Instructions</label>
               <p className="text-sm md:text-base font-semibold text-gray-800 bg-gray-50 p-3 rounded-lg border border-gray-200 m-0 italic">{lead.instructionToPass || 'No instructions provided'}</p>

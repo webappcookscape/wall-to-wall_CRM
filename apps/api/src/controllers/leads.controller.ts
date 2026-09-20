@@ -992,7 +992,7 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
     return apiResponse.error(res, 'No lead records provided for import', 400);
   }
 
-  // Pre-fetch master data
+  // Pre-fetch master data (mutable so dynamically created masters are reused across rows)
   const [allStatuses, allUsers, allBrands, allSources, allProjects, allStages] = await Promise.all([
     prisma.leadStatus.findMany(),
     prisma.user.findMany({ select: { id: true, email: true, fullName: true, role: true } }),
@@ -1002,12 +1002,18 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
     prisma.stage.findMany(),
   ]);
 
+  // Helper to normalize alphanumeric strings for fuzzy matching
+  const cleanKey = (str: any): string => String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
   // Resolve default assigned user
   let fallbackAssignedUserId: string | null = defaultAssignedToId || null;
   if (!fallbackAssignedUserId && defaultEmployeeEmail) {
     const cleanEmail = String(defaultEmployeeEmail).trim().toLowerCase();
+    const cleanEmailKey = cleanKey(cleanEmail);
     const found = allUsers.find(
-      u => (u.email && u.email.toLowerCase() === cleanEmail) || (u.fullName && u.fullName.toLowerCase() === cleanEmail)
+      u => (u.email && u.email.toLowerCase() === cleanEmail) || 
+           (u.fullName && u.fullName.toLowerCase() === cleanEmail) ||
+           (u.fullName && cleanKey(u.fullName) === cleanEmailKey)
     );
     if (found) fallbackAssignedUserId = found.id;
   }
@@ -1019,9 +1025,9 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
   // Resolve default status
   let fallbackStatusId: string | null = defaultStatusId || null;
   if (!fallbackStatusId) {
-    const followUp = allStatuses.find(s => s.name.toLowerCase() === 'follow-up');
-    const fresh = allStatuses.find(s => s.name.toLowerCase() === 'fresh');
-    fallbackStatusId = followUp?.id || fresh?.id || null;
+    const followUp = allStatuses.find(s => cleanKey(s.name) === 'followup');
+    const fresh = allStatuses.find(s => cleanKey(s.name) === 'fresh');
+    fallbackStatusId = followUp?.id || fresh?.id || allStatuses[0]?.id || null;
   }
 
   // Fallbacks for Brand and Source
@@ -1058,7 +1064,7 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
 
     try {
       const name = String(rawLead.name || rawLead.clientName || '').trim();
-      const phoneRaw = String(rawLead.phone || rawLead.number || '').trim();
+      const phoneRaw = String(rawLead.phone || rawLead.number || rawLead.mobile || '').trim();
 
       if (!name || !phoneRaw) {
         results.skipped++;
@@ -1076,28 +1082,217 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
         continue;
       }
 
-      // Rating & Stage resolution
+      // 1. Source Resolution: Prioritize Sheet value -> match or dynamically create
+      let sourceId: string | null = null;
+      let resolvedLeadType: string = 'Direct Lead';
+      const rawSourceName = String(rawLead.source || rawLead.sourceName || rawLead.leadSource || rawLead.channel || rawLead.platform || '').trim();
+
+      if (rawSourceName) {
+        const cleanRaw = cleanKey(rawSourceName);
+        const matched = allSources.find(s => {
+          const sClean = cleanKey(s.name);
+          return sClean === cleanRaw || (cleanRaw.length >= 3 && (sClean.includes(cleanRaw) || cleanRaw.includes(sClean)));
+        });
+
+        if (matched) {
+          sourceId = matched.id;
+          resolvedLeadType = matched.name;
+        } else {
+          try {
+            const newSource = await prisma.source.create({
+              data: { name: rawSourceName }
+            });
+            allSources.push(newSource);
+            sourceId = newSource.id;
+            resolvedLeadType = newSource.name;
+          } catch {
+            const existing = await prisma.source.findFirst({
+              where: { name: { equals: rawSourceName, mode: 'insensitive' } }
+            });
+            if (existing) {
+              sourceId = existing.id;
+              resolvedLeadType = existing.name;
+            } else {
+              sourceId = fallbackSourceId;
+              resolvedLeadType = rawSourceName;
+            }
+          }
+        }
+      } else if (rawLead.sourceId) {
+        sourceId = rawLead.sourceId;
+        const s = allSources.find(x => x.id === sourceId);
+        resolvedLeadType = s?.name || 'Direct Lead';
+      } else if (fallbackSourceId) {
+        sourceId = fallbackSourceId;
+        const s = allSources.find(x => x.id === sourceId);
+        resolvedLeadType = s?.name || 'Direct Lead';
+      }
+
+      // 2. Brand Resolution: Prioritize Sheet value -> match or dynamically create
+      let brandId: string | null = null;
+      const rawBrandName = String(rawLead.brand || rawLead.brandName || rawLead.company || '').trim();
+
+      if (rawBrandName) {
+        const cleanRaw = cleanKey(rawBrandName);
+        const matched = allBrands.find(b => {
+          const bClean = cleanKey(b.name);
+          return bClean === cleanRaw || (cleanRaw.length >= 3 && (bClean.includes(cleanRaw) || cleanRaw.includes(bClean)));
+        });
+
+        if (matched) {
+          brandId = matched.id;
+        } else {
+          try {
+            const newBrand = await prisma.brand.create({
+              data: { name: rawBrandName }
+            });
+            allBrands.push(newBrand);
+            brandId = newBrand.id;
+          } catch {
+            const existing = await prisma.brand.findFirst({
+              where: { name: { equals: rawBrandName, mode: 'insensitive' } }
+            });
+            brandId = existing?.id || fallbackBrandId;
+          }
+        }
+      } else if (rawLead.brandId) {
+        brandId = rawLead.brandId;
+      } else {
+        brandId = fallbackBrandId;
+      }
+
+      // 3. Project Resolution: Prioritize Sheet value -> match or dynamically create
+      let projectId: string | null = null;
+      const rawProjectName = String(rawLead.project || rawLead.projectName || '').trim();
+
+      if (rawProjectName) {
+        const cleanRaw = cleanKey(rawProjectName);
+        const matched = allProjects.find(p => {
+          const pClean = cleanKey(p.name);
+          return pClean === cleanRaw || (cleanRaw.length >= 3 && (pClean.includes(cleanRaw) || cleanRaw.includes(pClean)));
+        });
+
+        if (matched) {
+          projectId = matched.id;
+        } else {
+          try {
+            const newProj = await prisma.project.create({
+              data: { name: rawProjectName }
+            });
+            allProjects.push(newProj);
+            projectId = newProj.id;
+          } catch {
+            const existing = await prisma.project.findFirst({
+              where: { name: { equals: rawProjectName, mode: 'insensitive' } }
+            });
+            projectId = existing?.id || (defaultProjectId || null);
+          }
+        }
+      } else if (rawLead.projectId) {
+        projectId = rawLead.projectId;
+      } else if (defaultProjectId) {
+        projectId = defaultProjectId;
+      }
+
+      // 4. Status Resolution
+      let statusId: string | null = fallbackStatusId;
+      const rawStatus = String(rawLead.status || rawLead.statusName || '').trim();
+      if (rawStatus) {
+        const cleanRaw = cleanKey(rawStatus);
+        const directMatch = allStatuses.find(s => cleanKey(s.name) === cleanRaw);
+        if (directMatch) {
+          statusId = directMatch.id;
+        } else {
+          const partialMatch = allStatuses.find(s => {
+            const sClean = cleanKey(s.name);
+            return sClean.includes(cleanRaw) || cleanRaw.includes(sClean);
+          });
+          if (partialMatch) statusId = partialMatch.id;
+        }
+      }
+
+      // 5. Rating & Stage resolution
       const resolvedRating = parseLeadRating(rawLead.rating || rawLead.ratingName);
       let currentStageId: string | null = null;
       const rawStage = String(rawLead.stage || rawLead.currentStage || rawLead.stageName || '').trim();
       if (rawStage) {
-        const foundStage = allStages.find(s => s.name.toLowerCase() === rawStage.toLowerCase());
+        const cleanRaw = cleanKey(rawStage);
+        const foundStage = allStages.find(s => cleanKey(s.name) === cleanRaw || cleanKey(s.name).includes(cleanRaw));
         if (foundStage) currentStageId = foundStage.id;
       }
 
-      // Date collected resolution
+      // 6. Assignee Resolution
+      let assignedToId: string | null = fallbackAssignedUserId;
+      const rawEmp = String(rawLead.employeeEmail || rawLead.assignedTo || rawLead.assignedEmployee || rawLead.staff || '').trim();
+      if (rawEmp) {
+        const cleanEmp = rawEmp.toLowerCase();
+        const cleanEmpKey = cleanKey(cleanEmp);
+        const foundUser = allUsers.find(u => {
+          const uEmail = (u.email || '').toLowerCase();
+          const uName = (u.fullName || '').toLowerCase();
+          const uKey = cleanKey(uName);
+          return (
+            uEmail === cleanEmp ||
+            uName === cleanEmp ||
+            uKey === cleanEmpKey ||
+            (cleanEmpKey.length >= 3 && (uKey.includes(cleanEmpKey) || cleanEmpKey.includes(uKey)))
+          );
+        });
+        if (foundUser) {
+          assignedToId = foundUser.id;
+        }
+      } else if (rawLead.assignedToId) {
+        assignedToId = rawLead.assignedToId;
+      }
+
+      // 7. Date collected resolution
       let dataCollectedDate: Date = new Date();
       if (rawLead.dataCollected || rawLead.dateCollected || rawLead.leadDate) {
         const d = new Date(rawLead.dataCollected || rawLead.dateCollected || rawLead.leadDate);
         if (!isNaN(d.getTime())) dataCollectedDate = d;
       }
 
+      // 8. Next Follow-up Date resolution
+      let nextFollowUpDate: Date | null = null;
+      if (rawLead.nextFollowUp || rawLead.nextDate) {
+        const d = new Date(rawLead.nextFollowUp || rawLead.nextDate);
+        if (!isNaN(d.getTime())) nextFollowUpDate = d;
+      }
+
       const instructionText = rawLead.instructionToPass || rawLead.instructions || null;
+
+      // 9. Collect Comments, Messages, and Remarks comprehensively
+      const commentSections: string[] = [];
+      if (rawLead.requirement && String(rawLead.requirement).trim()) {
+        commentSections.push(`Requirement: ${String(rawLead.requirement).trim()}`);
+      }
+      if (rawLead.siteLocation && String(rawLead.siteLocation).trim()) {
+        commentSections.push(`Location: ${String(rawLead.siteLocation).trim()}`);
+      }
+      
+      // Capture Message (from "Message", "Client Message", "Comment Message", etc.)
+      const rawMessage = String(rawLead.message || rawLead.commentMessage || rawLead.clientMessage || '').trim();
+      if (rawMessage && !commentSections.some(c => c.includes(rawMessage))) {
+        commentSections.push(rawMessage);
+      }
+
+      // Capture Comments (from "Comments", "Discussion Comments", "Remarks", "Notes", etc.)
+      const rawComments = String(rawLead.comments || rawLead.discussionComments || rawLead.remarks || rawLead.notes || '').trim();
+      if (rawComments && !commentSections.some(c => c.includes(rawComments))) {
+        commentSections.push(rawComments);
+      }
+
+      // If status from sheet didn't map to a master status, record it in comments
+      if (rawStatus && !allStatuses.some(s => cleanKey(s.name) === cleanKey(rawStatus))) {
+        commentSections.push(`Status Notes: ${rawStatus}`);
+      }
+
+      const combinedComments = commentSections.join(' | ') || null;
 
       // Check existing lead
       const existingLead = await prisma.lead.findFirst({
         where: { phone: { contains: normalizedPhone } },
-        include: { status: true, assignedTo: true }
+        include: { status: true, assignedTo: true, brand: true, source: true, project: true }
       });
 
       if (existingLead) {
@@ -1105,52 +1300,71 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
           const updateData: any = {};
           const noteParts: string[] = [];
 
-          if (rawLead.comments || rawLead.status || rawLead.requirement) {
-            const extra = [rawLead.requirement, rawLead.status, rawLead.comments].filter(Boolean).join(' | ');
-            if (extra && (!existingLead.comments || !existingLead.comments.includes(extra))) {
-              updateData.comments = existingLead.comments ? `${existingLead.comments} / ${extra}` : extra;
-              noteParts.push(extra);
+          // Update comments/message if new content provided
+          if (combinedComments) {
+            const existingCmt = existingLead.comments || '';
+            // Check if parts of combinedComments are new
+            const newParts = commentSections.filter(part => !existingCmt.includes(part));
+            if (newParts.length > 0) {
+              const appended = newParts.join(' | ');
+              updateData.comments = existingCmt ? `${existingCmt} / ${appended}` : appended;
+              noteParts.push(appended);
             }
           }
 
-          if (rawLead.nextFollowUp || rawLead.nextDate) {
-            const parsedDate = new Date(rawLead.nextFollowUp || rawLead.nextDate);
-            if (!isNaN(parsedDate.getTime())) {
-              updateData.nextFollowUp = parsedDate;
-              updateData.contactableDate = parsedDate;
-            }
+          // Update Follow-up dates
+          if (nextFollowUpDate) {
+            updateData.nextFollowUp = nextFollowUpDate;
+            updateData.contactableDate = nextFollowUpDate;
           }
 
+          // Update Rating if provided
           if (resolvedRating && existingLead.rating !== resolvedRating.rating) {
             updateData.rating = resolvedRating.rating;
             updateData.ratingName = resolvedRating.name;
           }
 
+          // Update Stage if provided
           if (currentStageId && existingLead.currentStageId !== currentStageId) {
             updateData.currentStageId = currentStageId;
           }
 
+          // Update Instruction if provided
           if (instructionText && !existingLead.instructionToPass) {
             updateData.instructionToPass = instructionText;
           }
 
-          if (existingLead.status?.name?.toLowerCase() === 'fresh' && fallbackStatusId) {
+          // Update Status if provided from sheet
+          if (rawStatus && statusId && existingLead.statusId !== statusId) {
+            updateData.statusId = statusId;
+          } else if (existingLead.status?.name?.toLowerCase() === 'fresh' && fallbackStatusId) {
             updateData.statusId = fallbackStatusId;
           }
 
-          let assigneeId: string | null = null;
-          if (rawLead.employeeEmail || rawLead.assignedTo) {
-            const query = String(rawLead.employeeEmail || rawLead.assignedTo).trim().toLowerCase();
-            const foundUser = allUsers.find(
-              u => (u.email && u.email.toLowerCase() === query) || (u.fullName && u.fullName.toLowerCase() === query)
-            );
-            if (foundUser) assigneeId = foundUser.id;
-          } else if (fallbackAssignedUserId) {
-            assigneeId = fallbackAssignedUserId;
+          // Update Source if provided from sheet
+          if (rawSourceName && sourceId && existingLead.sourceId !== sourceId) {
+            updateData.sourceId = sourceId;
+            updateData.leadType = resolvedLeadType;
           }
 
-          if (assigneeId && !existingLead.assignedToId) {
-            updateData.assignedToId = assigneeId;
+          // Update Brand if provided from sheet
+          if (rawBrandName && brandId && existingLead.brandId !== brandId) {
+            updateData.brandId = brandId;
+          }
+
+          // Update Project if provided from sheet
+          if (rawProjectName && projectId && existingLead.projectId !== projectId) {
+            updateData.projectId = projectId;
+          }
+
+          // Update Assignee
+          if (assignedToId && (!existingLead.assignedToId || rawEmp)) {
+            updateData.assignedToId = assignedToId;
+          }
+
+          // Update Email if provided and existing has none
+          if (rawLead.email && !existingLead.email) {
+            updateData.email = String(rawLead.email).trim();
           }
 
           if (Object.keys(updateData).length > 0) {
@@ -1159,16 +1373,18 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
               data: updateData,
             });
 
-            if (noteParts.length > 0) {
-              await prisma.leadActivity.create({
-                data: {
-                  leadId: existingLead.id,
-                  type: 'NOTE',
-                  content: `Updated via import: ${noteParts.join(' | ')}`,
-                  userId: currentUser.id || null,
-                }
-              });
-            }
+            const activityContent = noteParts.length > 0 
+              ? `Updated via import: ${noteParts.join(' | ')}`
+              : `Lead details updated via spreadsheet re-import`;
+
+            await prisma.leadActivity.create({
+              data: {
+                leadId: existingLead.id,
+                type: 'NOTE',
+                content: activityContent,
+                userId: currentUser.id || null,
+              }
+            });
 
             results.updated++;
           } else {
@@ -1181,90 +1397,7 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
         }
       }
 
-      // Assignee resolution
-      let assignedToId: string | null = fallbackAssignedUserId;
-      if (rawLead.employeeEmail || rawLead.assignedTo) {
-        const query = String(rawLead.employeeEmail || rawLead.assignedTo).trim().toLowerCase();
-        const foundUser = allUsers.find(
-          u => (u.email && u.email.toLowerCase() === query) || (u.fullName && u.fullName.toLowerCase() === query)
-        );
-        if (foundUser) {
-          assignedToId = foundUser.id;
-        }
-      } else if (rawLead.assignedToId) {
-        assignedToId = rawLead.assignedToId;
-      }
-
-      // Status resolution
-      let statusId: string | null = fallbackStatusId;
-      const rawStatus = String(rawLead.status || rawLead.statusName || '').trim();
-      if (rawStatus) {
-        const directStatusMatch = allStatuses.find(s => s.name.toLowerCase() === rawStatus.toLowerCase());
-        if (directStatusMatch) {
-          statusId = directStatusMatch.id;
-        } else {
-          const followUp = allStatuses.find(s => s.name.toLowerCase() === 'follow-up');
-          if (followUp) {
-            statusId = followUp.id;
-          }
-        }
-      }
-
-      // Brand resolution
-      let brandId = fallbackBrandId;
-      if (rawLead.brandName || rawLead.brand) {
-        const bName = String(rawLead.brandName || rawLead.brand).trim().toLowerCase();
-        const foundBrand = allBrands.find(b => b.name.toLowerCase() === bName);
-        if (foundBrand) brandId = foundBrand.id;
-      } else if (rawLead.brandId) {
-        brandId = rawLead.brandId;
-      }
-
-      // Source resolution
-      let sourceId = fallbackSourceId;
-      if (rawLead.sourceName || rawLead.source) {
-        const sName = String(rawLead.sourceName || rawLead.source).trim().toLowerCase();
-        const foundSource = allSources.find(s => 
-          s.name.toLowerCase() === sName || 
-          s.name.toLowerCase().includes(sName) || 
-          sName.includes(s.name.toLowerCase())
-        );
-        if (foundSource) sourceId = foundSource.id;
-      } else if (rawLead.sourceId) {
-        sourceId = rawLead.sourceId;
-      }
-      const matchedSource = allSources.find(s => s.id === sourceId);
-      const resolvedLeadType = matchedSource?.name || rawLead.source || 'Direct Lead';
-
-      // Project resolution
-      let projectId = defaultProjectId || null;
-      if (rawLead.projectName || rawLead.project) {
-        const pName = String(rawLead.projectName || rawLead.project).trim().toLowerCase();
-        const foundProject = allProjects.find(p => p.name.toLowerCase() === pName);
-        if (foundProject) projectId = foundProject.id;
-      } else if (rawLead.projectId) {
-        projectId = rawLead.projectId;
-      }
-
-      // Next date resolution
-      let nextFollowUpDate: Date | null = null;
-      if (rawLead.nextFollowUp || rawLead.nextDate) {
-        const d = new Date(rawLead.nextFollowUp || rawLead.nextDate);
-        if (!isNaN(d.getTime())) nextFollowUpDate = d;
-      }
-
-      // Build comments
-      const commentSections: string[] = [];
-      if (rawLead.requirement) commentSections.push(`Requirement: ${rawLead.requirement}`);
-      if (rawLead.siteLocation) commentSections.push(`Location: ${rawLead.siteLocation}`);
-      if (rawStatus && !allStatuses.some(s => s.name.toLowerCase() === rawStatus.toLowerCase())) {
-        commentSections.push(`Status Notes: ${rawStatus}`);
-      }
-      if (rawLead.comments && !commentSections.includes(rawLead.comments)) {
-        commentSections.push(rawLead.comments);
-      }
-      const combinedComments = commentSections.join(' | ') || null;
-
+      // Create new lead
       const createdLead = await prisma.lead.create({
         data: {
           name,

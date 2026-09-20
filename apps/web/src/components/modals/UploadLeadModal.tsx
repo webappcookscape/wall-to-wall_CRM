@@ -42,6 +42,7 @@ interface ParsedLeadRow {
   requirement?: string;
   siteLocation?: string;
   employeeEmail?: string;
+  message?: string;
   comments?: string;
   instructionToPass?: string;
   isValid: boolean;
@@ -186,23 +187,15 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
     errors: { row: number; leadName?: string; error: string }[];
   } | null>(null);
 
-  // Set intelligent defaults once masters load
+  // Intelligent defaults - Leave Brand & Source empty by default so Sheet values take priority
   useEffect(() => {
     if (masters) {
       if (!defaultStatusId && masters.statuses?.length > 0) {
         const followUp = masters.statuses.find(s => s.name.toLowerCase() === 'follow-up');
         if (followUp) setDefaultStatusId(followUp.id);
-        else setDefaultStatusId(masters.statuses[0]!.id);
-      }
-      if (!defaultBrandId && masters.brands?.length > 0) {
-        setDefaultBrandId(masters.brands[0]!.id);
-      }
-      if (!defaultSourceId && masters.sources?.length > 0) {
-        const importSrc = masters.sources.find(s => /upload|import|sheet/i.test(s.name));
-        setDefaultSourceId(importSrc ? importSrc.id : masters.sources[0]!.id);
       }
     }
-  }, [masters, defaultStatusId, defaultBrandId, defaultSourceId]);
+  }, [masters, defaultStatusId]);
 
   if (!isOpen) return null;
 
@@ -268,27 +261,28 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
 
       const headerRow = (rawMatrix[headerRowIdx] || []).map(c => String(c).toLowerCase().trim());
 
-      // Map column positions
+      // Map column positions with extensive aliases
       const colMap: { [key: string]: number } = {};
       headerRow.forEach((h, idx) => {
         if (!h) return;
-        if (/^(s\.?\s*no|sl\.?\s*no|sno|id)$/i.test(h)) colMap['sNo'] = idx;
-        else if (/(client\s*name|customer\s*name|^name$|^client$|full\s*name)/i.test(h)) colMap['name'] = idx;
-        else if (/(^number$|^phone$|^mobile$|contact|ph\s*no|phone\s*no|mobile\s*number)/i.test(h)) colMap['phone'] = idx;
+        if (/^(s\.?\s*no|sl\.?\s*no|sno|lead\s*id|id)$/i.test(h)) colMap['sNo'] = idx;
+        else if (/(client\s*name|customer\s*name|^name$|^client$|full\s*name|lead\s*name|contact\s*person|person\s*name)/i.test(h)) colMap['name'] = idx;
+        else if (/(^number$|^phone$|^mobile$|contact|ph\s*no|phone\s*no|mobile\s*no|mobile\s*number|phone\s*number|cell|telephone)/i.test(h)) colMap['phone'] = idx;
         else if (/(email|mail|e-mail)/i.test(h)) colMap['email'] = idx;
-        else if (/brand/i.test(h)) colMap['brand'] = idx;
-        else if (/source/i.test(h)) colMap['source'] = idx;
-        else if (/(current\s*stage|^stage$)/i.test(h)) colMap['stage'] = idx;
-        else if (/(rating|priority|lead\s*rating|quality)/i.test(h)) colMap['rating'] = idx;
-        else if (/(date\s*collected|lead\s*date|collected\s*date|created\s*date)/i.test(h)) colMap['dateCollected'] = idx;
-        else if (/(next[\s\-]*date|follow[\s\-]*up[\s\-]*date|contactable[\s\-]*date|next[\s\-]*follow[\s\-]*up|reminder[\s\-]*date|remind|followup)/i.test(h)) colMap['nextDate'] = idx;
-        else if (/(employee\s*email|staff\s*email|assignee|assigned\s*to|executive|sales\s*rep)/i.test(h)) colMap['employeeEmail'] = idx;
-        else if (/project/i.test(h)) colMap['project'] = idx;
-        else if (/(requirement|scope|work|service)/i.test(h)) colMap['requirement'] = idx;
-        else if (/(site\s*location|location|address|place|city)/i.test(h)) colMap['siteLocation'] = idx;
-        else if (/(instruction\s*to\s*pass|instruction|special\s*note|guidance)/i.test(h)) colMap['instructionToPass'] = idx;
-        else if (/(discussion\s*comments|comment|notes|remarks|discussion)/i.test(h)) colMap['comments'] = idx;
-        else if (/status/i.test(h)) colMap['status'] = idx;
+        else if (/(brand|company|division|unit|organization)/i.test(h)) colMap['brand'] = idx;
+        else if (/(source|lead\s*source|channel|platform|campaign|media|medium|origin|ad\s*source|ad\s*name)/i.test(h)) colMap['source'] = idx;
+        else if (/(current\s*stage|^stage$|pipeline\s*stage|sales\s*stage|sub\s*status|step)/i.test(h)) colMap['stage'] = idx;
+        else if (/(rating|priority|lead\s*rating|quality|lead\s*quality|score|grade)/i.test(h)) colMap['rating'] = idx;
+        else if (/(date\s*collected|lead\s*date|collected\s*date|created\s*date|enquiry\s*date|^date$|received\s*date)/i.test(h)) colMap['dateCollected'] = idx;
+        else if (/(next[\s\-]*date|follow[\s\-]*up[\s\-]*date|contactable[\s\-]*date|next[\s\-]*follow[\s\-]*up|reminder[\s\-]*date|remind|followup|next\s*call|call\s*back)/i.test(h)) colMap['nextDate'] = idx;
+        else if (/(employee\s*email|staff\s*email|assignee|assigned\s*to|assigned\s*employee|executive|sales\s*rep|sales\s*person|allocated\s*to|owner|staff|employee)/i.test(h)) colMap['employeeEmail'] = idx;
+        else if (/(project|property|work\s*type|scope|interest|product)/i.test(h)) colMap['project'] = idx;
+        else if (/(requirement|service|work\s*required|work\s*detail|scope\s*of\s*work)/i.test(h)) colMap['requirement'] = idx;
+        else if (/(site\s*location|location|address|place|city|area|town)/i.test(h)) colMap['siteLocation'] = idx;
+        else if (/(instruction\s*to\s*pass|instructions?|special\s*note|guidance|internal\s*notes?)/i.test(h)) colMap['instructionToPass'] = idx;
+        else if (/(comment\s*message|client\s*message|customer\s*message|enquiry\s*message|^message$|user\s*message)/i.test(h)) colMap['message'] = idx;
+        else if (/(discussion\s*comments?|comments?|notes?|remarks?|discussion|feedback|query|enquiry|details|description|summary|conversation)/i.test(h)) colMap['comments'] = idx;
+        else if (/(lead\s*status|call\s*status|disposition|^status$|state)/i.test(h)) colMap['status'] = idx;
       });
 
       // Step 2: Parse data rows starting after headerRowIdx
@@ -319,8 +313,16 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
         const employeeEmailVal = colMap['employeeEmail'] !== undefined ? String(row[colMap['employeeEmail']] || '').trim() : '';
         const projectVal = colMap['project'] !== undefined ? String(row[colMap['project']] || '').trim() : '';
         const emailVal = colMap['email'] !== undefined ? String(row[colMap['email']] || '').trim() : '';
-        const commentsVal = colMap['comments'] !== undefined ? String(row[colMap['comments']] || '').trim() : '';
+        const rawMessageVal = colMap['message'] !== undefined ? String(row[colMap['message']] || '').trim() : '';
+        const rawCommentsVal = colMap['comments'] !== undefined ? String(row[colMap['comments']] || '').trim() : '';
         const instructionVal = colMap['instructionToPass'] !== undefined ? String(row[colMap['instructionToPass']] || '').trim() : '';
+
+        let commentsCombined = '';
+        if (rawMessageVal && rawCommentsVal && rawMessageVal !== rawCommentsVal) {
+          commentsCombined = `${rawMessageVal} | ${rawCommentsVal}`;
+        } else {
+          commentsCombined = rawMessageVal || rawCommentsVal;
+        }
 
         const parsedNextDate = parseFlexibleDate(nextDateVal);
         const parsedCollectedDate = parseFlexibleDate(dateCollectedVal);
@@ -355,7 +357,8 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
           requirement: requirementVal,
           siteLocation: siteLocationVal,
           employeeEmail: employeeEmailVal,
-          comments: commentsVal,
+          message: rawMessageVal,
+          comments: commentsCombined,
           instructionToPass: instructionVal,
           isValid,
           invalidReason
@@ -484,11 +487,11 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
           phone: r.phone,
           email: r.email || null,
           brand: r.brand || null,
-          brandId: defaultBrandId || null,
+          brandId: r.brand ? null : (defaultBrandId || null),
           source: r.source || null,
-          sourceId: defaultSourceId || null,
+          sourceId: r.source ? null : (defaultSourceId || null),
           project: r.project || null,
-          projectId: defaultProjectId || null,
+          projectId: r.project ? null : (defaultProjectId || null),
           status: r.status || null,
           stage: r.stage || null,
           rating: r.rating || null,
@@ -498,7 +501,8 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
           requirement: r.requirement || null,
           siteLocation: r.siteLocation || null,
           employeeEmail: r.employeeEmail || customEmployeeEmail || null,
-          assignedToId: defaultAssignedToId || null,
+          assignedToId: r.employeeEmail ? null : (defaultAssignedToId || null),
+          message: r.message || null,
           comments: r.comments || null,
           instructionToPass: r.instructionToPass || null,
         })),
@@ -682,8 +686,8 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
                   {/* Default Status */}
                   <div className="space-y-1">
                     <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">
-                      Default Status <span className="text-red-500">*</span>
-                      <span title="Choose 'Follow-up' if your sheet contains active followed leads" className="text-gray-400">
+                      Default Status (Fallback)
+                      <span title="Used only when status is not found in sheet row" className="text-gray-400">
                         <HelpCircle size={12} />
                       </span>
                     </label>
@@ -692,9 +696,10 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
                       value={defaultStatusId}
                       onChange={(e) => setDefaultStatusId(e.target.value)}
                     >
+                      <option value="">- From Sheet (Recommended) / Follow-up -</option>
                       {masters?.statuses?.map((s) => (
                         <option key={s.id} value={s.id}>
-                          {s.name} {s.name.toLowerCase() === 'follow-up' ? '(Recommended for followed leads)' : ''}
+                          {s.name} {s.name.toLowerCase() === 'follow-up' ? '(Default)' : ''}
                         </option>
                       ))}
                     </select>
@@ -704,7 +709,7 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
                   <div className="space-y-1">
                     <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">
                       Assign To Employee
-                      <span title="Select employee to assign all leads to directly, avoiding manual bulk assign" className="text-gray-400">
+                      <span title="Fallback if assignee is not specified in the sheet" className="text-gray-400">
                         <HelpCircle size={12} />
                       </span>
                     </label>
@@ -746,17 +751,21 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
 
                   {/* Default Brand */}
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                      Brand <span className="text-red-500">*</span>
+                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">
+                      Brand (Fallback)
+                      <span title="Used only when brand is missing in sheet row" className="text-gray-400">
+                        <HelpCircle size={12} />
+                      </span>
                     </label>
                     <select
                       className="form-control !bg-white !py-2 !text-[12px] font-bold text-gray-700"
                       value={defaultBrandId}
                       onChange={(e) => setDefaultBrandId(e.target.value)}
                     >
+                      <option value="">- From Sheet (Recommended) / Auto -</option>
                       {masters?.brands?.map((b) => (
                         <option key={b.id} value={b.id}>
-                          {b.name}
+                          {b.name} (Override for all)
                         </option>
                       ))}
                     </select>
@@ -764,17 +773,21 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
 
                   {/* Default Source */}
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                      Source <span className="text-red-500">*</span>
+                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">
+                      Source (Fallback)
+                      <span title="Used only when source is missing in sheet row" className="text-gray-400">
+                        <HelpCircle size={12} />
+                      </span>
                     </label>
                     <select
                       className="form-control !bg-white !py-2 !text-[12px] font-bold text-gray-700"
                       value={defaultSourceId}
                       onChange={(e) => setDefaultSourceId(e.target.value)}
                     >
+                      <option value="">- From Sheet (Recommended) / Auto -</option>
                       {masters?.sources?.map((s) => (
                         <option key={s.id} value={s.id}>
-                          {s.name}
+                          {s.name} (Override for all)
                         </option>
                       ))}
                     </select>
@@ -783,7 +796,7 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
                   {/* Default Project (Optional) */}
                   <div className="space-y-1">
                     <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                      Project (Optional)
+                      Project (Optional Fallback)
                     </label>
                     <select
                       className="form-control !bg-white !py-2 !text-[12px] font-bold text-gray-700"
@@ -847,11 +860,12 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
                         <tr>
                           <th className="px-3 py-2 w-10">#</th>
                           <th className="px-3 py-2">Client Details</th>
+                          <th className="px-3 py-2">Brand & Source</th>
                           <th className="px-3 py-2">Status & Stage</th>
                           <th className="px-3 py-2">Rating</th>
                           <th className="px-3 py-2">Next Follow-up</th>
                           <th className="px-3 py-2">Assigned To</th>
-                          <th className="px-3 py-2">Notes & Remarks</th>
+                          <th className="px-3 py-2">Comments & Message</th>
                           <th className="px-3 py-2">Ready?</th>
                         </tr>
                       </thead>
@@ -863,6 +877,33 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
                               <div className="font-bold text-gray-800">{row.name || <span className="text-red-400 italic">Empty Name</span>}</div>
                               <div className="text-[10px] text-brand font-mono font-medium">{row.phone || <span className="text-red-400 italic">No Phone</span>}</div>
                               {row.email && <div className="text-[10px] text-gray-400 truncate max-w-[140px]">{row.email}</div>}
+                            </td>
+                            <td className="px-3 py-2">
+                              <div className="flex flex-col gap-1 items-start">
+                                {row.brand ? (
+                                  <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-amber-50 text-amber-800 border border-amber-200" title="Brand from sheet">
+                                    {row.brand}
+                                  </span>
+                                ) : (
+                                  <span className="text-gray-400 text-[9px] italic">
+                                    {defaultBrandId ? masters?.brands?.find(b => b.id === defaultBrandId)?.name : 'Auto'}
+                                  </span>
+                                )}
+                                {row.source ? (
+                                  <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-teal-50 text-teal-800 border border-teal-200" title="Source from sheet">
+                                    {row.source}
+                                  </span>
+                                ) : (
+                                  <span className="text-gray-400 text-[9px] italic">
+                                    {defaultSourceId ? masters?.sources?.find(s => s.id === defaultSourceId)?.name : 'Auto'}
+                                  </span>
+                                )}
+                                {row.project && (
+                                  <span className="text-[9px] text-gray-500 font-semibold truncate max-w-[120px]" title={row.project}>
+                                    Proj: {row.project}
+                                  </span>
+                                )}
+                              </div>
                             </td>
                             <td className="px-3 py-2">
                               <div className="flex flex-col gap-1">
@@ -903,8 +944,10 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
                             <td className="px-3 py-2 text-gray-600 text-[10px] max-w-[120px] truncate" title={row.employeeEmail}>
                               {row.employeeEmail || <span className="text-gray-400 italic">Default</span>}
                             </td>
-                            <td className="px-3 py-2 text-gray-500 max-w-[180px] truncate" title={`${row.requirement || ''} ${row.comments || ''} ${row.instructionToPass || ''}`}>
-                              {row.requirement || row.comments || row.instructionToPass || '—'}
+                            <td className="px-3 py-2 text-gray-600 text-[10px] max-w-[200px]" title={[row.message, row.comments, row.requirement, row.instructionToPass].filter(Boolean).join(' | ')}>
+                              <div className="line-clamp-2">
+                                {row.comments || row.message || row.requirement || row.instructionToPass || <span className="text-gray-300 italic">—</span>}
+                              </div>
                             </td>
                             <td className="px-3 py-2">
                               {row.isValid ? (
