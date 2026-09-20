@@ -83,7 +83,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
         email: lead.email || '',
         phone: lead.phone || '',
         projectId: lead.projectId || '',
-        sourceId: lead.sourceId || '',
+        sourceId: lead.sourceId || lead.source?.id || '',
         statusId: lead.statusId || '',
         brandId: lead.brandId || '',
         rating,
@@ -142,6 +142,8 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
         finalComments = `Location: ${formData.siteLocation.trim()}${finalComments ? ' | ' + finalComments : ''}`;
       }
 
+      const selectedSource = masters?.sources?.find((s: any) => s.id === formData.sourceId);
+
       const payload = {
         ...formData,
         name: formData.name?.trim(),
@@ -149,6 +151,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
         email: formData.email?.trim() || null,
         projectId: formData.projectId || null,
         sourceId: formData.sourceId || null,
+        leadType: selectedSource?.name || 'Direct Lead',
         brandId: formData.brandId || null,
         statusId: formData.statusId || null,
         assignedToId: formData.assignedToId || null,

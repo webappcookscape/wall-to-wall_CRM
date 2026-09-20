@@ -120,7 +120,30 @@ export const getLeads = asyncHandler(async (req: Request, res: Response) => {
 
   if (stageIds && Array.isArray(stageIds) && stageIds.length > 0) where.currentStageId = { in: stageIds };
 
-  if (assignedToIds && Array.isArray(assignedToIds) && assignedToIds.length > 0) where.assignedToId = { in: assignedToIds };
+  if (assignedToIds && Array.isArray(assignedToIds) && assignedToIds.length > 0) {
+    where.assignedToId = { in: assignedToIds };
+  } else if (req.body.assignedToId) {
+    if (req.body.assignedToId === 'unassigned') {
+      where.assignedToId = null;
+    } else {
+      where.assignedToId = req.body.assignedToId;
+    }
+  }
+
+  if (req.body.createdByIds && Array.isArray(req.body.createdByIds) && req.body.createdByIds.length > 0) {
+    where.createdById = { in: req.body.createdByIds };
+  } else if (req.body.createdById) {
+    where.createdById = req.body.createdById;
+  }
+
+  if (req.body.assignedById) {
+    where.activities = {
+      some: {
+        type: 'ASSIGNMENT',
+        userId: req.body.assignedById
+      }
+    };
+  }
 
   if (rating) where.rating = Number(rating);
   if (tagId) {
@@ -394,6 +417,25 @@ export const createLead = asyncHandler(async (req: Request, res: Response) => {
       data.createdById = firstAdmin?.id || 'system';
   }
 
+  // Synchronize source and leadType
+  if (!data.sourceId && (req.body.sourceName || req.body.source)) {
+    const srcName = String(req.body.sourceName || req.body.source).trim();
+    const matchedSource = await prisma.source.findFirst({
+      where: { name: { equals: srcName, mode: 'insensitive' } }
+    });
+    if (matchedSource) {
+      data.sourceId = matchedSource.id;
+      data.leadType = matchedSource.name;
+    } else {
+      data.leadType = srcName;
+    }
+  } else if (data.sourceId) {
+    const src = await prisma.source.findUnique({ where: { id: data.sourceId } });
+    if (src) {
+      data.leadType = src.name;
+    }
+  }
+
   const lead = await prisma.lead.create({ 
       data,
       include: {
@@ -565,6 +607,15 @@ export const updateLead = asyncHandler(async (req: Request, res: Response) => {
       }
     }
   });
+
+  if (data.sourceId !== undefined) {
+    if (data.sourceId) {
+      const src = await prisma.source.findUnique({ where: { id: data.sourceId } });
+      if (src) {
+        data.leadType = src.name;
+      }
+    }
+  }
 
   // Fetch existing lead to handle comments preservation and audit messages.
   const existingLead = await prisma.lead.findUnique({
@@ -818,6 +869,57 @@ export const bulkAssignLeads = asyncHandler(async (req: Request, res: Response) 
   await prisma.leadActivity.createMany({ data: activities });
 
   apiResponse.success(res, null, `Successfully assigned ${leadIds.length} leads`);
+});
+
+export const bulkDeleteLeads = asyncHandler(async (req: Request, res: Response) => {
+  const currentUser = getRequestUser(req);
+  if (currentUser.role !== 'ADMIN') {
+    return apiResponse.error(res, 'Only admin has delete access.', 403);
+  }
+
+  const { leadIds } = req.body;
+  if (!leadIds || !Array.isArray(leadIds) || leadIds.length === 0) {
+    return apiResponse.error(res, 'Lead IDs are required', 400);
+  }
+
+  const normalizedLeadIds = leadIds.map((id: any) => String(id));
+
+  await prisma.$transaction(async (tx: any) => {
+    // 1. Delete related appointments
+    await tx.appointment.deleteMany({
+      where: { leadId: { in: normalizedLeadIds } },
+    });
+
+    // 2. Delete related showroom visits
+    await tx.showroomVisit.deleteMany({
+      where: { leadId: { in: normalizedLeadIds } },
+    });
+
+    // 3. Delete related lead activities
+    await tx.leadActivity.deleteMany({
+      where: { leadId: { in: normalizedLeadIds } },
+    });
+
+    // 4. Delete related tasks
+    await tx.task.deleteMany({
+      where: { leadId: { in: normalizedLeadIds } },
+    });
+
+    // 5. Disconnect tags for these leads
+    for (const id of normalizedLeadIds) {
+      await tx.lead.update({
+        where: { id },
+        data: { tags: { set: [] } },
+      }).catch(() => {});
+    }
+
+    // 6. Delete the leads
+    await tx.lead.deleteMany({
+      where: { id: { in: normalizedLeadIds } },
+    });
+  });
+
+  apiResponse.success(res, null, `Successfully deleted ${normalizedLeadIds.length} leads`);
 });
 
 export const deleteLead = asyncHandler(async (req: Request, res: Response) => {
@@ -1122,11 +1224,17 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
       let sourceId = fallbackSourceId;
       if (rawLead.sourceName || rawLead.source) {
         const sName = String(rawLead.sourceName || rawLead.source).trim().toLowerCase();
-        const foundSource = allSources.find(s => s.name.toLowerCase() === sName);
+        const foundSource = allSources.find(s => 
+          s.name.toLowerCase() === sName || 
+          s.name.toLowerCase().includes(sName) || 
+          sName.includes(s.name.toLowerCase())
+        );
         if (foundSource) sourceId = foundSource.id;
       } else if (rawLead.sourceId) {
         sourceId = rawLead.sourceId;
       }
+      const matchedSource = allSources.find(s => s.id === sourceId);
+      const resolvedLeadType = matchedSource?.name || rawLead.source || 'Direct Lead';
 
       // Project resolution
       let projectId = defaultProjectId || null;
@@ -1164,6 +1272,7 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
           email: rawLead.email ? String(rawLead.email).trim() : null,
           brandId,
           sourceId,
+          leadType: resolvedLeadType,
           projectId,
           statusId,
           currentStageId,

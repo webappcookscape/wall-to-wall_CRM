@@ -41,6 +41,7 @@ const Leads: React.FC = () => {
   const [timeframe, setTimeframe] = useState('');
   const [contactDate, setContactDate] = useState('');
   const [selectedUserId, setSelectedUserId] = useState('');
+  const [createdById, setCreatedById] = useState('');
 
   const [activeView, setActiveView] = useState<'LIST' | 'DETAIL'>('LIST');
 
@@ -61,6 +62,7 @@ const Leads: React.FC = () => {
         timeframe: timeframe || undefined,
         contactDate: contactDate || undefined,
         assignedToIds: selectedUserId ? [selectedUserId] : undefined,
+        createdById: createdById || undefined,
       });
       setLeads(res.data);
       setTotal(res.total);
@@ -129,14 +131,14 @@ const Leads: React.FC = () => {
   // Reset page to 1 when filters change
   useEffect(() => {
     setPage(1);
-  }, [search, statusId, brandId, projectId, stageId, rating, timeframe, contactDate, selectedUserId]);
+  }, [search, statusId, brandId, projectId, stageId, rating, timeframe, contactDate, selectedUserId, createdById]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchLeads();
     }, 500); // 500ms debounce for search input
     return () => clearTimeout(timer);
-  }, [page, search, statusId, brandId, projectId, stageId, rating, timeframe, contactDate, selectedUserId]);
+  }, [page, search, statusId, brandId, projectId, stageId, rating, timeframe, contactDate, selectedUserId, createdById]);
 
   useEffect(() => {
     fetchCounts();
@@ -168,7 +170,7 @@ const Leads: React.FC = () => {
            )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-3 pt-3 border-t border-gray-100">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-9 gap-3 pt-3 border-t border-gray-100">
           <div className="space-y-1">
             <label className="text-xs font-bold text-gray-700 uppercase">Brand</label>
             <select value={brandId} onChange={(e) => setBrandId(e.target.value)} className="form-control !py-1.5 !px-2.5 !text-sm font-medium">
@@ -184,7 +186,7 @@ const Leads: React.FC = () => {
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-700 uppercase">Users</label>
+            <label className="text-xs font-bold text-gray-700 uppercase">Assigned To</label>
             <select
               disabled={!canFilterUsers}
               value={selectedUserId}
@@ -196,6 +198,22 @@ const Leads: React.FC = () => {
             >
               <option value="">{canFilterUsers ? 'All Allowed Users' : user?.fullName}</option>
               {canFilterUsers && masters?.users.map((u: MasterUser) => (
+                <option key={u.id} value={u.id}>{u.fullName}{u.role ? ` (${u.role})` : ''}</option>
+              ))}
+            </select>
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-gray-700 uppercase">Created By</label>
+            <select
+              value={createdById}
+              onChange={(e) => {
+                setCreatedById(e.target.value);
+                setPage(1);
+              }}
+              className="form-control !py-1.5 !px-2.5 !text-sm font-medium"
+            >
+              <option value="">All Creators</option>
+              {masters?.users?.map((u: MasterUser) => (
                 <option key={u.id} value={u.id}>{u.fullName}{u.role ? ` (${u.role})` : ''}</option>
               ))}
             </select>

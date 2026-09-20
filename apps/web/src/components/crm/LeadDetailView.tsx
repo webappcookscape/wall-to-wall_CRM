@@ -151,10 +151,10 @@ const LeadDetailView: FC<LeadDetailViewProps> = ({ lead, onRefresh }) => {
 
         {/* Info Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-5">
-           <div className="space-y-1">
-              <label className="text-xs font-black text-gray-400 uppercase tracking-wider">Lead Type</label>
-              <p className="text-sm md:text-base font-bold text-gray-800 m-0">{lead.leadType || 'Direct Lead'}</p>
-           </div>
+            <div className="space-y-1">
+               <label className="text-xs font-black text-gray-400 uppercase tracking-wider">Source</label>
+               <p className="text-sm md:text-base font-bold text-gray-800 m-0">{lead.source?.name || lead.leadType || 'Direct Lead'}</p>
+            </div>
            <div className="space-y-1">
               <label className="text-xs font-black text-gray-400 uppercase tracking-wider">Created By</label>
               <p className="text-sm md:text-base font-bold text-gray-800 m-0">{lead.createdBy?.fullName || '-'}</p>

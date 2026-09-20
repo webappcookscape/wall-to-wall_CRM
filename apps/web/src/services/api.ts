@@ -44,13 +44,18 @@ export const leadService = {
     brandIds?: string[],
     projectId?: string, 
     sourceIds?: string[],
+    sourceId?: string,
     tagId?: string, 
     stageId?: string,
     stageIds?: string[],
     rating?: string | number,
     timeframe?: string,
     contactDate?: string,
-    assignedToIds?: string[]
+    assignedToIds?: string[],
+    assignedToId?: string,
+    assignedById?: string,
+    createdById?: string,
+    createdByIds?: string[],
   }): Promise<{ data: Lead[], total: number }> => {
     const response = await axios.post(`${API_BASE_URL}/leads/list`, params);
     return response.data.data;
@@ -123,6 +128,11 @@ export const leadService = {
 
   bulkAssignLeads: async (leadIds: string[], userId: string): Promise<any> => {
     const response = await axios.post(`${API_BASE_URL}/leads/bulk-assign`, { leadIds, userId });
+    return response.data;
+  },
+
+  bulkDeleteLeads: async (leadIds: string[]): Promise<any> => {
+    const response = await axios.post(`${API_BASE_URL}/leads/bulk-delete`, { leadIds });
     return response.data;
   },
 

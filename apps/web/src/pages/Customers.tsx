@@ -6,18 +6,28 @@ import type { Lead, MasterData } from '../types/crm';
 import { 
   Users, 
   FileUp, 
-  ChevronRight 
+  ChevronRight,
+  Trash2,
+  Search,
+  X
 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const Customers: React.FC = () => {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'ADMIN';
+
   const [leads, setLeads] = useState<Lead[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
   const [targetUserId, setTargetUserId] = useState('');
   const [isSubmittingBulk, setIsSubmittingBulk] = useState(false);
+  const [isSubmittingBulkDelete, setIsSubmittingBulkDelete] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
   
   const [masters, setMasters] = useState<MasterData | null>(null);
   const [activeFilters, setActiveFilters] = useState<any>({
@@ -48,7 +58,7 @@ const Customers: React.FC = () => {
       
       const res = await leadService.getLeads({ 
         page, 
-        limit: 10,
+        limit: pageSize,
         ...activeFilters,
         statusIds: orderBookedStatus ? [orderBookedStatus.id] : undefined
       });
@@ -59,7 +69,20 @@ const Customers: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [page, activeFilters, masters]);
+  }, [page, pageSize, activeFilters, masters]);
+
+  // Debounced search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setActiveFilters((prev: any) => {
+        if (prev.search === searchInput) return prev;
+        setPage(1);
+        return { ...prev, search: searchInput };
+      });
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   useEffect(() => {
     fetchMasters();
@@ -78,8 +101,6 @@ const Customers: React.FC = () => {
     }));
     setPage(1);
   };
-
-
 
   const handleBulkAssign = async () => {
     if (!targetUserId) {
@@ -102,8 +123,29 @@ const Customers: React.FC = () => {
     }
   };
 
+  const handleBulkDelete = async () => {
+    if (selectedLeads.length === 0) return;
+    const confirmed = window.confirm(
+      `Are you sure you want to permanently delete ${selectedLeads.length} selected customer(s)? This cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    setIsSubmittingBulkDelete(true);
+    try {
+      await leadService.bulkDeleteLeads(selectedLeads);
+      alert(`Successfully deleted ${selectedLeads.length} customer(s).`);
+      setSelectedLeads([]);
+      fetchLeads();
+    } catch (error: any) {
+      console.error('Error in bulk delete:', error);
+      alert(error?.response?.data?.message || 'Failed to bulk delete customers.');
+    } finally {
+      setIsSubmittingBulkDelete(false);
+    }
+  };
+
   const toggleSelectAll = () => {
-    if (selectedLeads.length === leads.length) {
+    if (leads.length > 0 && selectedLeads.length === leads.length) {
       setSelectedLeads([]);
     } else {
       setSelectedLeads(leads.map(l => l.id));
@@ -121,9 +163,9 @@ const Customers: React.FC = () => {
       header: (
         <input 
           type="checkbox" 
-          checked={selectedLeads.length > 0 && selectedLeads.length === leads.length}
+          checked={leads.length > 0 && selectedLeads.length === leads.length}
           onChange={toggleSelectAll}
-          className="border-gray-300"
+          className="w-4 h-4 rounded border-gray-300 text-brand focus:ring-brand cursor-pointer"
         />
       ),
       accessor: 'id',
@@ -132,7 +174,7 @@ const Customers: React.FC = () => {
           type="checkbox" 
           checked={selectedLeads.includes(row.id)}
           onChange={() => toggleSelectOne(row.id)}
-          className="border-gray-300"
+          className="w-4 h-4 rounded border-gray-300 text-brand focus:ring-brand cursor-pointer"
         />
       )
     },
@@ -204,7 +246,7 @@ const Customers: React.FC = () => {
       header: 'Action',
       accessor: 'actions',
       render: () => (
-        <button className="text-gray-400 hover:text-brand transition-colors">
+        <button className="text-gray-400 hover:text-brand transition-colors cursor-pointer">
           <ChevronRight size={16} />
         </button>
       )
@@ -246,7 +288,7 @@ const Customers: React.FC = () => {
         <div className="flex flex-wrap gap-2">
           <button 
             onClick={handleExport}
-            className="btn-custom !bg-green-600 hover:!bg-green-700 !rounded-full !px-4 !py-1.5 text-[11px] flex items-center gap-2"
+            className="btn-custom !bg-green-600 hover:!bg-green-700 !rounded-full !px-4 !py-1.5 text-[11px] flex items-center gap-2 cursor-pointer"
           >
             <FileUp size={14} /> Export Customers
           </button>
@@ -259,28 +301,28 @@ const Customers: React.FC = () => {
           <div className="flex flex-col gap-1 w-full sm:w-auto">
             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Brand</label>
             <select 
-              className="w-full sm:w-40 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-[11px] font-bold outline-none focus:ring-2 focus:ring-brand/10 focus:border-brand transition-all"
+              className="w-full sm:w-48 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-[11px] font-bold outline-none focus:ring-2 focus:ring-brand/10 focus:border-brand transition-all cursor-pointer"
               value={tempFilters.brandId}
               onChange={(e) => setTempFilters({ ...tempFilters, brandId: e.target.value })}
             >
-              <option value="">-Select-</option>
+              <option value="">-Select Brand-</option>
               {masters?.brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
             </select>
           </div>
           <div className="flex flex-col gap-1 w-full sm:w-auto">
             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Project Type</label>
             <select 
-              className="w-full sm:w-48 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-[11px] font-bold outline-none focus:ring-2 focus:ring-brand/10 focus:border-brand transition-all"
+              className="w-full sm:w-48 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-[11px] font-bold outline-none focus:ring-2 focus:ring-brand/10 focus:border-brand transition-all cursor-pointer"
               value={tempFilters.projectId}
               onChange={(e) => setTempFilters({ ...tempFilters, projectId: e.target.value })}
             >
-              <option value="">-Select-</option>
+              <option value="">-Select Project-</option>
               {masters?.projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </div>
           <button 
             onClick={handleApplyFilters}
-            className="w-full sm:w-auto px-6 py-2 rounded-lg bg-brand text-white text-[11px] font-bold uppercase tracking-widest hover:bg-[#004d30] transition-all shadow-lg shadow-brand/10"
+            className="w-full sm:w-auto px-6 py-2 rounded-lg bg-brand text-white text-[11px] font-bold uppercase tracking-widest hover:bg-[#004d30] transition-all shadow-lg shadow-brand/10 cursor-pointer"
           >
             Apply Filters
           </button>
@@ -289,16 +331,39 @@ const Customers: React.FC = () => {
 
       {/* Bulk Action Bar */}
       {selectedLeads.length > 0 && (
-          <div className="bg-gray-800 text-white p-3 rounded mb-4 flex items-center justify-between animate-in slide-in-from-top-2 duration-200">
-              <span className="text-xs font-bold">{selectedLeads.length} Customers Selected</span>
-              <div className="flex gap-3">
+          <div className="bg-gray-800 text-white p-3 rounded-xl mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg animate-in slide-in-from-top-2 duration-200">
+              <span className="text-xs font-bold flex items-center gap-2">
+                <span className="bg-brand text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black">
+                  {selectedLeads.length}
+                </span>
+                Customers Selected
+              </span>
+              <div className="flex flex-wrap items-center gap-2">
                   <button 
                     onClick={() => setIsBulkModalOpen(true)}
-                    className="bg-brand text-white px-3 py-1 rounded text-[10px] font-bold uppercase hover:bg-[#004d30] transition-colors"
+                    className="bg-brand text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider hover:bg-[#004d30] transition-colors cursor-pointer"
                   >
                     Reassign Manager
                   </button>
-                  <button className="text-gray-400 hover:text-white text-[10px] font-bold uppercase transition-colors" onClick={() => setSelectedLeads([])}>Cancel</button>
+
+                  {isAdmin && (
+                    <button 
+                      onClick={handleBulkDelete}
+                      disabled={isSubmittingBulkDelete}
+                      className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-sm flex items-center gap-1 transition-colors disabled:opacity-50 cursor-pointer"
+                    >
+                      {isSubmittingBulkDelete ? (
+                        <span className="h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                      ) : (
+                        <Trash2 size={13} />
+                      )}
+                      <span>Bulk Delete</span>
+                    </button>
+                  )}
+
+                  <button className="text-gray-400 hover:text-white text-[10px] font-bold uppercase transition-colors px-2 cursor-pointer" onClick={() => setSelectedLeads([])}>
+                    Cancel
+                  </button>
               </div>
           </div>
       )}
@@ -309,14 +374,24 @@ const Customers: React.FC = () => {
               <div className="flex items-center gap-2 text-[11px] font-bold text-gray-500 uppercase tracking-widest">
                   <Users size={14} className="text-brand" /> Active Customer Database
               </div>
-              <div className="flex items-center gap-2 w-full sm:w-auto">
+              <div className="relative flex items-center w-full sm:w-72">
+                  <Search size={15} className="absolute left-3 text-gray-400 pointer-events-none" />
                   <input 
                       type="text" 
-                      placeholder="Search customers..." 
-                      className="bg-white border border-gray-200 rounded-lg px-4 py-1.5 text-[11px] font-medium w-full sm:w-64 outline-none focus:ring-2 focus:ring-brand/10 focus:border-brand transition-all"
-                      value={activeFilters.search}
-                      onChange={(e) => setActiveFilters({ ...activeFilters, search: e.target.value })}
+                      placeholder="Search name, phone, customer ID..." 
+                      className="bg-white border border-gray-200 rounded-lg pl-8 pr-7 py-1.5 text-xs font-medium w-full outline-none focus:ring-2 focus:ring-brand/10 focus:border-brand transition-all"
+                      value={searchInput}
+                      onChange={(e) => setSearchInput(e.target.value)}
                   />
+                  {searchInput && (
+                    <button 
+                      type="button"
+                      onClick={() => setSearchInput('')}
+                      className="absolute right-2 text-gray-400 hover:text-gray-700 cursor-pointer"
+                    >
+                      <X size={13} />
+                    </button>
+                  )}
               </div>
           </div>
           
@@ -325,7 +400,13 @@ const Customers: React.FC = () => {
               data={leads} 
               total={total} 
               page={page} 
+              pageSize={pageSize}
               onPageChange={setPage} 
+              onPageSizeChange={(newSize) => {
+                setPageSize(newSize);
+                setPage(1);
+              }}
+              pageSizeOptions={[10, 25, 50, 100]}
               isLoading={isLoading}
           />
       </div>
@@ -336,41 +417,43 @@ const Customers: React.FC = () => {
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-200">
             <div className="bg-[#3b3e47] p-6 flex items-center justify-between text-white">
               <h3 className="text-lg font-bold text-white font-rubik uppercase tracking-tight">Reassign Manager</h3>
-              <button onClick={() => setIsBulkModalOpen(false)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+              <button onClick={() => setIsBulkModalOpen(false)} className="p-2 hover:bg-white/10 rounded-full transition-colors cursor-pointer">
                 <ChevronRight className="rotate-90" size={20} />
               </button>
             </div>
             <div className="p-8 space-y-6">
                <div className="space-y-1.5">
-                  <p className="text-sm text-gray-500 mb-4">Reassigning <strong>{selectedLeads.length}</strong> customer accounts to a new relationship manager.</p>
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Select Manager</label>
+                  <p className="text-sm text-gray-500 mb-4">You are reassigning <strong>{selectedLeads.length}</strong> customers to a new manager.</p>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Select Relationship Manager</label>
                   <select 
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand/10 focus:border-brand outline-none transition-all font-bold text-[#313a46]"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand/10 focus:border-brand outline-none transition-all font-bold text-[#313a46] cursor-pointer"
                     value={targetUserId}
                     onChange={(e) => setTargetUserId(e.target.value)}
                   >
-                    <option value="">- Choose Member -</option>
-                    {masters?.users.map(u => (
-                      <option key={u.id} value={u.id}>{u.fullName} ({u.role})</option>
+                    <option value="">- Choose Manager -</option>
+                    {masters?.users?.map(u => (
+                      <option key={u.id} value={u.id}>
+                        {u.fullName} ({u.role})
+                      </option>
                     ))}
                   </select>
                </div>
                <div className="flex gap-4 pt-4">
                   <button 
                     onClick={() => setIsBulkModalOpen(false)}
-                    className="px-6 py-4 rounded-xl border border-gray-200 text-gray-400 font-bold text-[10px] hover:bg-gray-50 transition-all uppercase tracking-[0.2em]"
+                    className="px-6 py-4 rounded-xl border border-gray-200 text-gray-400 font-bold text-[10px] hover:bg-gray-50 transition-all uppercase tracking-[0.2em] cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button 
                     disabled={isSubmittingBulk || !targetUserId}
                     onClick={handleBulkAssign}
-                    className="flex-1 px-6 py-4 rounded-xl bg-brand text-white font-bold text-[10px] hover:bg-[#004d30] transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-lg shadow-brand/20 disabled:opacity-50"
+                    className="flex-1 px-6 py-4 rounded-xl bg-brand text-white font-bold text-[10px] hover:bg-[#004d30] transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-lg shadow-brand/20 disabled:opacity-50 cursor-pointer"
                   >
                     {isSubmittingBulk ? (
                       <div className="w-5 h-5 border-2 border-white/30 border-t-white animate-spin rounded-full" />
                     ) : (
-                      'Confirm Update'
+                      'Confirm Reassign'
                     )}
                   </button>
                </div>
