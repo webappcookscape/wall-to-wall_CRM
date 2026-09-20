@@ -5,7 +5,8 @@ import {
   Activity,
   Edit2,
   Trash2,
-  MessageSquare
+  MessageSquare,
+  MapPin
 } from 'lucide-react';
 import type { Lead } from '../../types/crm';
 import ActionModal from '../modals/ActionModal';
@@ -60,6 +61,26 @@ const LeadDetailView: FC<LeadDetailViewProps> = ({ lead, onRefresh }) => {
   const [isUpdatingRating, setIsUpdatingRating] = useState(false);
 
   const ratingOpt = getRatingOption(lead?.rating, lead?.ratingName);
+
+  // Extract site location and requirement cleanly from lead or comments
+  const rawComments = lead?.comments || '';
+  const locMatch = rawComments.match(/Location:\s*([^|]+)/i);
+  const siteLocation = (lead as any)?.siteLocation || (locMatch ? locMatch[1].trim() : null);
+
+  const reqMatch = rawComments.match(/Requirement:\s*([^|]+)/i);
+  const requirement = (lead as any)?.requirement || (reqMatch ? reqMatch[1].trim() : null);
+
+  // Strip out "Location: ..." and "Requirement: ..." so Comments box only shows true comments/message
+  const cleanComments = rawComments
+    .replace(/Location:\s*[^|]+(\s*\|\s*)?/gi, '')
+    .replace(/Requirement:\s*[^|]+(\s*\|\s*)?/gi, '')
+    .replace(/^(\s*\|\s*|\s*\/\s*)+|(\s*\|\s*|\s*\/\s*)+$/g, '')
+    .trim();
+
+  // Split multi-part comments by pipe for clean readability
+  const commentSegments = cleanComments
+    ? cleanComments.split(/\s*\|\s*/).map(s => s.trim()).filter(Boolean)
+    : [];
 
   const handleRatingChange = async (newRating: number) => {
     if (!lead || !canEditLead || isUpdatingRating) return;
@@ -207,13 +228,34 @@ const LeadDetailView: FC<LeadDetailViewProps> = ({ lead, onRefresh }) => {
                 }) : '-'}
               </p>
            </div>
-            {lead.comments && (
+           {siteLocation && (
+             <div className="space-y-1">
+               <label className="text-xs font-black text-gray-400 uppercase tracking-wider flex items-center gap-1">
+                 <MapPin size={12} className="text-brand" /> Site Location
+               </label>
+               <p className="text-sm md:text-base font-bold text-gray-800 m-0">{siteLocation}</p>
+             </div>
+           )}
+           {requirement && (
+             <div className="space-y-1">
+               <label className="text-xs font-black text-gray-400 uppercase tracking-wider">Requirement</label>
+               <p className="text-sm md:text-base font-bold text-gray-800 m-0">{requirement}</p>
+             </div>
+           )}
+            {commentSegments.length > 0 && (
               <div className="space-y-1.5 col-span-2 md:col-span-3 mt-2">
                 <label className="text-xs font-black text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
                   <MessageSquare size={13} className="text-brand" /> Comments & Message
                 </label>
-                <div className="text-sm md:text-base font-semibold text-gray-800 bg-emerald-50/50 p-3.5 rounded-xl border border-emerald-200/70 m-0 whitespace-pre-wrap leading-relaxed shadow-xs">
-                  {lead.comments}
+                <div className="space-y-2 bg-emerald-50/50 p-3.5 rounded-xl border border-emerald-200/70 shadow-xs">
+                  {commentSegments.map((seg, idx) => (
+                    <div key={idx} className="text-sm md:text-base font-semibold text-gray-800 flex items-start gap-2">
+                      {commentSegments.length > 1 && (
+                        <span className="h-2 w-2 rounded-full bg-brand mt-2 shrink-0" />
+                      )}
+                      <span>{seg}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}

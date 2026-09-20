@@ -820,10 +820,21 @@ export const getLead = asyncHandler(async (req: Request, res: Response) => {
     return apiResponse.error(res, 'Lead not found', 404);
   }
 
+  let siteLocation: string | null = null;
+  if (lead.comments && typeof lead.comments === 'string') {
+    const match = lead.comments.match(/Location:\s*([^|]+)/i);
+    if (match && match[1]) siteLocation = match[1].trim();
+  }
+
   lead.activities = [...lead.activities, ...buildSyntheticLeadAudit(lead)]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-  apiResponse.success(res, lead);
+  apiResponse.success(res, {
+    ...lead,
+    siteLocation,
+    brand_name: lead.brand?.name || '-',
+    status_name: lead.status?.name || '-',
+  });
 });
 
 export const bulkAssignLeads = asyncHandler(async (req: Request, res: Response) => {

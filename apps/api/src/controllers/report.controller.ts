@@ -132,37 +132,64 @@ export const getLeadsMasterReport = asyncHandler(async (req: Request, res: Respo
       project: true,
       brand: true,
       status: true,
+      currentStage: true,
       assignedTo: true,
+      createdBy: true,
       tags: true
     },
     orderBy: { createdAt: 'desc' }
   });
 
   const reportData = leads.map(lead => {
-    // Determine Design Owner: if assigned to is DESIGNER, output name, else blank
-    const isDesigner = (lead.assignedTo?.role as any) === 'DESIGNER';
-    const designOwner = isDesigner ? lead.assignedTo?.fullName : '';
+    let siteLocation = '';
+    let cleanComments = lead.comments || '';
+    if (lead.comments) {
+      const locMatch = lead.comments.match(/Location:\s*([^|]+)/i);
+      if (locMatch && locMatch[1]) siteLocation = locMatch[1].trim();
+      cleanComments = lead.comments
+        .replace(/Location:\s*[^|]+(\s*\|\s*)?/gi, '')
+        .replace(/Requirement:\s*[^|]+(\s*\|\s*)?/gi, '')
+        .replace(/^(\s*\|\s*|\s*\/\s*)+|(\s*\|\s*|\s*\/\s*)+$/g, '')
+        .trim();
+    }
+
+    const nextDateVal = lead.nextFollowUp || lead.contactableDate;
+    const nextDateStr = nextDateVal ? nextDateVal.toISOString().split('T')[0] : '';
+    const baseDateStr = lead.dataCollected ? lead.dataCollected.toISOString().split('T')[0] : lead.createdAt.toISOString().split('T')[0];
+    const createdDateStr = lead.createdAt.toISOString().split('T')[0];
+    const sourceName = lead.source?.name || lead.leadType || 'Direct Lead';
 
     return {
       id: lead.id,
-      baseDate: lead.dataCollected ? lead.dataCollected.toISOString().split('T')[0] : lead.createdAt.toISOString().split('T')[0],
-      baseSource: lead.source?.name || '',
-      date: lead.createdAt.toISOString().split('T')[0],
-      assignTo: lead.assignedTo?.fullName || '',
+      leadId: `#${lead.leadId}`,
       clientName: lead.name,
+      phone: lead.phone,
+      email: lead.email || '',
+      brand: lead.brand?.name || 'Wall to Wall',
+      source: sourceName,
+      project: lead.project?.name || '-',
+      status: lead.status?.name || 'Fresh',
+      stage: lead.currentStage?.name || '-',
+      rating: lead.rating ? `${lead.rating} - ${lead.ratingName || 'Rated'}` : 'Not Rated',
+      dateCollected: baseDateStr,
+      createdDate: createdDateStr,
+      nextFollowUp: nextDateStr,
+      assignedTo: lead.assignedTo?.fullName || 'Unassigned',
+      createdBy: lead.createdBy?.fullName || 'System',
+      siteLocation: siteLocation || '-',
+      comments: cleanComments || '-',
+      instructionToPass: lead.instructionToPass || '-',
+      tags: lead.tags.map(t => t.name).join(', ') || '-',
+
+      // Backward compatible aliases
+      baseDate: baseDateStr,
+      baseSource: sourceName,
+      date: createdDateStr,
+      assignTo: lead.assignedTo?.fullName || 'Unassigned',
       phNo1: lead.phone,
-      dNo: lead.leadId,
-      project: lead.project?.name || '',
       emailId: lead.email || '',
-      phNo2: '', // Lead has only 1 phone field in Prisma schema
-      feedBack: lead.comments || '',
-      rating: lead.rating || 0,
-      brand: lead.brand?.name || '',
-      tag: lead.tags.map(t => t.name).join(', '),
-      designOwner,
-      instructionPass: lead.instructionToPass || '',
-      cpCode: '', // Mock/Empty as there is no CP Code in schema
-      status: lead.status?.name || ''
+      feedBack: cleanComments || '-',
+      instructionPass: lead.instructionToPass || '-',
     };
   });
 

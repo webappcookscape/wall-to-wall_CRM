@@ -45,24 +45,34 @@ type PerformanceRow = {
 
 type LeadsMasterRow = {
   id: string;
-  baseDate: string;
-  baseSource: string;
-  date: string;
-  assignTo: string;
+  leadId: string;
   clientName: string;
-  phNo1: string;
-  dNo: number;
-  project: string;
-  emailId: string;
-  phNo2: string;
-  feedBack: string;
-  rating: number;
+  phone: string;
+  email: string;
   brand: string;
-  tag: string;
-  designOwner: string;
-  instructionPass: string;
-  cpCode: string;
+  source: string;
+  project: string;
   status: string;
+  stage: string;
+  rating: string;
+  dateCollected: string;
+  createdDate: string;
+  nextFollowUp: string;
+  assignedTo: string;
+  createdBy: string;
+  siteLocation: string;
+  comments: string;
+  instructionToPass: string;
+  tags?: string;
+  // Backward compatibility aliases
+  baseDate?: string;
+  baseSource?: string;
+  date?: string;
+  assignTo?: string;
+  phNo1?: string;
+  dNo?: number | string;
+  feedBack?: string;
+  instructionPass?: string;
 };
 
 const Report: React.FC = () => {
@@ -164,51 +174,68 @@ const Report: React.FC = () => {
 
     const wb = XLSX.utils.book_new();
 
-    // Merged headers with 'CRM COOKSCAPE' on top row, centered
+    // Merged headers with 'WALL TO WALL CRM' on top row, centered
     const headers = [
-      ["CRM COOKSCAPE", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
-      ["Base Date", "Base Source", "Date", "Assign To", "Client Name", "Ph no-1", "D.No", "Project", "Email Id", "Ph no-2", "Feed Back", "Rating", "Brand", "Tag", "Design Owner", "Instruction Pass", "CP Code", "Status"]
+      ["WALL TO WALL CRM", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+      [
+        "Lead ID", 
+        "Client Name", 
+        "Phone", 
+        "Email", 
+        "Brand", 
+        "Source", 
+        "Project", 
+        "Status", 
+        "Current Stage", 
+        "Rating", 
+        "Date Collected", 
+        "Next Follow-up", 
+        "Assigned To", 
+        "Created By", 
+        "Site Location", 
+        "Comments & Message", 
+        "Instructions"
+      ]
     ];
 
     const rows = leadsMasterData.map(item => [
-      item.baseDate,
-      item.baseSource,
-      item.date,
-      item.assignTo,
+      item.leadId || (item.dNo ? `#${item.dNo}` : ''),
       item.clientName,
-      item.phNo1,
-      item.dNo,
-      item.project,
-      item.emailId,
-      item.phNo2,
-      item.feedBack,
-      item.rating,
+      item.phone || item.phNo1 || '',
+      item.email || (item as any).emailId || '',
       item.brand,
-      item.tag,
-      item.designOwner,
-      item.instructionPass,
-      item.cpCode,
-      item.status
+      item.source || item.baseSource || '',
+      item.project,
+      item.status,
+      item.stage || '',
+      item.rating,
+      item.dateCollected || item.baseDate || '',
+      item.nextFollowUp || '',
+      item.assignedTo || item.assignTo || '',
+      item.createdBy || '',
+      item.siteLocation || '',
+      item.comments || item.feedBack || '',
+      item.instructionToPass || item.instructionPass || ''
     ]);
 
     const ws_data = [...headers, ...rows];
     const ws = XLSX.utils.aoa_to_sheet(ws_data);
 
-    // Apply the top header merge (row 0, column 0 to column 17)
+    // Apply the top header merge (row 0, column 0 to column 16)
     ws['!merges'] = [
-      { s: { r: 0, c: 0 }, e: { r: 0, c: 17 } }
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 16 } }
     ];
 
     // Column widths
     ws['!cols'] = [
-      { wch: 12 }, { wch: 15 }, { wch: 12 }, { wch: 18 }, { wch: 20 },
-      { wch: 14 }, { wch: 8 }, { wch: 16 }, { wch: 22 }, { wch: 10 },
-      { wch: 25 }, { wch: 8 }, { wch: 12 }, { wch: 15 }, { wch: 18 },
-      { wch: 25 }, { wch: 10 }, { wch: 15 }
+      { wch: 10 }, { wch: 22 }, { wch: 14 }, { wch: 22 }, { wch: 14 },
+      { wch: 16 }, { wch: 16 }, { wch: 15 }, { wch: 16 }, { wch: 14 },
+      { wch: 14 }, { wch: 14 }, { wch: 18 }, { wch: 16 }, { wch: 20 },
+      { wch: 30 }, { wch: 25 }
     ];
 
-    XLSX.utils.book_append_sheet(wb, ws, "Leads Master");
-    XLSX.writeFile(wb, `Leads_Master_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+    XLSX.utils.book_append_sheet(wb, ws, "Wall to Wall Leads Master");
+    XLSX.writeFile(wb, `Wall_to_Wall_Leads_Master_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
   const handleExportActivitiesCSV = () => {
@@ -409,62 +436,43 @@ const Report: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full border-collapse border-spacing-0 text-left text-xs whitespace-nowrap">
                 <thead>
-                  {/* Top Centered CRM COOKSCAPE Header */}
+                  {/* Top Centered Wall to Wall Header */}
                   <tr className="bg-gray-100 text-gray-800 border-b border-gray-200">
-                    <th colSpan={18} className="px-4 py-3 text-center font-black text-sm uppercase tracking-widest">
-                      CRM COOKSCAPE
+                    <th colSpan={17} className="px-4 py-3 text-center font-black text-sm uppercase tracking-widest text-brand">
+                      WALL TO WALL CRM
                     </th>
                   </tr>
                   <tr className="bg-gray-50 text-gray-500 font-black uppercase tracking-wider text-[10px] border-b border-gray-200">
-                    <th className="px-4 py-2.5 border-r border-gray-200/50">Base Date</th>
-                    <th className="px-4 py-2.5 border-r border-gray-200/50">Base Source</th>
-                    <th className="px-4 py-2.5 border-r border-gray-200/50">Date</th>
-                    <th className="px-4 py-2.5 border-r border-gray-200/50">Assign To</th>
+                    <th className="px-4 py-2.5 border-r border-gray-200/50">Lead ID</th>
                     <th className="px-4 py-2.5 border-r border-gray-200/50">Client Name</th>
-                    <th className="px-4 py-2.5 border-r border-gray-200/50">Ph no-1</th>
-                    <th className="px-4 py-2.5 border-r border-gray-200/50 text-center">D.No</th>
-                    <th className="px-4 py-2.5 border-r border-gray-200/50">Project</th>
-                    <th className="px-4 py-2.5 border-r border-gray-200/50">Email Id</th>
-                    <th className="px-4 py-2.5 border-r border-gray-200/50">Ph no-2</th>
-                    <th className="px-4 py-2.5 border-r border-gray-200/50">Feed Back</th>
-                    <th className="px-4 py-2.5 border-r border-gray-200/50 text-center">Rating</th>
+                    <th className="px-4 py-2.5 border-r border-gray-200/50">Phone</th>
+                    <th className="px-4 py-2.5 border-r border-gray-200/50">Email</th>
                     <th className="px-4 py-2.5 border-r border-gray-200/50">Brand</th>
-                    <th className="px-4 py-2.5 border-r border-gray-200/50">Tag</th>
-                    <th className="px-4 py-2.5 border-r border-gray-200/50">Design Owner</th>
-                    <th className="px-4 py-2.5 border-r border-gray-200/50">Instruction Pass</th>
-                    <th className="px-4 py-2.5 border-r border-gray-200/50">CP Code</th>
-                    <th className="px-4 py-2.5">Status</th>
+                    <th className="px-4 py-2.5 border-r border-gray-200/50">Source</th>
+                    <th className="px-4 py-2.5 border-r border-gray-200/50">Project</th>
+                    <th className="px-4 py-2.5 border-r border-gray-200/50">Status</th>
+                    <th className="px-4 py-2.5 border-r border-gray-200/50">Stage</th>
+                    <th className="px-4 py-2.5 border-r border-gray-200/50 text-center">Rating</th>
+                    <th className="px-4 py-2.5 border-r border-gray-200/50">Date Collected</th>
+                    <th className="px-4 py-2.5 border-r border-gray-200/50">Next Follow-up</th>
+                    <th className="px-4 py-2.5 border-r border-gray-200/50">Assigned To</th>
+                    <th className="px-4 py-2.5 border-r border-gray-200/50">Created By</th>
+                    <th className="px-4 py-2.5 border-r border-gray-200/50">Site Location</th>
+                    <th className="px-4 py-2.5 border-r border-gray-200/50">Comments & Message</th>
+                    <th className="px-4 py-2.5">Instructions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 text-gray-600 font-medium">
                   {leadsMasterData.map((row) => (
                     <tr key={row.id} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="px-4 py-2.5 border-r border-gray-100">{row.baseDate}</td>
-                      <td className="px-4 py-2.5 border-r border-gray-100 font-bold text-gray-700">{row.baseSource}</td>
-                      <td className="px-4 py-2.5 border-r border-gray-100">{row.date}</td>
-                      <td className="px-4 py-2.5 border-r border-gray-100 font-bold text-gray-700 capitalize">{row.assignTo.toLowerCase()}</td>
-                      <td className="px-4 py-2.5 border-r border-gray-100 font-black text-gray-800 capitalize">{row.clientName.toLowerCase()}</td>
-                      <td className="px-4 py-2.5 border-r border-gray-100">{row.phNo1}</td>
-                      <td className="px-4 py-2.5 border-r border-gray-100 text-center font-bold">{row.dNo}</td>
+                      <td className="px-4 py-2.5 border-r border-gray-100 font-mono font-bold text-gray-800">{row.leadId || `#${row.dNo}`}</td>
+                      <td className="px-4 py-2.5 border-r border-gray-100 font-black text-gray-800">{row.clientName}</td>
+                      <td className="px-4 py-2.5 border-r border-gray-100 font-mono text-brand font-bold">{row.phone || row.phNo1}</td>
+                      <td className="px-4 py-2.5 border-r border-gray-100 text-gray-500">{row.email || (row as any).emailId || '-'}</td>
+                      <td className="px-4 py-2.5 border-r border-gray-100 font-bold text-gray-700">{row.brand}</td>
+                      <td className="px-4 py-2.5 border-r border-gray-100 font-bold text-gray-700">{row.source || row.baseSource}</td>
                       <td className="px-4 py-2.5 border-r border-gray-100">{row.project}</td>
-                      <td className="px-4 py-2.5 border-r border-gray-100 text-gray-500">{row.emailId}</td>
-                      <td className="px-4 py-2.5 border-r border-gray-100 text-gray-400">{row.phNo2 || '-'}</td>
-                      <td className="px-4 py-2.5 border-r border-gray-100 text-gray-500 max-w-[200px] overflow-hidden text-ellipsis">{row.feedBack}</td>
-                      <td className="px-4 py-2.5 border-r border-gray-100 text-center">
-                        <span className="bg-amber-50 text-amber-600 px-2 py-0.5 rounded font-black border border-amber-200/50">
-                          {row.rating || '0'} ★
-                        </span>
-                      </td>
-                      <td className="px-4 py-2.5 border-r border-gray-100">{row.brand}</td>
-                      <td className="px-4 py-2.5 border-r border-gray-100">
-                        <span className="text-[10px] bg-brand/5 text-brand px-1.5 py-0.5 rounded border border-brand/10 font-bold">
-                          {row.tag || 'N/A'}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2.5 border-r border-gray-100 capitalize">{row.designOwner.toLowerCase() || '-'}</td>
-                      <td className="px-4 py-2.5 border-r border-gray-100 text-gray-500 max-w-[200px] overflow-hidden text-ellipsis">{row.instructionPass || '-'}</td>
-                      <td className="px-4 py-2.5 border-r border-gray-100 text-gray-400">{row.cpCode || '-'}</td>
-                      <td className="px-4 py-2.5 font-bold">
+                      <td className="px-4 py-2.5 border-r border-gray-100 font-bold">
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
                           row.status === 'Order Booked' ? 'bg-emerald-100 text-emerald-700' :
                           row.status === 'Opportunities' ? 'bg-blue-100 text-blue-700' :
@@ -474,6 +482,19 @@ const Report: React.FC = () => {
                           {row.status}
                         </span>
                       </td>
+                      <td className="px-4 py-2.5 border-r border-gray-100 font-bold text-purple-700">{row.stage || '-'}</td>
+                      <td className="px-4 py-2.5 border-r border-gray-100 text-center">
+                        <span className="bg-amber-50 text-amber-600 px-2 py-0.5 rounded font-black border border-amber-200/50">
+                          {row.rating || '0'} ★
+                        </span>
+                      </td>
+                      <td className="px-4 py-2.5 border-r border-gray-100">{row.dateCollected || row.baseDate}</td>
+                      <td className="px-4 py-2.5 border-r border-gray-100 font-semibold text-emerald-700">{row.nextFollowUp || '-'}</td>
+                      <td className="px-4 py-2.5 border-r border-gray-100 font-bold text-gray-700">{row.assignedTo || row.assignTo || '-'}</td>
+                      <td className="px-4 py-2.5 border-r border-gray-100 text-gray-500">{row.createdBy || '-'}</td>
+                      <td className="px-4 py-2.5 border-r border-gray-100 text-gray-600 max-w-[150px] truncate" title={row.siteLocation}>{row.siteLocation || '-'}</td>
+                      <td className="px-4 py-2.5 border-r border-gray-100 text-gray-600 max-w-[220px] truncate" title={row.comments || row.feedBack}>{row.comments || row.feedBack || '-'}</td>
+                      <td className="px-4 py-2.5 text-gray-500 max-w-[180px] truncate" title={row.instructionToPass || row.instructionPass}>{row.instructionToPass || row.instructionPass || '-'}</td>
                     </tr>
                   ))}
                   {leadsMasterData.length === 0 && (

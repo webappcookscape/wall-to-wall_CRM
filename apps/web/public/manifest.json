@@ -1,18 +1,18 @@
 {
-  "short_name": "Cookscape CRM",
-  "name": "Cookscape Lead Management CRM",
+  "short_name": "Wall to Wall CRM",
+  "name": "Wall to Wall Lead Management CRM",
   "icons": [
     {
-      "src": "/icons/icon-192.png",
-      "type": "image/png",
-      "sizes": "192x192",
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512",
       "purpose": "any maskable"
     },
     {
-      "src": "/icons/icon-512.png",
-      "type": "image/png",
-      "sizes": "512x512",
-      "purpose": "any maskable"
+      "src": "/assets/logos/Wall-to-wall_logo.jpeg",
+      "type": "image/jpeg",
+      "sizes": "192x192",
+      "purpose": "any"
     }
   ],
   "start_url": "/",
