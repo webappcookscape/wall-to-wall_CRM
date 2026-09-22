@@ -1022,7 +1022,7 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
     const cleanEmail = String(defaultEmployeeEmail).trim().toLowerCase();
     const cleanEmailKey = cleanKey(cleanEmail);
     const found = allUsers.find(
-      u => (u.email && u.email.toLowerCase() === cleanEmail) || 
+      (u: any) => (u.email && u.email.toLowerCase() === cleanEmail) || 
            (u.fullName && u.fullName.toLowerCase() === cleanEmail) ||
            (u.fullName && cleanKey(u.fullName) === cleanEmailKey)
     );
@@ -1036,14 +1036,14 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
   // Resolve default status
   let fallbackStatusId: string | null = defaultStatusId || null;
   if (!fallbackStatusId) {
-    const followUp = allStatuses.find(s => cleanKey(s.name) === 'followup');
-    const fresh = allStatuses.find(s => cleanKey(s.name) === 'fresh');
+    const followUp = allStatuses.find((s: any) => cleanKey(s.name) === 'followup');
+    const fresh = allStatuses.find((s: any) => cleanKey(s.name) === 'fresh');
     fallbackStatusId = followUp?.id || fresh?.id || allStatuses[0]?.id || null;
   }
 
   // Fallbacks for Brand and Source
   const fallbackBrandId = defaultBrandId || allBrands[0]?.id || null;
-  const fallbackSourceId = defaultSourceId || allSources.find(s => /upload|import|direct/i.test(s.name))?.id || allSources[0]?.id || null;
+  const fallbackSourceId = defaultSourceId || allSources.find((s: any) => /upload|import|direct/i.test(s.name))?.id || allSources[0]?.id || null;
 
   const results = {
     total: leads.length,
@@ -1093,17 +1093,14 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
         continue;
       }
 
-      // 1. Source Resolution: Prioritize Sheet value -> match or dynamically create
+      // 1. Source Resolution: Prioritize Sheet value -> match exact (normalized) or dynamically create
       let sourceId: string | null = null;
       let resolvedLeadType: string = 'Direct Lead';
       const rawSourceName = String(rawLead.source || rawLead.sourceName || rawLead.leadSource || rawLead.channel || rawLead.platform || '').trim();
 
       if (rawSourceName) {
         const cleanRaw = cleanKey(rawSourceName);
-        const matched = allSources.find(s => {
-          const sClean = cleanKey(s.name);
-          return sClean === cleanRaw || (cleanRaw.length >= 3 && (sClean.includes(cleanRaw) || cleanRaw.includes(sClean)));
-        });
+        const matched = allSources.find((s: any) => cleanKey(s.name) === cleanRaw);
 
         if (matched) {
           sourceId = matched.id;
@@ -1131,24 +1128,21 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
         }
       } else if (rawLead.sourceId) {
         sourceId = rawLead.sourceId;
-        const s = allSources.find(x => x.id === sourceId);
+        const s = allSources.find((x: any) => x.id === sourceId);
         resolvedLeadType = s?.name || 'Direct Lead';
       } else if (fallbackSourceId) {
         sourceId = fallbackSourceId;
-        const s = allSources.find(x => x.id === sourceId);
+        const s = allSources.find((x: any) => x.id === sourceId);
         resolvedLeadType = s?.name || 'Direct Lead';
       }
 
-      // 2. Brand Resolution: Prioritize Sheet value -> match or dynamically create
+      // 2. Brand Resolution: Prioritize Sheet value -> match exact (normalized) or dynamically create
       let brandId: string | null = null;
       const rawBrandName = String(rawLead.brand || rawLead.brandName || rawLead.company || '').trim();
 
       if (rawBrandName) {
         const cleanRaw = cleanKey(rawBrandName);
-        const matched = allBrands.find(b => {
-          const bClean = cleanKey(b.name);
-          return bClean === cleanRaw || (cleanRaw.length >= 3 && (bClean.includes(cleanRaw) || cleanRaw.includes(bClean)));
-        });
+        const matched = allBrands.find((b: any) => cleanKey(b.name) === cleanRaw);
 
         if (matched) {
           brandId = matched.id;
@@ -1172,16 +1166,13 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
         brandId = fallbackBrandId;
       }
 
-      // 3. Project Resolution: Prioritize Sheet value -> match or dynamically create
+      // 3. Project Resolution: Prioritize Sheet value -> match exact (normalized) or dynamically create
       let projectId: string | null = null;
       const rawProjectName = String(rawLead.project || rawLead.projectName || '').trim();
 
       if (rawProjectName) {
         const cleanRaw = cleanKey(rawProjectName);
-        const matched = allProjects.find(p => {
-          const pClean = cleanKey(p.name);
-          return pClean === cleanRaw || (cleanRaw.length >= 3 && (pClean.includes(cleanRaw) || cleanRaw.includes(pClean)));
-        });
+        const matched = allProjects.find((p: any) => cleanKey(p.name) === cleanRaw);
 
         if (matched) {
           projectId = matched.id;
@@ -1210,11 +1201,11 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
       const rawStatus = String(rawLead.status || rawLead.statusName || '').trim();
       if (rawStatus) {
         const cleanRaw = cleanKey(rawStatus);
-        const directMatch = allStatuses.find(s => cleanKey(s.name) === cleanRaw);
+        const directMatch = allStatuses.find((s: any) => cleanKey(s.name) === cleanRaw);
         if (directMatch) {
           statusId = directMatch.id;
         } else {
-          const partialMatch = allStatuses.find(s => {
+          const partialMatch = allStatuses.find((s: any) => {
             const sClean = cleanKey(s.name);
             return sClean.includes(cleanRaw) || cleanRaw.includes(sClean);
           });
@@ -1228,7 +1219,7 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
       const rawStage = String(rawLead.stage || rawLead.currentStage || rawLead.stageName || '').trim();
       if (rawStage) {
         const cleanRaw = cleanKey(rawStage);
-        const foundStage = allStages.find(s => cleanKey(s.name) === cleanRaw || cleanKey(s.name).includes(cleanRaw));
+        const foundStage = allStages.find((s: any) => cleanKey(s.name) === cleanRaw || cleanKey(s.name).includes(cleanRaw));
         if (foundStage) currentStageId = foundStage.id;
       }
 
@@ -1238,7 +1229,7 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
       if (rawEmp) {
         const cleanEmp = rawEmp.toLowerCase();
         const cleanEmpKey = cleanKey(cleanEmp);
-        const foundUser = allUsers.find(u => {
+        const foundUser = allUsers.find((u: any) => {
           const uEmail = (u.email || '').toLowerCase();
           const uName = (u.fullName || '').toLowerCase();
           const uKey = cleanKey(uName);
@@ -1294,7 +1285,7 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
       }
 
       // If status from sheet didn't map to a master status, record it in comments
-      if (rawStatus && !allStatuses.some(s => cleanKey(s.name) === cleanKey(rawStatus))) {
+      if (rawStatus && !allStatuses.some((s: any) => cleanKey(s.name) === cleanKey(rawStatus))) {
         commentSections.push(`Status Notes: ${rawStatus}`);
       }
 
