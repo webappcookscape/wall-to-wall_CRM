@@ -253,7 +253,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSuccess, user 
                     </select>
                   </div>
 
-                  {['CRE', 'DESIGNER', 'DM_EXECUTIVE'].includes(formData.role || '') && (
+                  {['CRE', 'DESIGNER', 'DM_EXECUTIVE', 'CLIENT_FACILITATOR', 'FA'].includes(formData.role || '') && (
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
                         <UserIcon size={12} className="text-brand" /> Business Head

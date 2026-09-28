@@ -332,16 +332,21 @@ const LeadHub: React.FC = () => {
     { 
       header: 'Context', 
       accessor: 'brand',
-      render: (row: Lead) => (
-        <div className="flex flex-col gap-1">
-          <span className="text-sm md:text-base font-black text-gray-800 uppercase tracking-tight">
-            {row.brand?.name || '-'}
-          </span>
-          <span className="text-xs md:text-sm text-gray-600 font-bold">
-            {row.project?.name || '-'}
-          </span>
-        </div>
-      )
+      render: (row: Lead) => {
+        const projectNames = row.projects && row.projects.length > 0
+          ? row.projects.map(p => p.name).join(', ')
+          : (row.project?.name || '-');
+        return (
+          <div className="flex flex-col gap-1">
+            <span className="text-sm md:text-base font-black text-gray-800 uppercase tracking-tight">
+              {row.brand?.name || '-'}
+            </span>
+            <span className="text-xs md:text-sm text-gray-600 font-bold" title={projectNames}>
+              {projectNames}
+            </span>
+          </div>
+        );
+      }
     },
     { 
       header: 'Status & Source', 
@@ -366,6 +371,11 @@ const LeadHub: React.FC = () => {
             <span className="text-xs md:text-sm text-gray-700 font-extrabold uppercase tracking-wide">
               {sourceDisplay}
             </span>
+            {row.referralName && (
+              <span className="text-[11px] text-amber-800 font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200" title={`Referred by: ${row.referralName}`}>
+                Ref: {row.referralName}
+              </span>
+            )}
           </div>
         );
       }

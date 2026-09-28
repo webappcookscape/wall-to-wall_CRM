@@ -141,17 +141,29 @@ export const getLeadsMasterReport = asyncHandler(async (req: Request, res: Respo
   });
 
   const reportData = leads.map(lead => {
-    let siteLocation = '';
+    let siteLocation = lead.siteLocation ? String(lead.siteLocation).trim() : '';
     let cleanComments = lead.comments || '';
-    if (lead.comments) {
-      const locMatch = lead.comments.match(/Location:\s*([^|]+)/i);
-      if (locMatch && locMatch[1]) siteLocation = locMatch[1].trim();
-      cleanComments = lead.comments
-        .replace(/Location:\s*[^|]+(\s*\|\s*)?/gi, '')
-        .replace(/Requirement:\s*[^|]+(\s*\|\s*)?/gi, '')
-        .replace(/^(\s*\|\s*|\s*\/\s*)+|(\s*\|\s*|\s*\/\s*)+$/g, '')
-        .trim();
+    if (!siteLocation && lead.comments) {
+      const locMatch = lead.comments.match(/Location:\s*([^|\n]+)/i);
+      if (locMatch && locMatch[1]) {
+        const fullLoc = locMatch[1].trim();
+        if (fullLoc.includes('/')) {
+          const parts = fullLoc.split(/\s*\/\s*/);
+          siteLocation = parts[0]?.trim() || fullLoc;
+          const remainder = parts.slice(1).join(' / ').trim();
+          cleanComments = cleanComments.replace(locMatch[0], remainder ? ` | ${remainder}` : '');
+        } else {
+          siteLocation = fullLoc;
+          cleanComments = cleanComments.replace(locMatch[0], '');
+        }
+      }
+    } else if (siteLocation && lead.comments) {
+      cleanComments = cleanComments.replace(/Location:\s*[^|\n]+(\s*\|\s*)?/gi, '');
     }
+    cleanComments = cleanComments
+      .replace(/Requirement:\s*[^|\n]+(\s*\|\s*)?/gi, '')
+      .replace(/^(\s*\|\s*|\s*\/\s*)+|(\s*\|\s*|\s*\/\s*)+$/g, '')
+      .trim();
 
     const nextDateVal = lead.nextFollowUp || lead.contactableDate;
     const nextDateStr = nextDateVal ? nextDateVal.toISOString().split('T')[0] : '';

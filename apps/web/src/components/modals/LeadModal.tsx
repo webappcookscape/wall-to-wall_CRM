@@ -4,6 +4,7 @@ import { leadService } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext'; // Import useAuth
 import { RATING_OPTIONS as ratingOptions, getRatingName } from '../../utils/rating';
 import QuickFollowUpChips from '../common/QuickFollowUpChips';
+import { parseLeadLocationAndComments } from '../../utils/leadParsers';
 
 interface LeadModalProps {
   isOpen: boolean;
@@ -21,6 +22,8 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
     email: '',
     phone: '',
     projectId: '',
+    projectIds: [] as string[],
+    referralName: '',
     sourceId: '',
     statusId: '',
     brandId: '',
@@ -83,7 +86,11 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
         name: lead.name || '',
         email: lead.email || '',
         phone: lead.phone || '',
-        projectId: lead.projectId || '',
+        projectId: lead.projectId || (lead.projects?.[0]?.id || ''),
+        projectIds: lead.projects && Array.isArray(lead.projects) && lead.projects.length > 0 
+          ? lead.projects.map((p: any) => p.id) 
+          : (lead.projectId ? [lead.projectId] : []),
+        referralName: lead.referralName || '',
         sourceId: lead.sourceId || lead.source?.id || '',
         statusId: lead.statusId || '',
         brandId: lead.brandId || '',
@@ -95,14 +102,20 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
         metaCampaignId: lead.metaCampaignId || '',
         metaAdAccountId: lead.metaAdAccountId || '',
         nextFollowUp: toLocalISOString(lead.nextFollowUp || lead.contactableDate),
-        comments: lead.comments || '',
+        comments: (() => {
+          const { cleanComments } = parseLeadLocationAndComments(lead.comments, lead.siteLocation);
+          return cleanComments || '';
+        })(),
         instructionToPass: lead.instructionToPass || '',
         dataCollected: lead.dataCollected 
           ? new Date(lead.dataCollected).toISOString().split('T')[0] 
           : (lead.createdAt ? new Date(lead.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]),
         contactableDate: toLocalISOString(lead.contactableDate || lead.nextFollowUp),
         assignedToId: lead.assignedToId || '',
-        siteLocation: lead.siteLocation || (lead.comments ? lead.comments.match(/Location:\s*([^|]+)/i)?.[1]?.trim() : '') || '',
+        siteLocation: (() => {
+          const { siteLocation } = parseLeadLocationAndComments(lead.comments, lead.siteLocation);
+          return siteLocation || '';
+        })(),
       });
     } else {
         setFormData({
@@ -110,6 +123,8 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
             email: '',
             phone: '',
             projectId: '',
+            projectIds: [] as string[],
+            referralName: '',
             sourceId: '',
             statusId: '',
             brandId: '',
@@ -125,7 +140,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
             instructionToPass: '',
             dataCollected: new Date().toISOString().split('T')[0],
             contactableDate: '',
-            assignedToId: '',
+            assignedToId: (userRole === 'FA' || userRole === 'CLIENT_FACILITATOR') ? (user?.id || '') : '',
             siteLocation: '',
         });
     }
@@ -138,10 +153,8 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
       const followUpIso = formData.nextFollowUp ? new Date(formData.nextFollowUp).toISOString() : null;
       const collectedIso = formData.dataCollected ? new Date(formData.dataCollected).toISOString() : new Date().toISOString();
 
-      let finalComments = formData.comments?.trim() || '';
-      if (formData.siteLocation?.trim() && !finalComments.includes('Location:')) {
-        finalComments = `Location: ${formData.siteLocation.trim()}${finalComments ? ' | ' + finalComments : ''}`;
-      }
+      const finalComments = formData.comments?.trim() || null;
+      const finalSiteLocation = formData.siteLocation?.trim() || null;
 
       const selectedSource = masters?.sources?.find((s: any) => s.id === formData.sourceId);
 
@@ -150,13 +163,16 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
         name: formData.name?.trim(),
         phone: formData.phone?.trim(),
         email: formData.email?.trim() || null,
-        projectId: formData.projectId || null,
+        projectId: formData.projectIds?.[0] || formData.projectId || null,
+        projectIds: formData.projectIds || [],
+        referralName: formData.referralName?.trim() || null,
+        siteLocation: finalSiteLocation,
         sourceId: formData.sourceId || null,
         leadType: selectedSource?.name || 'Direct Lead',
         brandId: formData.brandId || null,
         statusId: formData.statusId || null,
         assignedToId: formData.assignedToId || null,
-        comments: finalComments || null,
+        comments: finalComments,
         instructionToPass: formData.instructionToPass?.trim() || null,
         rating: Number(formData.rating) || 0,
         ratingName: formData.ratingName || getRatingName(Number(formData.rating) || 0),
@@ -172,6 +188,9 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
         }
         savedLead = await (leadService as any).updateLead(lead.id, payload);
       } else {
+        if ((userRole === 'FA' || userRole === 'CLIENT_FACILITATOR') && !payload.assignedToId && user?.id) {
+          payload.assignedToId = user.id;
+        }
         savedLead = await leadService.createLead(payload);
       }
       onSuccess(savedLead);
@@ -187,6 +206,9 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
       setIsSubmitting(false);
     }
   };
+
+  const selectedSource = masters?.sources?.find((s: any) => s.id === formData.sourceId);
+  const isReferralSource = Boolean(selectedSource && /architect|interior|referral|designer/i.test(selectedSource.name));
 
   if (!isOpen) return null;
 
@@ -290,15 +312,96 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
               </select>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase">Project</label>
+            {/* If Architect / Interior Referral, prompt for Referrer Name */}
+            {isReferralSource && (
+              <div className="space-y-1 sm:col-span-2 bg-amber-50/80 p-3 rounded-xl border border-amber-200 animate-in fade-in duration-200">
+                <label className="text-[10px] font-bold text-amber-900 uppercase flex items-center justify-between">
+                  <span>Architect / Interior Designer / Referrer Name <span className="text-red-500">*</span></span>
+                  <span className="text-[9px] text-amber-700 font-bold">{selectedSource?.name}</span>
+                </label>
+                <input 
+                  type="text"
+                  required={isReferralSource}
+                  placeholder="e.g. Ar. Rajesh Mehta or Studio Design Interiors"
+                  className="form-control !bg-white !py-1.5 !text-[12px] border-amber-300 focus:border-amber-500"
+                  value={formData.referralName || ''}
+                  onChange={(e) => setFormData({...formData, referralName: e.target.value})}
+                />
+              </div>
+            )}
+
+            {/* Multi-Project Selector */}
+            <div className="space-y-1.5 sm:col-span-2">
+              <label className="text-[10px] font-bold text-gray-400 uppercase flex items-center justify-between">
+                <span>Projects (Select Multiple)</span>
+                {formData.projectIds && formData.projectIds.length > 0 && (
+                  <span className="text-[10px] text-brand font-bold">
+                    {formData.projectIds.length} project{formData.projectIds.length > 1 ? 's' : ''} selected
+                  </span>
+                )}
+              </label>
+
+              {/* Selected Project Badges */}
+              {formData.projectIds && formData.projectIds.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mb-1.5">
+                  {formData.projectIds.map((pid: string) => {
+                    const p = masters?.projects?.find((proj: any) => proj.id === pid);
+                    if (!p) return null;
+                    return (
+                      <span 
+                        key={pid} 
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-brand/10 text-brand border border-brand/20 shadow-xs"
+                      >
+                        {p.name}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const nextIds = formData.projectIds.filter((id: string) => id !== pid);
+                            setFormData({
+                              ...formData,
+                              projectIds: nextIds,
+                              projectId: nextIds[0] || ''
+                            });
+                          }}
+                          className="hover:text-red-500 transition-colors cursor-pointer"
+                          title="Remove project"
+                        >
+                          <X size={12} />
+                        </button>
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Add / Select Project Dropdown */}
               <select 
                 className="form-control !py-1.5 !text-[12px]"
-                value={formData.projectId}
-                onChange={(e) => setFormData({...formData, projectId: e.target.value})}
+                value=""
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (!val) return;
+                  const currentIds = formData.projectIds || [];
+                  if (!currentIds.includes(val)) {
+                    const nextIds = [...currentIds, val];
+                    setFormData({
+                      ...formData,
+                      projectIds: nextIds,
+                      projectId: nextIds[0] || ''
+                    });
+                  }
+                }}
               >
-                <option value="">Select Project</option>
-                {masters?.projects?.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                <option value="">+ Add / Select Project...</option>
+                {masters?.projects?.map((p: any) => (
+                  <option 
+                    key={p.id} 
+                    value={p.id}
+                    disabled={formData.projectIds?.includes(p.id)}
+                  >
+                    {p.name} {formData.projectIds?.includes(p.id) ? '✓ (Selected)' : ''}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -337,7 +440,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
               />
             </div>
 
-            {(userRole === 'ADMIN' || userRole === 'BUSINESS_HEAD' || (!lead?.id && userRole === 'DM_EXECUTIVE')) && (
+            {(userRole === 'ADMIN' || userRole === 'BUSINESS_HEAD' || userRole === 'FA' || userRole === 'CLIENT_FACILITATOR' || (!lead?.id && userRole === 'DM_EXECUTIVE')) && (
               <div className="space-y-1">
                 <label className="text-[10px] font-bold text-gray-400 uppercase">Assigned To</label>
                 <select 
@@ -345,7 +448,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
                   value={formData.assignedToId || ''}
                   onChange={(e) => setFormData({...formData, assignedToId: e.target.value})}
                 >
-                  <option value="">Unassigned</option>
+                  <option value="">{userRole === 'FA' || userRole === 'CLIENT_FACILITATOR' ? `Assign to Me (${user?.fullName || 'Self'})` : 'Unassigned'}</option>
                   {masters?.users
                     ?.filter((u: any) => userRole !== 'DM_EXECUTIVE' || !user?.id || u.id !== user.id)
                     .map((u: any) => (

@@ -47,8 +47,11 @@ const extractSiteLocation = (lead: any): string => {
     return String(lead.siteLocation).trim();
   }
   if (lead.comments) {
-    const match = String(lead.comments).match(/Location:\s*([^|]+)/i);
-    if (match && match[1]) return match[1].trim();
+    const match = String(lead.comments).match(/Location:\s*([^|\n]+)/i);
+    if (match && match[1]) {
+      const locStr = match[1].trim();
+      return locStr.includes('/') ? locStr.split(/\s*\/\s*/)[0].trim() : locStr;
+    }
   }
   return '-';
 };

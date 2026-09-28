@@ -75,15 +75,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const toggleRole = () => {
-    setUser(prev => prev ? {
-      ...prev,
-      role: prev.role === 'ADMIN' ? 'DM_EXECUTIVE' : 'ADMIN'
-    } : null);
+    setUser(prev => {
+      if (!prev) return null;
+      const nextRole: Record<string, string> = {
+        ADMIN: 'FA',
+        FA: 'DM_EXECUTIVE',
+        DM_EXECUTIVE: 'CRE',
+        CRE: 'ADMIN',
+      };
+      return {
+        ...prev,
+        role: (nextRole[prev.role] || 'ADMIN') as any
+      };
+    });
+  };
+
+  const setRole = (role: string) => {
+    setUser(prev => prev ? { ...prev, role: role as any } : null);
   };
 
   // Expose helpers for development
   if (typeof window !== 'undefined') {
-    (window as any).authHelpers = { toggleRole };
+    (window as any).authHelpers = { toggleRole, setRole };
   }
 
   return (

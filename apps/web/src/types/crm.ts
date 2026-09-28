@@ -87,6 +87,10 @@ export interface Lead {
   sourceId?: string | null;
   project?: Project | null;
   projectId?: string | null;
+  projects?: Project[];
+  projectIds?: string[];
+  referralName?: string | null;
+  siteLocation?: string | null;
   brand?: Brand | null;
   brandId?: string | null;
   currentStage?: Stage | null;

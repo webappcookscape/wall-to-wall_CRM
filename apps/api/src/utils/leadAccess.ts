@@ -167,8 +167,8 @@ export const ensureLeadAssignAccess = async (leadId: string, targetUserId: strin
     throw { status: 403, message: 'DM executives can only assign leads while adding, not while editing or following up.' };
   }
 
-  if (user.role !== 'ADMIN' && user.role !== 'BUSINESS_HEAD' && user.role !== 'CRE') {
-    throw { status: 403, message: 'Only admin and business heads can re-assign existing leads.' };
+  if (user.role !== 'ADMIN' && user.role !== 'BUSINESS_HEAD' && user.role !== 'CRE' && user.role !== 'FA' && user.role !== 'CLIENT_FACILITATOR') {
+    throw { status: 403, message: 'Only admin, business heads, CRE, and field agents (FA) can re-assign leads.' };
   }
 
   await ensureLeadViewAccess(leadId, user);

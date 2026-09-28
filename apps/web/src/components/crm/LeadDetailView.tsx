@@ -6,7 +6,9 @@ import {
   Edit2,
   Trash2,
   MessageSquare,
-  MapPin
+  MapPin,
+  FolderKanban,
+  UserCheck
 } from 'lucide-react';
 import type { Lead } from '../../types/crm';
 import ActionModal from '../modals/ActionModal';
@@ -15,6 +17,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import ActivityTimeline from './ActivityTimeline';
 import { leadService } from '../../services/api';
 import { RATING_OPTIONS, getRatingOption, getRatingLabel, getRatingName } from '../../utils/rating';
+import { parseLeadLocationAndComments } from '../../utils/leadParsers';
 
 interface LeadDetailViewProps {
   lead: Lead | null;
@@ -55,32 +58,19 @@ const LeadDetailView: FC<LeadDetailViewProps> = ({ lead, onRefresh }) => {
     canEditLead = isOwnerOrAssignee;
   }
 
-  const canAssignLead = ['ADMIN', 'BUSINESS_HEAD'].includes(currentUser?.role || '');
+  const canAssignLead = ['ADMIN', 'BUSINESS_HEAD', 'FA', 'CLIENT_FACILITATOR'].includes(currentUser?.role || '');
   const [modalType, setModalType] = useState<'FOLLOWUP' | 'REMINDER' | 'STATUS' | 'NOTE' | 'SWITCH_USER' | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isUpdatingRating, setIsUpdatingRating] = useState(false);
 
   const ratingOpt = getRatingOption(lead?.rating, lead?.ratingName);
 
-  // Extract site location and requirement cleanly from lead or comments
-  const rawComments = lead?.comments || '';
-  const locMatch = rawComments.match(/Location:\s*([^|]+)/i);
-  const siteLocation = (lead as any)?.siteLocation || (locMatch ? locMatch[1].trim() : null);
-
-  const reqMatch = rawComments.match(/Requirement:\s*([^|]+)/i);
-  const requirement = (lead as any)?.requirement || (reqMatch ? reqMatch[1].trim() : null);
-
-  // Strip out "Location: ..." and "Requirement: ..." so Comments box only shows true comments/message
-  const cleanComments = rawComments
-    .replace(/Location:\s*[^|]+(\s*\|\s*)?/gi, '')
-    .replace(/Requirement:\s*[^|]+(\s*\|\s*)?/gi, '')
-    .replace(/^(\s*\|\s*|\s*\/\s*)+|(\s*\|\s*|\s*\/\s*)+$/g, '')
-    .trim();
-
-  // Split multi-part comments by slash, pipe, or newlines for clean readability
-  const commentSegments = cleanComments
-    ? cleanComments.split(/\s*[/|]\s*|\n+/).map(s => s.trim()).filter(Boolean)
-    : [];
+  // Extract site location, requirement, and clean follow-up comments cleanly
+  const { siteLocation, requirement, commentSegments } = parseLeadLocationAndComments(
+    lead?.comments,
+    lead?.siteLocation,
+    (lead as any)?.requirement
+  );
 
   const handleRatingChange = async (newRating: number) => {
     if (!lead || !canEditLead || isUpdatingRating) return;
@@ -121,6 +111,10 @@ const LeadDetailView: FC<LeadDetailViewProps> = ({ lead, onRefresh }) => {
       </div>
     );
   }
+
+  const leadProjects = lead.projects && lead.projects.length > 0
+    ? lead.projects
+    : (lead.project ? [lead.project] : []);
 
   return (
     <div className="h-full bg-white border border-gray-100 shadow-sm overflow-y-auto">
@@ -177,6 +171,14 @@ const LeadDetailView: FC<LeadDetailViewProps> = ({ lead, onRefresh }) => {
                <label className="text-xs font-black text-gray-400 uppercase tracking-wider">Source</label>
                <p className="text-sm md:text-base font-bold text-gray-800 m-0">{lead.source?.name || lead.leadType || 'Direct Lead'}</p>
             </div>
+            {lead.referralName && (
+              <div className="space-y-1 bg-amber-50/70 p-2.5 rounded-xl border border-amber-200/80">
+                <label className="text-xs font-black text-amber-900 uppercase tracking-wider flex items-center gap-1">
+                  <UserCheck size={12} className="text-amber-700" /> Referred By
+                </label>
+                <p className="text-sm md:text-base font-black text-amber-950 m-0">{lead.referralName}</p>
+              </div>
+            )}
            <div className="space-y-1">
               <label className="text-xs font-black text-gray-400 uppercase tracking-wider">Created By</label>
               <p className="text-sm md:text-base font-bold text-gray-800 m-0">{lead.createdBy?.fullName || '-'}</p>
@@ -242,6 +244,25 @@ const LeadDetailView: FC<LeadDetailViewProps> = ({ lead, onRefresh }) => {
                <p className="text-sm md:text-base font-bold text-gray-800 m-0">{requirement}</p>
              </div>
            )}
+           <div className="space-y-1.5 col-span-2 md:col-span-3">
+             <label className="text-xs font-black text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+               <FolderKanban size={13} className="text-brand" /> Interested Projects
+             </label>
+             <div className="flex flex-wrap gap-1.5 mt-0.5">
+               {leadProjects.length > 0 ? (
+                 leadProjects.map((p: any, idx: number) => (
+                   <span 
+                     key={p.id || idx}
+                     className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-gray-100 text-gray-800 border border-gray-200"
+                   >
+                     {p.name}
+                   </span>
+                 ))
+               ) : (
+                 <span className="text-xs text-gray-400 italic">No specific projects linked</span>
+               )}
+             </div>
+           </div>
             {commentSegments.length > 0 && (
               <div className="space-y-1.5 col-span-2 md:col-span-3 mt-2">
                 <label className="text-xs font-black text-gray-400 uppercase tracking-wider flex items-center gap-1.5">

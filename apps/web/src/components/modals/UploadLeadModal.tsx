@@ -45,6 +45,7 @@ interface ParsedLeadRow {
   message?: string;
   comments?: string;
   instructionToPass?: string;
+  referralName?: string;
   isValid: boolean;
   invalidReason?: string;
 }
@@ -247,8 +248,8 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
         const row = rawMatrix[r] || [];
         const rowStr = row.map(c => String(c).toLowerCase().trim()).join(' ');
         if (
-          (rowStr.includes('client name') || rowStr.includes('name') || rowStr.includes('client')) &&
-          (rowStr.includes('number') || rowStr.includes('phone') || rowStr.includes('mobile'))
+          (rowStr.includes('name') || rowStr.includes('client') || rowStr.includes('customer') || rowStr.includes('lead')) &&
+          (rowStr.includes('number') || rowStr.includes('phone') || rowStr.includes('mobile') || rowStr.includes('contact') || rowStr.includes('whatsapp') || rowStr.includes('ph no'))
         ) {
           headerRowIdx = r;
           break;
@@ -259,30 +260,38 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
         headerRowIdx = 0;
       }
 
-      const headerRow = (rawMatrix[headerRowIdx] || []).map(c => String(c).toLowerCase().trim());
+      const headerRow = rawMatrix[headerRowIdx] || [];
 
       // Map column positions with extensive aliases
       const colMap: { [key: string]: number } = {};
-      headerRow.forEach((h, idx) => {
+      headerRow.forEach((rawH, idx) => {
+        if (!rawH) return;
+        const h = String(rawH)
+          .toLowerCase()
+          .replace(/[\r\n\t]+/g, ' ')
+          .replace(/[*#:;,]+/g, '')
+          .trim();
         if (!h) return;
-        if (/^(s\.?\s*no|sl\.?\s*no|sno|lead\s*id|id)$/i.test(h)) colMap['sNo'] = idx;
-        else if (/(client\s*name|customer\s*name|^name$|^client$|full\s*name|lead\s*name|contact\s*person|person\s*name)/i.test(h)) colMap['name'] = idx;
-        else if (/(^number$|^phone$|^mobile$|contact|ph\s*no|phone\s*no|mobile\s*no|mobile\s*number|phone\s*number|cell|telephone)/i.test(h)) colMap['phone'] = idx;
+
+        if (/^(s\.?\s*no\.?|sl\.?\s*no\.?|sr\.?\s*no\.?|sno|serial\s*no\.?|lead\s*id|^id$)/i.test(h)) colMap['sNo'] = idx;
+        else if (/(client\s*name|customer\s*name|^name$|^client$|^customer$|full\s*name|lead\s*name|contact\s*person|person\s*name|prospect)/i.test(h)) colMap['name'] = idx;
+        else if (/(^number$|^phone$|^mobile$|contact|ph\s*no|phone\s*no|mobile\s*no|mobile\s*number|phone\s*number|cell|telephone|whatsapp|wa\s*no|wa\s*number|primary\s*contact)/i.test(h)) colMap['phone'] = idx;
         else if (/(email|mail|e-mail)/i.test(h)) colMap['email'] = idx;
         else if (/(brand|company|division|unit|organization)/i.test(h)) colMap['brand'] = idx;
         else if (/(source|lead\s*source|channel|platform|campaign|media|medium|origin|ad\s*source|ad\s*name)/i.test(h)) colMap['source'] = idx;
-        else if (/(current\s*stage|^stage$|pipeline\s*stage|sales\s*stage|sub\s*status|step)/i.test(h)) colMap['stage'] = idx;
+        else if (/(current\s*stage|^stage$|pipeline\s*stage|sales\s*stage|sub\s*status|step|funnel\s*stage)/i.test(h)) colMap['stage'] = idx;
         else if (/(rating|priority|lead\s*rating|quality|lead\s*quality|score|grade)/i.test(h)) colMap['rating'] = idx;
-        else if (/(date\s*collected|lead\s*date|collected\s*date|created\s*date|enquiry\s*date|^date$|received\s*date)/i.test(h)) colMap['dateCollected'] = idx;
-        else if (/(next[\s\-]*date|follow[\s\-]*up[\s\-]*date|contactable[\s\-]*date|next[\s\-]*follow[\s\-]*up|reminder[\s\-]*date|remind|followup|next\s*call|call\s*back)/i.test(h)) colMap['nextDate'] = idx;
-        else if (/(employee\s*email|staff\s*email|assignee|assigned\s*to|assigned\s*employee|executive|sales\s*rep|sales\s*person|allocated\s*to|owner|staff|employee)/i.test(h)) colMap['employeeEmail'] = idx;
+        else if (/(date\s*collected|lead\s*date|collected\s*date|created\s*date|enquiry\s*date|^date$|received\s*date|entry\s*date)/i.test(h)) colMap['dateCollected'] = idx;
+        else if (/(follow[\s\-]*up[\s\-]*message|follow[\s\-]*up[\s\-]*note|followup[\s\-]*message|followup[\s\-]*note|follow[\s\-]*up[\s\-]*remark|follow[\s\-]*up[\s\-]*status|comment\s*message|client\s*message|customer\s*message|enquiry\s*message|^message$|user\s*message)/i.test(h)) colMap['message'] = idx;
+        else if (/(next[\s\-]*date|follow[\s\-]*up[\s\-]*date|followup[\s\-]*date|contactable[\s\-]*date|next[\s\-]*follow[\s\-]*up|reminder[\s\-]*date|remind|next\s*call|call\s*back|next\s*contact)/i.test(h)) colMap['nextDate'] = idx;
+        else if (/(employee\s*email|staff\s*email|assignee|assigned\s*to|assigned\s*employee|executive|sales\s*rep|sales\s*person|allocated\s*to|owner|staff|employee|cre|agent|telecaller)/i.test(h)) colMap['employeeEmail'] = idx;
         else if (/(project|property|work\s*type|scope|interest|product)/i.test(h)) colMap['project'] = idx;
         else if (/(requirement|service|work\s*required|work\s*detail|scope\s*of\s*work)/i.test(h)) colMap['requirement'] = idx;
-        else if (/(site\s*location|location|address|place|city|area|town)/i.test(h)) colMap['siteLocation'] = idx;
+        else if (/(site\s*location|^location$|address|place|city|area|town)/i.test(h)) colMap['siteLocation'] = idx;
         else if (/(instruction\s*to\s*pass|instructions?|special\s*note|guidance|internal\s*notes?)/i.test(h)) colMap['instructionToPass'] = idx;
-        else if (/(comment\s*message|client\s*message|customer\s*message|enquiry\s*message|^message$|user\s*message)/i.test(h)) colMap['message'] = idx;
         else if (/(discussion\s*comments?|comments?|notes?|remarks?|discussion|feedback|query|enquiry|details|description|summary|conversation)/i.test(h)) colMap['comments'] = idx;
         else if (/(lead\s*status|call\s*status|disposition|^status$|state)/i.test(h)) colMap['status'] = idx;
+        else if (/(architect\s*name|architect|interior\s*designer|interior\s*referral|referral\s*name|referred\s*by|referrer|referral\s*person)/i.test(h)) colMap['referralName'] = idx;
       });
 
       // Step 2: Parse data rows starting after headerRowIdx
@@ -309,13 +318,24 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
         const brandVal = colMap['brand'] !== undefined ? String(row[colMap['brand']] || '').trim() : '';
         const sourceVal = colMap['source'] !== undefined ? String(row[colMap['source']] || '').trim() : '';
         const requirementVal = colMap['requirement'] !== undefined ? String(row[colMap['requirement']] || '').trim() : '';
-        const siteLocationVal = colMap['siteLocation'] !== undefined ? String(row[colMap['siteLocation']] || '').trim() : '';
+        let siteLocationVal = colMap['siteLocation'] !== undefined ? String(row[colMap['siteLocation']] || '').trim() : '';
         const employeeEmailVal = colMap['employeeEmail'] !== undefined ? String(row[colMap['employeeEmail']] || '').trim() : '';
+        const referralNameVal = colMap['referralName'] !== undefined ? String(row[colMap['referralName']] || '').trim() : '';
         const projectVal = colMap['project'] !== undefined ? String(row[colMap['project']] || '').trim() : '';
         const emailVal = colMap['email'] !== undefined ? String(row[colMap['email']] || '').trim() : '';
-        const rawMessageVal = colMap['message'] !== undefined ? String(row[colMap['message']] || '').trim() : '';
+        let rawMessageVal = colMap['message'] !== undefined ? String(row[colMap['message']] || '').trim() : '';
         const rawCommentsVal = colMap['comments'] !== undefined ? String(row[colMap['comments']] || '').trim() : '';
         const instructionVal = colMap['instructionToPass'] !== undefined ? String(row[colMap['instructionToPass']] || '').trim() : '';
+
+        // If siteLocation cell contains a slash with a follow-up note (e.g. "Tvs Elements / Waiting for resp")
+        if (siteLocationVal && siteLocationVal.includes('/')) {
+          const parts = siteLocationVal.split(/\s*\/\s*/);
+          siteLocationVal = parts[0]?.trim() || siteLocationVal;
+          const extractedFollowUp = parts.slice(1).join(' / ').trim();
+          if (extractedFollowUp) {
+            rawMessageVal = rawMessageVal ? `${rawMessageVal} | ${extractedFollowUp}` : extractedFollowUp;
+          }
+        }
 
         let commentsCombined = '';
         if (rawMessageVal && rawCommentsVal && rawMessageVal !== rawCommentsVal) {
@@ -360,6 +380,7 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
           message: rawMessageVal,
           comments: commentsCombined,
           instructionToPass: instructionVal,
+          referralName: referralNameVal || undefined,
           isValid,
           invalidReason
         });
@@ -505,6 +526,7 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
           message: r.message || null,
           comments: r.comments || null,
           instructionToPass: r.instructionToPass || null,
+          referralName: r.referralName || null,
         })),
         defaultStatusId: defaultStatusId || null,
         defaultAssignedToId: defaultAssignedToId || null,
@@ -822,7 +844,7 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
                       onChange={(e) => setSkipDuplicates(e.target.checked)}
                       className="rounded border-gray-300 text-brand focus:ring-brand"
                     />
-                    <span>Update existing leads with new remarks & follow-up dates (prevents duplicate error)</span>
+                    <span>Check Name & Phone: Update existing lead if both match, otherwise create new lead</span>
                   </label>
                 </div>
               </div>

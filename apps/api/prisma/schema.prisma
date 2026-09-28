@@ -61,7 +61,10 @@ model Lead {
   brand             Brand?          @relation(fields: [brandId], references: [id])
   createdBy         User            @relation("CreatedBy", fields: [createdById], references: [id])
   currentStage      Stage?          @relation(fields: [currentStageId], references: [id])
-  project           Project?        @relation(fields: [projectId], references: [id])
+  project           Project?        @relation("LeadPrimaryProject", fields: [projectId], references: [id])
+  projects          Project[]       @relation("LeadProjects")
+  referralName      String?
+  siteLocation      String?
   source            Source?         @relation(fields: [sourceId], references: [id])
   status            LeadStatus?     @relation(fields: [statusId], references: [id])
   activities        LeadActivity[]
@@ -150,9 +153,10 @@ model Source {
 }
 
 model Project {
-  id    String @id @default(uuid())
-  name  String @unique
-  leads Lead[]
+  id         String @id @default(uuid())
+  name       String @unique
+  leads      Lead[] @relation("LeadPrimaryProject")
+  multiLeads Lead[] @relation("LeadProjects")
 }
 
 model Showroom {
@@ -290,6 +294,7 @@ enum Role {
   PM
   SALES
   TELECALLER
+  LA
 }
 
 enum TaskStatus {
