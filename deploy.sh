@@ -28,6 +28,8 @@ npm run build
 # 3. Rebuild the Backend
 echo "⚙️ Step 3: Rebuilding Backend (apps/api)..."
 cd "$PROJECT_ROOT/apps/api"
+echo "Syncing Prisma schema with database safely (additive only, no data loss)..."
+npx prisma db push
 echo "Generating Prisma client..."
 npx prisma generate
 echo "Compiling backend TypeScript..."
