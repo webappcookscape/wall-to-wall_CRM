@@ -22,6 +22,15 @@ const normalizePhone = (phone: string): string => {
   return cleaned.length >= 10 ? cleaned.slice(-10) : cleaned;
 };
 
+const parseDateWithCurrentTime = (dateStr: string): Date => {
+  const parts = dateStr.split('-').map(Number);
+  const year = parts[0] || new Date().getFullYear();
+  const month = (parts[1] || 1) - 1;
+  const day = parts[2] || 1;
+  const now = new Date();
+  return new Date(year, month, day, now.getHours(), now.getMinutes(), now.getSeconds());
+};
+
 const getMetaEventNameForStatus = (statusName?: string | null): string | null => {
   if (!statusName) return null;
 
@@ -364,7 +373,16 @@ export const createLead = asyncHandler(async (req: Request, res: Response) => {
         data[field] = null;
       } else if (['nextFollowUp', 'dataCollected', 'contactableDate'].includes(field)) {
         if (field === 'dataCollected') {
-          data[field] = req.body[field] ? new Date(String(req.body[field])) : new Date();
+          if (req.body[field]) {
+            const valStr = String(req.body[field]).trim();
+            if (/^\d{4}-\d{2}-\d{2}$/.test(valStr)) {
+              data[field] = parseDateWithCurrentTime(valStr);
+            } else {
+              data[field] = new Date(valStr);
+            }
+          } else {
+            data[field] = new Date();
+          }
         } else if (field === 'contactableDate') {
           data[field] = req.body[field] 
             ? new Date(String(req.body[field])) 
@@ -636,7 +654,20 @@ export const updateLead = asyncHandler(async (req: Request, res: Response) => {
       if (['projectId', 'sourceId', 'statusId', 'brandId', 'assignedToId'].includes(field) && req.body[field] === '') {
         data[field] = null;
       } else if (['nextFollowUp', 'dataCollected', 'contactableDate'].includes(field)) {
-        data[field] = req.body[field] ? new Date(String(req.body[field])) : (field === 'dataCollected' ? undefined : null);
+        if (field === 'dataCollected') {
+          if (req.body[field]) {
+            const valStr = String(req.body[field]).trim();
+            if (/^\d{4}-\d{2}-\d{2}$/.test(valStr)) {
+              data[field] = parseDateWithCurrentTime(valStr);
+            } else {
+              data[field] = new Date(valStr);
+            }
+          } else {
+            data[field] = undefined;
+          }
+        } else {
+          data[field] = req.body[field] ? new Date(String(req.body[field])) : null;
+        }
       } else if (field === 'rating') {
         data[field] = Number(req.body[field]);
       } else if (field === 'orderValue') {
@@ -1344,9 +1375,15 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
 
       // 7. Date collected resolution
       let dataCollectedDate: Date = new Date();
-      if (rawLead.dataCollected || rawLead.dateCollected || rawLead.leadDate) {
-        const d = new Date(rawLead.dataCollected || rawLead.dateCollected || rawLead.leadDate);
-        if (!isNaN(d.getTime())) dataCollectedDate = d;
+      const rawDateCollected = rawLead.dataCollected || rawLead.dateCollected || rawLead.leadDate;
+      if (rawDateCollected) {
+        const valStr = String(rawDateCollected).trim();
+        if (/^\d{4}-\d{2}-\d{2}$/.test(valStr)) {
+          dataCollectedDate = parseDateWithCurrentTime(valStr);
+        } else {
+          const d = new Date(rawDateCollected);
+          if (!isNaN(d.getTime())) dataCollectedDate = d;
+        }
       }
 
       // 8. Next Follow-up Date resolution

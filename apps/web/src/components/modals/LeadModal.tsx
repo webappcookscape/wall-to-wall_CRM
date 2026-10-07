@@ -14,6 +14,25 @@ interface LeadModalProps {
   masters?: any;
 }
 
+const toLocalISOString = (dateString?: string | null) => {
+  if (!dateString) return '';
+  const d = new Date(dateString);
+  if (isNaN(d.getTime())) return '';
+  const tzOffset = d.getTimezoneOffset() * 60000;
+  return new Date(d.getTime() - tzOffset).toISOString().slice(0, 16);
+};
+
+const formatIsoWithTime = (dateStr?: string | null) => {
+  if (!dateStr) return new Date().toISOString();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    const now = new Date();
+    const [y, m, d] = dateStr.split('-').map(Number);
+    return new Date(y, m - 1, d, now.getHours(), now.getMinutes(), now.getSeconds()).toISOString();
+  }
+  const d = new Date(dateStr);
+  return isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
+};
+
 const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead, masters: initialMasters }) => {
   const { user } = useAuth(); // Use the useAuth hook
   const userRole = user?.role; // Get userRole from the context
@@ -37,7 +56,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
     nextFollowUp: '',
     comments: '',
     instructionToPass: '',
-    dataCollected: new Date().toISOString().split('T')[0],
+    dataCollected: toLocalISOString(new Date().toISOString()),
     contactableDate: '',
     assignedToId: '',
     siteLocation: '',
@@ -63,13 +82,6 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
     if (isOpen && !initialMasters) fetchMasters();
   }, [isOpen, initialMasters]);
 
-  const toLocalISOString = (dateString?: string | null) => {
-    if (!dateString) return '';
-    const d = new Date(dateString);
-    if (isNaN(d.getTime())) return '';
-    const tzOffset = d.getTimezoneOffset() * 60000;
-    return new Date(d.getTime() - tzOffset).toISOString().slice(0, 16);
-  };
 
   const handleRatingChange = (rating: number) => {
     setFormData({
@@ -107,9 +119,19 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
           return cleanComments || '';
         })(),
         instructionToPass: lead.instructionToPass || '',
-        dataCollected: lead.dataCollected 
-          ? new Date(lead.dataCollected).toISOString().split('T')[0] 
-          : (lead.createdAt ? new Date(lead.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]),
+        dataCollected: (() => {
+          if (!lead.dataCollected) {
+            return lead.createdAt ? toLocalISOString(lead.createdAt) : toLocalISOString(new Date().toISOString());
+          }
+          const d = new Date(lead.dataCollected);
+          const isMidnight = d.getUTCHours() === 0 && d.getUTCMinutes() === 0 && d.getUTCSeconds() === 0;
+          if (isMidnight && lead.createdAt) {
+            const created = new Date(lead.createdAt);
+            const combined = new Date(d.getFullYear(), d.getMonth(), d.getDate(), created.getHours(), created.getMinutes());
+            return toLocalISOString(combined.toISOString());
+          }
+          return toLocalISOString(lead.dataCollected);
+        })(),
         contactableDate: toLocalISOString(lead.contactableDate || lead.nextFollowUp),
         assignedToId: lead.assignedToId || '',
         siteLocation: (() => {
@@ -138,7 +160,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
             nextFollowUp: '',
             comments: '',
             instructionToPass: '',
-            dataCollected: new Date().toISOString().split('T')[0],
+            dataCollected: toLocalISOString(new Date().toISOString()),
             contactableDate: '',
             assignedToId: (userRole === 'FA' || userRole === 'CLIENT_FACILITATOR') ? (user?.id || '') : '',
             siteLocation: '',
@@ -151,7 +173,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
     setIsSubmitting(true);
     try {
       const followUpIso = formData.nextFollowUp ? new Date(formData.nextFollowUp).toISOString() : null;
-      const collectedIso = formData.dataCollected ? new Date(formData.dataCollected).toISOString() : new Date().toISOString();
+      const collectedIso = formatIsoWithTime(formData.dataCollected);
 
       const finalComments = formData.comments?.trim() || null;
       const finalSiteLocation = formData.siteLocation?.trim() || null;
@@ -433,7 +455,7 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
               <label className="text-[10px] font-bold text-gray-400 uppercase">Date Collected <span className="text-red-500">*</span></label>
               <input 
                 required
-                type="date" 
+                type="datetime-local" 
                 className="form-control !py-1.5 !text-[12px]"
                 value={formData.dataCollected}
                 onChange={(e) => setFormData({...formData, dataCollected: e.target.value})}

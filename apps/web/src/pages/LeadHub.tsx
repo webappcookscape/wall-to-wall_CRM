@@ -287,15 +287,28 @@ const LeadHub: React.FC = () => {
       header: 'Date', 
       accessor: 'createdAt',
       render: (row: Lead) => {
-        const dateVal = row.dataCollected || row.createdAt;
+        const dateVal = row.dataCollected || row.createdAt || new Date().toISOString();
         const nextDateVal = row.nextFollowUp || row.contactableDate;
+
+        // If dataCollected was stored with pure midnight UTC (00:00:00.000Z which renders as 5:30 AM IST),
+        // fallback to row.createdAt for the time display so it shows the actual creation time instead of 5:30 AM.
+        const isMidnightUtc = (dStr?: string | null) => {
+          if (!dStr) return false;
+          const d = new Date(dStr);
+          return d.getUTCHours() === 0 && d.getUTCMinutes() === 0 && d.getUTCSeconds() === 0;
+        };
+
+        const timeVal = (row.dataCollected && !isMidnightUtc(row.dataCollected))
+          ? row.dataCollected
+          : (row.createdAt || row.dataCollected || new Date().toISOString());
+
         return (
           <div className="flex flex-col gap-1">
             <span className="font-extrabold text-gray-900 text-sm md:text-base">
               {new Date(dateVal).toLocaleDateString('en-GB')}
             </span>
             <span className="text-xs md:text-sm text-gray-500 font-semibold uppercase tracking-wide">
-              {new Date(dateVal).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              {new Date(timeVal).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </span>
             {nextDateVal && (
               <span className="inline-flex items-center gap-1 text-[11px] md:text-xs font-extrabold text-emerald-800 bg-emerald-50 border border-emerald-300 px-2 py-0.5 rounded-md w-fit mt-0.5">
