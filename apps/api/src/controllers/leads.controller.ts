@@ -242,10 +242,14 @@ export const getLeads = asyncHandler(async (req: Request, res: Response) => {
       { assignedTo: { fullName: { contains: trimmedSearch, mode: 'insensitive' } } },
     ];
     
-    // Also search by numeric leadId if the search term is a valid number (strip # if present)
+    // Also search by numeric leadId if the search term is a valid integer within 32-bit range (strip # if present)
+    // Avoid searching leadId when the number is a phone number (> 2,147,483,647) to prevent PostgreSQL INT4 overflow!
     const cleanedLeadIdSearch = trimmedSearch.replace(/^#/, '').trim();
-    if (!isNaN(Number(cleanedLeadIdSearch)) && cleanedLeadIdSearch !== '') {
-      searchConditions.push({ leadId: Number(cleanedLeadIdSearch) });
+    if (/^\d+$/.test(cleanedLeadIdSearch)) {
+      const num = Number(cleanedLeadIdSearch);
+      if (!isNaN(num) && num > 0 && num <= 2147483647) {
+        searchConditions.push({ leadId: num });
+      }
     }
 
     appendAndClause(where, { OR: searchConditions });
