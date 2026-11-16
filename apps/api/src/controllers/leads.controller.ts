@@ -194,7 +194,12 @@ export const getLeads = asyncHandler(async (req: Request, res: Response) => {
     if (timeframe === 'today') {
       // Today's leads: due today OR overdue (no future ones), excluding disqualified
       where.contactableDate = { lte: endOfDay };
-      where.status = { name: { not: 'Disqualified' } };
+      appendAndClause(where, {
+        OR: [
+          { statusId: null },
+          { status: { name: { not: 'Disqualified' } } },
+        ]
+      });
     } else if (timeframe === 'tomorrow') {
       const tomorrowStart = new Date(startOfDay);
       tomorrowStart.setDate(tomorrowStart.getDate() + 1);
@@ -211,7 +216,12 @@ export const getLeads = asyncHandler(async (req: Request, res: Response) => {
       where.contactableDate = { gte: startOfDay, lte: monthEnd };
     } else if (timeframe === 'overdue') {
       where.contactableDate = { lt: startOfDay };
-      where.status = { name: { not: 'Disqualified' } };
+      appendAndClause(where, {
+        OR: [
+          { statusId: null },
+          { status: { name: { not: 'Disqualified' } } },
+        ]
+      });
     } else if (timeframe === 'all' || timeframe === 'timeline') {
       where.contactableDate = { not: null };
     }
@@ -318,9 +328,16 @@ export const getContactableCounts = asyncHandler(async (req: Request, res: Respo
     }
     await applyLeadVisibility(filter, currentUser);
 
+    const notDisqualifiedClause = {
+      OR: [
+        { statusId: null },
+        { status: { name: { not: 'Disqualified' } } },
+      ]
+    };
+
     const [uptoToday, today, tomorrow, week, month] = await Promise.all([
-        prisma.lead.count({ where: { ...filter, contactableDate: { lte: endOfDay }, status: { name: { not: 'Disqualified' } } } }),
-        prisma.lead.count({ where: { ...filter, contactableDate: { gte: startOfDay, lte: endOfDay }, status: { name: { not: 'Disqualified' } } } }),
+        prisma.lead.count({ where: { ...filter, contactableDate: { lte: endOfDay }, ...notDisqualifiedClause } }),
+        prisma.lead.count({ where: { ...filter, contactableDate: { gte: startOfDay, lte: endOfDay }, ...notDisqualifiedClause } }),
         prisma.lead.count({ where: { ...filter, contactableDate: { gte: tomorrowStart, lte: tomorrowEnd } } }),
         prisma.lead.count({ where: { ...filter, contactableDate: { gte: startOfDay, lte: weekEnd } } }),
         prisma.lead.count({ where: { ...filter, contactableDate: { gte: startOfDay, lte: monthEnd } } }),
