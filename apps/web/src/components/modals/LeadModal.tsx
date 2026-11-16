@@ -219,6 +219,10 @@ const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, onSuccess, lead,
       onClose();
     } catch (error: any) {
       console.error('Error saving lead:', error);
+      if (error?.response?.data?.duplicate) {
+        const dup = error.response.data.duplicate;
+        console.warn(`[DUPLICATE LEAD DETECTED]: ID: ${dup.id}, Lead ID: ${dup.leadId}, Name: "${dup.name}", Phone: "${dup.phone}"`);
+      }
       const message =
         error?.response?.data?.message ||
         error?.message ||

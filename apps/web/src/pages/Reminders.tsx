@@ -110,7 +110,16 @@ const Reminders: React.FC = () => {
         fetchReminders();
     }, [fetchReminders]);
 
-    const getUrgencyColor = (dateStr: string) => {
+    const isLeadDisqualified = (lead?: any) => {
+        if (!lead) return false;
+        const statusName = typeof lead.status === 'object' ? lead.status?.name : lead.status;
+        if (statusName && String(statusName).toLowerCase() === 'disqualified') return true;
+        if (lead.rating === 1 || lead.ratingName === 'DISQUALIFIED') return true;
+        return false;
+    };
+
+    const getUrgencyColor = (dateStr: string, lead?: any) => {
+        if (isLeadDisqualified(lead)) return 'border-l-gray-400 bg-gray-50';
         const date = new Date(dateStr);
         const now = new Date();
         const diffDays = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
@@ -119,7 +128,10 @@ const Reminders: React.FC = () => {
         return 'border-l-green-500 bg-green-50/20';
     };
 
-    const getUrgencyBadge = (dateStr: string) => {
+    const getUrgencyBadge = (dateStr: string, lead?: any) => {
+        if (isLeadDisqualified(lead)) {
+            return { label: 'Disqualified', cls: 'bg-gray-400 text-white' };
+        }
         const date = new Date(dateStr);
         const now = new Date();
         const diffDays = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
@@ -335,7 +347,7 @@ const Reminders: React.FC = () => {
                                 </p>
                             </div>
                         ) : leads.map(lead => {
-                            const urgency = lead.contactableDate ? getUrgencyBadge(lead.contactableDate) : null;
+                            const urgency = lead.contactableDate ? getUrgencyBadge(lead.contactableDate, lead) : null;
                             const isSelected = selectedLead?.id === lead.id;
                             return (
                                 <div
@@ -348,7 +360,7 @@ const Reminders: React.FC = () => {
                                     }}
                                     className={`p-3.5 cursor-pointer transition-all border-l-4 ${
                                         isSelected
-                                            ? (lead.contactableDate ? getUrgencyColor(lead.contactableDate) : 'bg-emerald-50/50 border-l-[#006039]')
+                                            ? (lead.contactableDate ? getUrgencyColor(lead.contactableDate, lead) : 'bg-emerald-50/50 border-l-[#006039]')
                                             : 'hover:bg-gray-50 border-l-transparent'
                                     }`}
                                 >
@@ -403,7 +415,7 @@ const Reminders: React.FC = () => {
                                     <div>
                                         <h2 className="text-xl font-bold text-gray-800 m-0">{selectedLead.name}</h2>
                                         {selectedLead.contactableDate && (() => {
-                                            const urgency = getUrgencyBadge(selectedLead.contactableDate);
+                                            const urgency = getUrgencyBadge(selectedLead.contactableDate, selectedLead);
                                             return (
                                                 <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded uppercase mt-1.5 ${urgency.cls}`}>
                                                     <AlertCircle size={11} /> {urgency.label} — {new Date(selectedLead.contactableDate).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}

@@ -185,6 +185,7 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
     imported: number;
     updated: number;
     skipped: number;
+    duplicates?: { row: number; phone: string; name: string; existingId: string; existingLeadId?: number | null; existingName: string }[];
     errors: { row: number; leadName?: string; error: string }[];
   } | null>(null);
 
@@ -356,6 +357,10 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
         } else if (!normalizedPhone || normalizedPhone.length < 10) {
           isValid = false;
           invalidReason = `Invalid phone number: "${phoneVal}"`;
+        } else if (parsed.some(p => p.phone === normalizedPhone)) {
+          isValid = false;
+          const prevIndex = parsed.findIndex(p => p.phone === normalizedPhone);
+          invalidReason = `Duplicate phone number in file (same as row ${prevIndex + 1})`;
         }
 
         parsed.push({
@@ -538,6 +543,17 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
       };
 
       const res = await leadService.importLeads(payload);
+      
+      // Log duplicate leads to console with their phone number, name and id
+      if (res.data?.duplicates && res.data.duplicates.length > 0) {
+        console.group('%c[DUPLICATE LEADS DETECTED IN BULK UPLOAD]', 'color: #e02424; font-weight: bold;');
+        res.data.duplicates.forEach((d: any) => {
+          console.warn(`Row ${d.row}: Incoming Phone: ${d.phone}, Name: "${d.name}" -> Matches Existing Lead: Name: "${d.existingName}", Lead ID: ${d.existingLeadId || d.existingId}, ID: ${d.existingId}`);
+        });
+        console.table(res.data.duplicates);
+        console.groupEnd();
+      }
+
       setImportResult(res.data);
       onSuccess();
     } catch (error: any) {
@@ -618,6 +634,24 @@ const UploadLeadModal: React.FC<UploadLeadModalProps> = ({ isOpen, onClose, onSu
                   <div className="text-[10px] font-bold uppercase tracking-wider text-gray-500">Skipped / Exists</div>
                 </div>
               </div>
+
+              {importResult.duplicates && importResult.duplicates.length > 0 && (
+                <div className="max-w-lg mx-auto text-left bg-orange-50 border border-orange-200 p-4 rounded-xl space-y-2">
+                  <div className="flex items-center gap-2 text-orange-800 font-bold text-xs">
+                    <AlertCircle size={16} /> Existing Leads Found with Same Phone ({importResult.duplicates.length}):
+                  </div>
+                  <p className="text-[10px] text-orange-700 m-0">
+                    Details logged to browser console. Existing records were updated without duplicating phone numbers.
+                  </p>
+                  <ul className="text-[11px] text-orange-800 list-disc pl-5 max-h-32 overflow-y-auto space-y-1">
+                    {importResult.duplicates.map((d: any, idx: number) => (
+                      <li key={idx}>
+                        Row {d.row}: <strong>{d.phone}</strong> ({d.name}) &rarr; matched existing lead: <strong>{d.existingName}</strong> (ID: #{d.existingLeadId || d.existingId})
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               {importResult.errors.length > 0 && (
                 <div className="max-w-lg mx-auto text-left bg-amber-50 border border-amber-200 p-4 rounded-xl space-y-2">

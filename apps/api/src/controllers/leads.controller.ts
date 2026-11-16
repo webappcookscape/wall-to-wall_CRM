@@ -192,8 +192,9 @@ export const getLeads = asyncHandler(async (req: Request, res: Response) => {
     const endOfDay = new Date(now.setHours(23, 59, 59, 999));
 
     if (timeframe === 'today') {
-      // Today's leads: due today OR overdue (no future ones)
+      // Today's leads: due today OR overdue (no future ones), excluding disqualified
       where.contactableDate = { lte: endOfDay };
+      where.status = { name: { not: 'Disqualified' } };
     } else if (timeframe === 'tomorrow') {
       const tomorrowStart = new Date(startOfDay);
       tomorrowStart.setDate(tomorrowStart.getDate() + 1);
@@ -210,33 +211,34 @@ export const getLeads = asyncHandler(async (req: Request, res: Response) => {
       where.contactableDate = { gte: startOfDay, lte: monthEnd };
     } else if (timeframe === 'overdue') {
       where.contactableDate = { lt: startOfDay };
+      where.status = { name: { not: 'Disqualified' } };
     } else if (timeframe === 'all' || timeframe === 'timeline') {
       where.contactableDate = { not: null };
     }
   }
   
   if (search) {
+    const trimmedSearch = String(search).trim();
     const searchConditions: any[] = [
-      { name: { contains: search, mode: 'insensitive' } },
-      { phone: { contains: search, mode: 'insensitive' } },
-      { email: { contains: search, mode: 'insensitive' } },
+      { name: { contains: trimmedSearch, mode: 'insensitive' } },
+      { phone: { contains: trimmedSearch, mode: 'insensitive' } },
+      { email: { contains: trimmedSearch, mode: 'insensitive' } },
+      { siteLocation: { contains: trimmedSearch, mode: 'insensitive' } },
+      { comments: { contains: trimmedSearch, mode: 'insensitive' } },
+      { project: { name: { contains: trimmedSearch, mode: 'insensitive' } } },
+      { status: { name: { contains: trimmedSearch, mode: 'insensitive' } } },
+      { source: { name: { contains: trimmedSearch, mode: 'insensitive' } } },
+      { brand: { name: { contains: trimmedSearch, mode: 'insensitive' } } },
+      { assignedTo: { fullName: { contains: trimmedSearch, mode: 'insensitive' } } },
     ];
     
-    // Also search by numeric leadId if the search term is a valid number
-    if (!isNaN(Number(search)) && search.trim() !== '') {
-      searchConditions.push({ leadId: Number(search) });
+    // Also search by numeric leadId if the search term is a valid number (strip # if present)
+    const cleanedLeadIdSearch = trimmedSearch.replace(/^#/, '').trim();
+    if (!isNaN(Number(cleanedLeadIdSearch)) && cleanedLeadIdSearch !== '') {
+      searchConditions.push({ leadId: Number(cleanedLeadIdSearch) });
     }
 
-    // If we already have an OR clause (from date filter), combine using AND
-    if (where.OR) {
-      where.AND = [
-        { OR: where.OR },
-        { OR: searchConditions },
-      ];
-      delete where.OR;
-    } else {
-      where.OR = searchConditions;
-    }
+    appendAndClause(where, { OR: searchConditions });
   }
 
   await applyLeadVisibility(where, currentUser);
@@ -317,8 +319,8 @@ export const getContactableCounts = asyncHandler(async (req: Request, res: Respo
     await applyLeadVisibility(filter, currentUser);
 
     const [uptoToday, today, tomorrow, week, month] = await Promise.all([
-        prisma.lead.count({ where: { ...filter, contactableDate: { lte: endOfDay } } }),
-        prisma.lead.count({ where: { ...filter, contactableDate: { gte: startOfDay, lte: endOfDay } } }),
+        prisma.lead.count({ where: { ...filter, contactableDate: { lte: endOfDay }, status: { name: { not: 'Disqualified' } } } }),
+        prisma.lead.count({ where: { ...filter, contactableDate: { gte: startOfDay, lte: endOfDay }, status: { name: { not: 'Disqualified' } } } }),
         prisma.lead.count({ where: { ...filter, contactableDate: { gte: tomorrowStart, lte: tomorrowEnd } } }),
         prisma.lead.count({ where: { ...filter, contactableDate: { gte: startOfDay, lte: weekEnd } } }),
         prisma.lead.count({ where: { ...filter, contactableDate: { gte: startOfDay, lte: monthEnd } } }),
@@ -343,18 +345,28 @@ export const createLead = asyncHandler(async (req: Request, res: Response) => {
 
   const normalizedPhone = normalizePhone(phone);
 
-  // Check for duplicate lead
+  // Check for duplicate lead by phone number
   const existingLead = await prisma.lead.findFirst({
     where: {
       phone: {
         contains: normalizedPhone
       }
     },
-    select: { id: true, leadId: true, name: true }
+    select: { id: true, leadId: true, name: true, phone: true }
   });
 
   if (existingLead) {
-    return apiResponse.error(res, `A lead with this phone number already exists: ${existingLead.name} (Lead ID: ${existingLead.leadId})`, 409);
+    console.warn(`[DUPLICATE LEAD ATTEMPT] Phone: "${existingLead.phone}", Name: "${existingLead.name}", Lead ID: ${existingLead.leadId || existingLead.id} (DB ID: ${existingLead.id})`);
+    return res.status(409).json({
+      success: false,
+      message: `A lead with this phone number already exists: ${existingLead.name} (Lead ID: ${existingLead.leadId || existingLead.id})`,
+      duplicate: {
+        id: existingLead.id,
+        leadId: existingLead.leadId,
+        name: existingLead.name,
+        phone: existingLead.phone,
+      }
+    });
   }
 
   
@@ -1165,8 +1177,12 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
     imported: 0,
     updated: 0,
     skipped: 0,
+    duplicates: [] as { row: number; phone: string; name: string; existingId: string; existingLeadId?: number | null; existingName: string }[],
     errors: [] as { row: number; leadName?: string; error: string }[],
   };
+
+  // Track phone numbers seen within this batch to prevent duplicate creates in the same import file
+  const seenPhonesInBatch = new Map<string, { row: number; name: string }>();
 
   const parseLeadRating = (val: any): { rating: number; name: string } | null => {
     if (val === undefined || val === null || val === '') return null;
@@ -1439,23 +1455,44 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
 
       const combinedComments = commentSections.join(' | ') || null;
 
-      // Match lead where BOTH name and phone match
-      const isSameCustomerName = (n1?: string | null, n2?: string | null): boolean => {
-        const s1 = String(n1 || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-        const s2 = String(n2 || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-        return s1.length > 0 && s1 === s2;
-      };
+      // 10. Check unique phone number against existing database and current batch
+      // Check if phone was already seen in this file
+      if (seenPhonesInBatch.has(normalizedPhone)) {
+        const prevRow = seenPhonesInBatch.get(normalizedPhone)!;
+        console.warn(`[DUPLICATE LEAD IN IMPORT FILE] Row ${rowNum} has duplicate phone "${normalizedPhone}" (Name: "${name}"). Already present in Row ${prevRow.row} (Name: "${prevRow.name}")`);
+        results.errors.push({
+          row: rowNum,
+          leadName: name,
+          error: `Duplicate phone number "${phoneRaw}" (already appears in row ${prevRow.row})`
+        });
+        results.skipped++;
+        continue;
+      }
 
-      // Check existing leads matching phone number
+      // Check existing leads in DB matching phone number
       const candidateLeads = await prisma.lead.findMany({
         where: { phone: { contains: normalizedPhone } },
         include: { status: true, assignedTo: true, brand: true, source: true, project: true }
       });
 
-      // Find match where BOTH phone AND name match
-      const existingLead = candidateLeads.find(l => isSameCustomerName(l.name, name));
+      // Match lead where phone matches. If exact lead found, we update. If duplicate phone exists, log and do not create duplicate!
+      const existingLead = candidateLeads[0];
 
       if (existingLead) {
+        // Log duplicate lead in console with phone, name, and id
+        console.warn(`[DUPLICATE LEAD IN IMPORT] Row: ${rowNum}, Phone: "${normalizedPhone}", Incoming Name: "${name}", Existing Lead Name: "${existingLead.name}", ID: ${existingLead.id}, Lead ID: ${existingLead.leadId}`);
+        results.duplicates.push({
+          row: rowNum,
+          phone: normalizedPhone,
+          name: name,
+          existingId: existingLead.id,
+          existingLeadId: existingLead.leadId,
+          existingName: existingLead.name,
+        });
+
+        // Record that phone is seen in batch
+        seenPhonesInBatch.set(normalizedPhone, { row: rowNum, name });
+
         const updateData: any = {};
         const noteParts: string[] = [];
 
@@ -1585,11 +1622,14 @@ export const importLeads = asyncHandler(async (req: Request, res: Response) => {
 
           results.updated++;
         } else {
-          // Both name and phone matched; lead is recognized and kept up to date
+          // Both name and phone or existing phone matched; lead is recognized and kept up to date
           results.updated++;
         }
         continue;
       }
+
+      // Mark this phone as seen in batch
+      seenPhonesInBatch.set(normalizedPhone, { row: rowNum, name });
 
       // Create new lead
       const leadCreatePayload: any = {

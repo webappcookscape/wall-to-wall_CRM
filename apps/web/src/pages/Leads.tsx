@@ -6,7 +6,8 @@ import {
   Search, 
   Plus,
   ChevronRight,
-  Upload
+  Upload,
+  Inbox
 } from 'lucide-react';
 import LeadModal from '../components/modals/LeadModal';
 import UploadLeadModal from '../components/modals/UploadLeadModal';
@@ -137,7 +138,8 @@ const Leads: React.FC = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchLeads();
-    }, 500); // 500ms debounce for search input
+    }, 300); // 300ms debounce for search input
+
     return () => clearTimeout(timer);
   }, [page, search, statusId, brandId, projectId, stageId, rating, timeframe, contactDate, selectedUserId, createdById]);
 
@@ -313,6 +315,16 @@ const Leads: React.FC = () => {
           <div className="divide-y divide-gray-100 overflow-y-auto flex-1">
             {isLoading ? (
               <div className="p-10 flex flex-col items-center"><div className="w-6 h-6 border-2 border-brand border-t-transparent animate-spin rounded-full" /></div>
+            ) : leads.length === 0 ? (
+              <div className="p-8 flex flex-col items-center justify-center text-center space-y-3">
+                <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
+                  <Inbox size={24} />
+                </div>
+                <div>
+                  <h6 className="text-sm font-bold text-gray-700 m-0">No Data</h6>
+                  <p className="text-[11px] text-gray-400 mt-1">No leads found matching your criteria</p>
+                </div>
+              </div>
             ) : leads.map(lead => (
               <div 
                 key={lead.id}

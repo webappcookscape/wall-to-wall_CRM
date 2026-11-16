@@ -3,7 +3,8 @@ import {
   ChevronLeft, 
   ChevronRight,
   ChevronsLeft,
-  ChevronsRight
+  ChevronsRight,
+  Inbox
 } from 'lucide-react';
 
 export interface Column {
@@ -97,8 +98,16 @@ const DataTable: React.FC<DataTableProps> = ({
               ))
             ) : (
               <tr>
-                <td colSpan={columns.length} className="px-6 py-20 text-center text-gray-500 font-semibold text-base italic font-roboto">
-                  No data found
+                <td colSpan={columns.length} className="px-6 py-16 text-center">
+                  <div className="flex flex-col items-center justify-center space-y-3">
+                    <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
+                      <Inbox size={28} />
+                    </div>
+                    <div className="space-y-1">
+                      <h5 className="text-base font-bold text-gray-700 tracking-wide">No Data</h5>
+                      <p className="text-xs text-gray-400 font-medium">No records found matching your criteria</p>
+                    </div>
+                  </div>
                 </td>
               </tr>
             )}
